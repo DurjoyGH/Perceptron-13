@@ -7,6 +7,7 @@ import MemberProfilePage from './pages/Public/MemberProfilePage';
 import TourSchedulePage from './pages/Public/TourSchedulePage';
 import BusSeatAllocationPage from './pages/Public/BusSeatAllocationPage';
 import RoomAllocationPage from './pages/Public/RoomAllocationPage';
+import CommitteePage from './pages/Public/CommitteePage';
 import Login from './pages/Auth/Login';
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
           <Route path='room-allocation' element={<RoomAllocationPage />} />
           <Route path="about" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">About Perceptron-13 - Coming Soon</h1></div>} />
           <Route path="votes" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Tour Schedule - Coming Soon</h1></div>} />
-          <Route path="contact" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Contact Page - Coming Soon</h1></div>} />
+          <Route path="contact" element={<CommitteePage />} />
           <Route path="privacy" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Privacy Policy - Coming Soon</h1></div>} />
           <Route path="terms" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Terms of Service - Coming Soon</h1></div>} />
           <Route path="security" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Security Page - Coming Soon</h1></div>} />
