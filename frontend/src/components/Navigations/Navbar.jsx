@@ -24,7 +24,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg sticky top-0 z-50">
+    <nav className="bg-gradient-to-r from-[#19aaba] via-[#158c99] to-[#116d77] shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
@@ -39,7 +39,7 @@ const Navbar = () => {
               </div>
             </div>
             <Link to="/" className="text-2xl font-bold text-white tracking-tight hover:text-gray-100 transition-colors duration-200">
-              VoterX
+              Perceptron-13
             </Link>
           </div>
 
@@ -52,16 +52,40 @@ const Navbar = () => {
               Home
             </Link>
             <Link
+              to="/members"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Members
+            </Link>
+            <Link
+              to="/schedule"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Schedule
+            </Link>
+            <Link
+              to="/bus-seat-allocation"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Bus Allocation
+            </Link>
+            <Link
+              to="/room-allocation"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Room Allocation
+            </Link>
+            <Link
               to="/about"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
             >
               About Us
             </Link>
             <Link
-              to="/votes"
+              to="/contact"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
             >
-              Votes
+              Contact
             </Link>
             
             {/* Login/Logout Toggle Button */}
@@ -70,7 +94,7 @@ const Navbar = () => {
               className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg ${
                 isLoggedIn
                   ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-white hover:bg-gray-100 text-indigo-600'
+                  : 'bg-white hover:bg-gray-100 text-[#19aaba]'
               }`}
             >
               {isLoggedIn ? 'Logout' : 'Login'}
@@ -114,6 +138,34 @@ const Navbar = () => {
                 Home
               </Link>
               <Link
+                to="/members"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Members
+              </Link>
+              <Link
+                to="/schedule"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Schedule
+              </Link>
+              <Link
+                to="/bus-allocation"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Bus Allocation
+              </Link>
+              <Link
+                to="/room-allocation"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Room Allocation
+              </Link>
+              <Link
                 to="/about"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
                 onClick={() => setIsMenuOpen(false)}
@@ -121,11 +173,11 @@ const Navbar = () => {
                 About Us
               </Link>
               <Link
-                to="/votes"
+                to="/contact"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Votes
+                Contact
               </Link>
               <button
                 onClick={() => {
@@ -135,7 +187,7 @@ const Navbar = () => {
                 className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 shadow-lg ${
                   isLoggedIn
                     ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-white hover:bg-gray-100 text-indigo-600'
+                    : 'bg-white hover:bg-gray-100 text-[#19aaba]'
                 }`}
               >
                 {isLoggedIn ? 'Logout' : 'Login'}

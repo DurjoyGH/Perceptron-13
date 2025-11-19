@@ -17,12 +17,13 @@ const Footer = () => {
                   className="w-full h-full object-contain p-1"
                 />
               </div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                VoterX
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                Perceptron-13
               </h2>
             </div>
             <p className="text-gray-400 mb-4 max-w-md leading-relaxed">
-              Empowering democracy through secure and transparent digital voting. Your voice matters, make it count with VoterX.
+              CSE Department, Jashore University of Science and Technology. 
+              Bridging academic excellence with industry innovation through our Industrial Tour 2025.
             </p>
             <div className="flex space-x-4">
               <a
@@ -76,12 +77,17 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/votes" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
-                  Votes
+                  Tour Schedule
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/login" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
+                  Register
                 </Link>
               </li>
             </ul>
@@ -119,17 +125,17 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © {currentYear} VoterX. All rights reserved. Built with ❤️ for democracy.
+              © {currentYear} Perceptron-13, CSE, JUST. All rights reserved. Built with ❤️ by Batch 13.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-indigo-400 text-sm transition-colors duration-200">
                 Support
               </a>
               <a href="#" className="text-gray-400 hover:text-indigo-400 text-sm transition-colors duration-200">
-                Documentation
+                Tour Guidelines
               </a>
               <a href="#" className="text-gray-400 hover:text-indigo-400 text-sm transition-colors duration-200">
-                Status
+                Gallery
               </a>
             </div>
           </div>
