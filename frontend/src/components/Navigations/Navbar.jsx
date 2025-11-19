@@ -30,11 +30,11 @@ const Navbar = () => {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md transform hover:rotate-12 transition-transform duration-300 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-md transform hover:rotate-12 transition-transform duration-300 overflow-hidden">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.jpg" 
                   alt="VoterX Logo" 
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full rounded-full object-cover"
                 />
               </div>
             </div>

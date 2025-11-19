@@ -10,11 +10,11 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg overflow-hidden">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.jpg" 
                   alt="VoterX Logo" 
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full rounded-full object-cover"
                 />
               </div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
