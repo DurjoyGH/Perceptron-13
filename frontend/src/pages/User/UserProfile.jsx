@@ -35,6 +35,8 @@ import {
   Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ProfilePictureModal from '../../components/Profile/ProfilePictureModal';
+import ImageViewModal from '../../components/Profile/ImageViewModal';
 
 const UserProfile = () => {
   const { user: authUser, logout, updateUser } = useAuth();
@@ -49,6 +51,14 @@ const UserProfile = () => {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [newCaption, setNewCaption] = useState('');
   const [photoCaption, setPhotoCaption] = useState('');
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [featuredPhotoPreview, setFeaturedPhotoPreview] = useState(null);
+  const [featuredPhotoFile, setFeaturedPhotoFile] = useState(null);
+  const [showProfilePicturePreviewModal, setShowProfilePicturePreviewModal] = useState(false);
+  const [showProfileImageViewModal, setShowProfileImageViewModal] = useState(false);
+  const [showFeaturedImageViewModal, setShowFeaturedImageViewModal] = useState(false);
+  const [viewingFeaturedImage, setViewingFeaturedImage] = useState(null);
   
   const profilePictureInputRef = useRef(null);
   const featuredPhotoInputRef = useRef(null);
@@ -277,28 +287,64 @@ const UserProfile = () => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
+      e.target.value = '';
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
+      e.target.value = '';
+      return;
+    }
+
+    // Store the file
+    setProfilePictureFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicturePreview(reader.result);
+      setShowProfilePicturePreviewModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleConfirmProfilePictureUpload = async (adjustments) => {
+    if (!profilePictureFile) {
+      toast.error('No file selected');
       return;
     }
 
     setUploadingImage(true);
     try {
-      const response = await updateProfilePicture(file);
+      // In a real implementation, you would apply the adjustments (scale, rotation, position)
+      // to the image before uploading. For now, we'll upload the original.
+      const response = await updateProfilePicture(profilePictureFile);
       setUserData(response.data);
       updateUser(response.data);
       toast.success('Profile picture updated successfully!');
+      setProfilePicturePreview(null);
+      setProfilePictureFile(null);
+      setShowProfilePicturePreviewModal(false);
     } catch (error) {
       console.error('Upload error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update profile picture';
       toast.error(errorMessage);
     } finally {
       setUploadingImage(false);
-      e.target.value = '';
+      if (profilePictureInputRef.current) {
+        profilePictureInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleCancelProfilePictureUpload = () => {
+    setProfilePicturePreview(null);
+    setProfilePictureFile(null);
+    setShowProfilePicturePreviewModal(false);
+    if (profilePictureInputRef.current) {
+      profilePictureInputRef.current.value = '';
     }
   };
 
@@ -313,6 +359,7 @@ const UserProfile = () => {
       setUserData(response.data);
       updateUser(response.data);
       toast.success('Profile picture deleted successfully!');
+      setShowProfileImageViewModal(false);
     } catch (error) {
       console.error('Delete error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to delete profile picture';
@@ -320,6 +367,19 @@ const UserProfile = () => {
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  // View profile picture in modal
+  const handleViewProfilePicture = () => {
+    if (userData?.profilePicture?.url) {
+      setShowProfileImageViewModal(true);
+    }
+  };
+
+  // View featured image in modal
+  const handleViewFeaturedImage = (photo) => {
+    setViewingFeaturedImage(photo);
+    setShowFeaturedImageViewModal(true);
   };
 
   // Featured photos handlers
@@ -338,29 +398,55 @@ const UserProfile = () => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
+      e.target.value = '';
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
+      e.target.value = '';
       return;
     }
 
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFeaturedPhotoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+    setFeaturedPhotoFile(file);
+  };
+
+  const handleConfirmFeaturedPhotoUpload = async () => {
+    if (!featuredPhotoFile) return;
+
     setUploadingImage(true);
     try {
-      const response = await addFeaturedPhoto(file, photoCaption);
+      const response = await addFeaturedPhoto(featuredPhotoFile, photoCaption);
       setUserData(response.data);
       toast.success('Featured photo added successfully!');
       setShowAddPhotoModal(false);
       setPhotoCaption('');
+      setFeaturedPhotoPreview(null);
+      setFeaturedPhotoFile(null);
     } catch (error) {
       console.error('Upload error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to add featured photo';
       toast.error(errorMessage);
     } finally {
       setUploadingImage(false);
-      e.target.value = '';
+      if (featuredPhotoInputRef.current) {
+        featuredPhotoInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleCancelFeaturedPhotoUpload = () => {
+    setFeaturedPhotoPreview(null);
+    setFeaturedPhotoFile(null);
+    if (featuredPhotoInputRef.current) {
+      featuredPhotoInputRef.current.value = '';
     }
   };
 
@@ -488,11 +574,19 @@ const UserProfile = () => {
               <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-8 text-center relative">
                 <div className="relative w-32 h-32 mx-auto mb-4">
                   {userData?.profilePicture?.url ? (
-                    <img 
-                      src={userData.profilePicture.url} 
-                      alt={formData.name}
-                      className="w-full h-full rounded-full object-cover shadow-lg border-4 border-white"
-                    />
+                    <div 
+                      className="w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white cursor-pointer group"
+                      onClick={handleViewProfilePicture}
+                    >
+                      <img 
+                        src={userData.profilePicture.url} 
+                        alt={formData.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                        <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </div>
                   ) : (
                     <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg">
                       {getInitials(formData.name)}
@@ -502,6 +596,7 @@ const UserProfile = () => {
                     onClick={handleProfilePictureClick}
                     disabled={uploadingImage}
                     className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
+                    title="Change profile picture"
                   >
                     {uploadingImage ? (
                       <Loader className="w-5 h-5 text-[#19aaba] animate-spin" />
@@ -766,23 +861,30 @@ const UserProfile = () => {
                         <img
                           src={photo.url}
                           alt={photo.caption || 'Featured photo'}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          className="w-full h-full object-cover cursor-pointer group-hover:scale-110 transition-transform duration-300"
+                          onClick={() => handleViewFeaturedImage(photo)}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="absolute bottom-0 left-0 right-0 p-3">
                             {photo.caption && (
-                              <p className="text-white text-sm font-medium mb-2">{photo.caption}</p>
+                              <p className="text-white text-sm font-medium mb-2 line-clamp-2">{photo.caption}</p>
                             )}
                             <div className="flex gap-2">
                               <button
-                                onClick={() => handleEditCaption(photo)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditCaption(photo);
+                                }}
                                 className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-sm font-medium transition-colors"
                               >
                                 <Edit2 className="w-3 h-3" />
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeleteFeaturedPhoto(photo._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFeaturedPhoto(photo._id);
+                                }}
                                 disabled={uploadingImage}
                                 className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors disabled:opacity-50"
                               >
@@ -984,6 +1086,7 @@ const UserProfile = () => {
                   onClick={() => {
                     setShowAddPhotoModal(false);
                     setPhotoCaption('');
+                    handleCancelFeaturedPhotoUpload();
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -992,6 +1095,24 @@ const UserProfile = () => {
               </div>
 
               <div className="space-y-4">
+                {/* Preview Section */}
+                {featuredPhotoPreview && (
+                  <div className="relative">
+                    <img
+                      src={featuredPhotoPreview}
+                      alt="Preview"
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                    <button
+                      onClick={handleCancelFeaturedPhotoUpload}
+                      disabled={uploadingImage}
+                      className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Caption (Optional)
@@ -1003,6 +1124,7 @@ const UserProfile = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all"
                     placeholder="Enter photo caption"
                     maxLength={100}
+                    disabled={uploadingImage}
                   />
                   <p className="mt-1 text-xs text-gray-500">{photoCaption.length}/100</p>
                 </div>
@@ -1015,25 +1137,38 @@ const UserProfile = () => {
                     onChange={handleFeaturedPhotoChange}
                     className="hidden"
                   />
-                  <button
-                    onClick={() => featuredPhotoInputRef.current?.click()}
-                    disabled={uploadingImage}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] text-white rounded-lg font-medium transition-all disabled:opacity-50"
-                  >
-                    {uploadingImage ? (
-                      <>
-                        <Loader className="w-5 h-5 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-5 h-5" />
-                        Choose Photo
-                      </>
-                    )}
-                  </button>
+                  
+                  {!featuredPhotoPreview ? (
+                    <button
+                      onClick={() => featuredPhotoInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all disabled:opacity-50 border-2 border-dashed border-gray-300"
+                    >
+                      <Upload className="w-5 h-5" />
+                      Choose Photo
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleConfirmFeaturedPhotoUpload}
+                      disabled={uploadingImage}
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] text-white rounded-lg font-medium transition-all disabled:opacity-50"
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader className="w-5 h-5 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5" />
+                          Upload Photo
+                        </>
+                      )}
+                    </button>
+                  )}
+                  
                   <p className="mt-2 text-xs text-gray-500 text-center">
-                    Maximum file size: 5MB
+                    Maximum file size: 5MB • Supported formats: JPG, PNG, GIF
                   </p>
                 </div>
               </div>
@@ -1124,6 +1259,43 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Profile Picture Preview Modal - Telegram Style */}
+      <ProfilePictureModal
+        isOpen={showProfilePicturePreviewModal}
+        onClose={handleCancelProfilePictureUpload}
+        imageUrl={profilePicturePreview}
+        onUpload={handleConfirmProfilePictureUpload}
+        isUploading={uploadingImage}
+        title="Adjust Profile Picture"
+      />
+
+      {/* Profile Picture View Modal - WhatsApp Style */}
+      {userData?.profilePicture?.url && (
+        <ImageViewModal
+          isOpen={showProfileImageViewModal}
+          onClose={() => setShowProfileImageViewModal(false)}
+          imageUrl={userData.profilePicture.url}
+          imageName={formData.name}
+          onDelete={handleDeleteProfilePicture}
+          canDelete={true}
+          isDeleting={uploadingImage}
+        />
+      )}
+
+      {/* Featured Image View Modal - WhatsApp Style */}
+      {viewingFeaturedImage && (
+        <ImageViewModal
+          isOpen={showFeaturedImageViewModal}
+          onClose={() => {
+            setShowFeaturedImageViewModal(false);
+            setViewingFeaturedImage(null);
+          }}
+          imageUrl={viewingFeaturedImage.url}
+          imageName={viewingFeaturedImage.caption || 'Featured Photo'}
+          canDelete={false}
+        />
       )}
     </div>
   );

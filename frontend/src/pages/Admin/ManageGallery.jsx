@@ -9,7 +9,8 @@ import {
   Search,
   Filter,
   Download,
-  Eye
+  Eye,
+  X
 } from 'lucide-react';
 import { 
   getAllSchedules,
@@ -31,6 +32,7 @@ const ManageGallery = () => {
   const [selectedDay, setSelectedDay] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imageCaption, setImageCaption] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDay, setFilterDay] = useState('all');
 
@@ -107,6 +109,7 @@ const ManageGallery = () => {
       setImageFile(null);
       setImageCaption('');
       setSelectedDay('');
+      setImagePreview(null);
       fetchData();
     } catch (error) {
       console.error('Failed to upload image:', error);
@@ -114,6 +117,39 @@ const ManageGallery = () => {
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      e.target.value = '';
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      e.target.value = '';
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCancelImagePreview = () => {
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const handleUpdateCaption = async (image, newCaption) => {
@@ -144,6 +180,7 @@ const ManageGallery = () => {
     setImageFile(null);
     setImageCaption('');
     setSelectedDay('');
+    setImagePreview(null);
     setShowUploadModal(true);
   };
 
@@ -374,6 +411,27 @@ const ManageGallery = () => {
               <p className="text-cyan-100 mt-1">Add a photo that will be displayed on the homepage for a specific tour day</p>
             </div>
             <div className="p-6 space-y-4">
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={handleCancelImagePreview}
+                    disabled={uploadingImage}
+                    className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50"
+                  >
+                    <X size={20} />
+                  </button>
+                  <div className="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-sm">
+                    Preview
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Select Tour Day *
@@ -381,7 +439,8 @@ const ManageGallery = () => {
                 <select
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent"
+                  disabled={uploadingImage}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent disabled:opacity-50"
                 >
                   <option value="">Choose a day...</option>
                   {schedules.map(schedule => (
@@ -399,10 +458,11 @@ const ManageGallery = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files[0])}
-                  className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-[#19aaba] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-[#19aaba] hover:file:bg-cyan-100"
+                  onChange={handleImageFileChange}
+                  disabled={uploadingImage}
+                  className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-[#19aaba] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-[#19aaba] hover:file:bg-cyan-100 disabled:opacity-50"
                 />
-                {imageFile && (
+                {imageFile && !imagePreview && (
                   <div className="mt-3 p-3 bg-cyan-50 rounded-lg border border-cyan-200">
                     <p className="text-sm text-[#19aaba] font-medium">Selected: {imageFile.name}</p>
                     <p className="text-xs text-cyan-700 mt-1">
@@ -419,7 +479,8 @@ const ManageGallery = () => {
                 <textarea
                   value={imageCaption}
                   onChange={(e) => setImageCaption(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent resize-none"
+                  disabled={uploadingImage}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent resize-none disabled:opacity-50"
                   rows="3"
                   placeholder="Add a caption to describe this photo..."
                 />
@@ -433,7 +494,11 @@ const ManageGallery = () => {
             </div>
             <div className="flex gap-4 p-6 bg-gray-50 rounded-b-2xl">
               <button
-                onClick={() => setShowUploadModal(false)}
+                onClick={() => {
+                  setShowUploadModal(false);
+                  setImagePreview(null);
+                  setImageFile(null);
+                }}
                 disabled={uploadingImage}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
