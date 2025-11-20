@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getUserProfile, updateUserProfile } from '../../services/userApi';
+import { 
+  getUserProfile, 
+  updateUserProfile, 
+  updateProfilePicture, 
+  deleteProfilePicture,
+  addFeaturedPhoto,
+  updateFeaturedPhoto,
+  deleteFeaturedPhoto 
+} from '../../services/userApi';
 import { toast } from 'sonner';
 import { 
   User, 
@@ -21,7 +29,10 @@ import {
   Edit2,
   X,
   Check,
-  LogOut
+  LogOut,
+  Upload,
+  Trash2,
+  Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,8 +41,19 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
+  const [showEditCaptionModal, setShowEditCaptionModal] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [newCaption, setNewCaption] = useState('');
+  const [photoCaption, setPhotoCaption] = useState('');
+  
+  const profilePictureInputRef = useRef(null);
+  const featuredPhotoInputRef = useRef(null);
+
+  const [userData, setUserData] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -63,11 +85,12 @@ const UserProfile = () => {
     try {
       setLoading(true);
       const response = await getUserProfile();
-      const userData = response.data;
+      const user = response.data;
+      setUserData(user);
       const data = {
-        name: userData.name || '',
-        email: userData.email || '',
-        studentID: userData.studentID || ''
+        name: user.name || '',
+        email: user.email || '',
+        studentID: user.studentID || ''
       };
       setFormData(data);
       setTempFormData(data);
@@ -242,6 +265,150 @@ const UserProfile = () => {
     }
   };
 
+  // Profile picture handlers
+  const handleProfilePictureClick = () => {
+    profilePictureInputRef.current?.click();
+  };
+
+  const handleProfilePictureChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await updateProfilePicture(file);
+      setUserData(response.data);
+      updateUser(response.data);
+      toast.success('Profile picture updated successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update profile picture';
+      toast.error(errorMessage);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteProfilePicture = async () => {
+    if (!window.confirm('Are you sure you want to delete your profile picture?')) {
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await deleteProfilePicture();
+      setUserData(response.data);
+      updateUser(response.data);
+      toast.success('Profile picture deleted successfully!');
+    } catch (error) {
+      console.error('Delete error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to delete profile picture';
+      toast.error(errorMessage);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Featured photos handlers
+  const handleAddPhotoClick = () => {
+    if (userData?.featuredPhotos?.length >= 6) {
+      toast.error('Maximum 6 featured photos allowed');
+      return;
+    }
+    setShowAddPhotoModal(true);
+  };
+
+  const handleFeaturedPhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await addFeaturedPhoto(file, photoCaption);
+      setUserData(response.data);
+      toast.success('Featured photo added successfully!');
+      setShowAddPhotoModal(false);
+      setPhotoCaption('');
+    } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to add featured photo';
+      toast.error(errorMessage);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleEditCaption = (photo) => {
+    setSelectedPhoto(photo);
+    setNewCaption(photo.caption || '');
+    setShowEditCaptionModal(true);
+  };
+
+  const handleUpdateCaption = async () => {
+    if (!selectedPhoto) return;
+
+    setUpdating(true);
+    try {
+      const response = await updateFeaturedPhoto(selectedPhoto._id, newCaption);
+      setUserData(response.data);
+      toast.success('Caption updated successfully!');
+      setShowEditCaptionModal(false);
+      setSelectedPhoto(null);
+      setNewCaption('');
+    } catch (error) {
+      console.error('Update error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update caption';
+      toast.error(errorMessage);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteFeaturedPhoto = async (photoId) => {
+    if (!window.confirm('Are you sure you want to delete this photo?')) {
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await deleteFeaturedPhoto(photoId);
+      setUserData(response.data);
+      toast.success('Featured photo deleted successfully!');
+    } catch (error) {
+      console.error('Delete error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to delete photo';
+      toast.error(errorMessage);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   // Featured images for the user
   const featuredImages = [
     {
@@ -319,9 +486,46 @@ const UserProfile = () => {
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden sticky top-8">
               {/* Avatar Section */}
               <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-8 text-center relative">
-                <div className="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg mb-4">
-                  {getInitials(formData.name)}
+                <div className="relative w-32 h-32 mx-auto mb-4">
+                  {userData?.profilePicture?.url ? (
+                    <img 
+                      src={userData.profilePicture.url} 
+                      alt={formData.name}
+                      className="w-full h-full rounded-full object-cover shadow-lg border-4 border-white"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg">
+                      {getInitials(formData.name)}
+                    </div>
+                  )}
+                  <button
+                    onClick={handleProfilePictureClick}
+                    disabled={uploadingImage}
+                    className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
+                  >
+                    {uploadingImage ? (
+                      <Loader className="w-5 h-5 text-[#19aaba] animate-spin" />
+                    ) : (
+                      <Camera className="w-5 h-5 text-[#19aaba]" />
+                    )}
+                  </button>
+                  <input
+                    ref={profilePictureInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
                 </div>
+                {userData?.profilePicture?.url && (
+                  <button
+                    onClick={handleDeleteProfilePicture}
+                    disabled={uploadingImage}
+                    className="text-white/90 hover:text-white text-sm underline mb-2 disabled:opacity-50"
+                  >
+                    Remove photo
+                  </button>
+                )}
                 <h2 className="text-2xl font-bold text-white mb-2">{formData.name}</h2>
                 <p className="text-white/90 font-mono text-lg">{formData.studentID}</p>
               </div>
@@ -534,34 +738,83 @@ const UserProfile = () => {
 
             {/* Tour Highlights */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-[#19aaba]" />
-                Featured Images
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {featuredImages.map((image, index) => (
-                  <div 
-                    key={index}
-                    className="group relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-[#19aaba]" />
+                  Featured Photos
+                </h3>
+                {(!userData?.featuredPhotos || userData.featuredPhotos.length < 6) && (
+                  <button
+                    onClick={handleAddPhotoClick}
+                    disabled={uploadingImage}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
                   >
-                    <img
-                      src={image.url}
-                      alt={image.caption}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <p className="text-white text-sm font-medium">{image.caption}</p>
+                    <Plus className="w-4 h-4" />
+                    Add Photo
+                  </button>
+                )}
+              </div>
+              
+              {userData?.featuredPhotos && userData.featuredPhotos.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {userData.featuredPhotos.map((photo) => (
+                      <div 
+                        key={photo._id}
+                        className="group relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                      >
+                        <img
+                          src={photo.url}
+                          alt={photo.caption || 'Featured photo'}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-0 left-0 right-0 p-3">
+                            {photo.caption && (
+                              <p className="text-white text-sm font-medium mb-2">{photo.caption}</p>
+                            )}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditCaption(photo)}
+                                className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-sm font-medium transition-colors"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteFeaturedPhoto(photo._id)}
+                                disabled={uploadingImage}
+                                className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors disabled:opacity-50"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-500 text-sm">
-                  {featuredImages.length} photos from the tour
-                </p>
-              </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-gray-500 text-sm">
+                      {userData.featuredPhotos.length} of 6 photos
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <Camera className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">No featured photos yet</p>
+                  <button
+                    onClick={handleAddPhotoClick}
+                    disabled={uploadingImage}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add Your First Photo
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -708,6 +961,162 @@ const UserProfile = () => {
                     <>
                       <Lock className="w-5 h-5" />
                       Update Password
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Photo Modal */}
+      {showAddPhotoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <Upload className="w-6 h-6 text-[#19aaba]" />
+                  Add Featured Photo
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowAddPhotoModal(false);
+                    setPhotoCaption('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Caption (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={photoCaption}
+                    onChange={(e) => setPhotoCaption(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all"
+                    placeholder="Enter photo caption"
+                    maxLength={100}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">{photoCaption.length}/100</p>
+                </div>
+
+                <div>
+                  <input
+                    ref={featuredPhotoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFeaturedPhotoChange}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => featuredPhotoInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] text-white rounded-lg font-medium transition-all disabled:opacity-50"
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5" />
+                        Choose Photo
+                      </>
+                    )}
+                  </button>
+                  <p className="mt-2 text-xs text-gray-500 text-center">
+                    Maximum file size: 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Caption Modal */}
+      {showEditCaptionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <Edit2 className="w-6 h-6 text-[#19aaba]" />
+                  Edit Caption
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEditCaptionModal(false);
+                    setSelectedPhoto(null);
+                    setNewCaption('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {selectedPhoto && (
+                <div className="mb-4">
+                  <img
+                    src={selectedPhoto.url}
+                    alt="Selected photo"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Caption
+                  </label>
+                  <input
+                    type="text"
+                    value={newCaption}
+                    onChange={(e) => setNewCaption(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all"
+                    placeholder="Enter photo caption"
+                    maxLength={100}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">{newCaption.length}/100</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowEditCaptionModal(false);
+                    setSelectedPhoto(null);
+                    setNewCaption('');
+                  }}
+                  disabled={updating}
+                  className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateCaption}
+                  disabled={updating}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] text-white rounded-lg font-medium transition-all disabled:opacity-50"
+                >
+                  {updating ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Save Caption
                     </>
                   )}
                 </button>

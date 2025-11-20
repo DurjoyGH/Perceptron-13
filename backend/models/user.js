@@ -12,7 +12,17 @@ const userSchema = new mongoose.Schema(
       default: "user",
       required: true,
     },
-    
+    profilePicture: {
+      url: { type: String, default: null },
+      publicId: { type: String, default: null }
+    },
+    featuredPhotos: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+        caption: { type: String, default: '' }
+      }
+    ]
   },
   { timestamps: true }
 );

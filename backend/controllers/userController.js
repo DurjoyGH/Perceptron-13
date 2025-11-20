@@ -1,5 +1,37 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const { cloudinary } = require('../configs/cloudinary');
+
+// Helper function to upload image to Cloudinary
+const uploadToCloudinary = (buffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: folder,
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+    uploadStream.end(buffer);
+  });
+};
+
+// Helper function to delete image from Cloudinary
+const deleteFromCloudinary = async (publicId) => {
+  if (publicId) {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+      console.error('Error deleting from Cloudinary:', error);
+    }
+  }
+};
 
 // Get user profile
 const getUserProfile = async (req, res) => {
@@ -122,7 +154,256 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// Update profile picture
+const updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Delete old profile picture if exists
+    if (user.profilePicture && user.profilePicture.publicId) {
+      await deleteFromCloudinary(user.profilePicture.publicId);
+    }
+
+    // Upload new profile picture
+    const result = await uploadToCloudinary(req.file.buffer, 'profile-pictures');
+
+    user.profilePicture = {
+      url: result.secure_url,
+      publicId: result.public_id
+    };
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Update profile picture error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile picture',
+      error: error.message
+    });
+  }
+};
+
+// Delete profile picture
+const deleteProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.profilePicture || !user.profilePicture.publicId) {
+      return res.status(400).json({
+        success: false,
+        message: 'No profile picture to delete'
+      });
+    }
+
+    // Delete from Cloudinary
+    await deleteFromCloudinary(user.profilePicture.publicId);
+
+    user.profilePicture = {
+      url: null,
+      publicId: null
+    };
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture deleted successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Delete profile picture error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete profile picture',
+      error: error.message
+    });
+  }
+};
+
+// Add featured photo
+const addFeaturedPhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    const { caption } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if user already has 6 featured photos
+    if (user.featuredPhotos.length >= 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum 6 featured photos allowed'
+      });
+    }
+
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(req.file.buffer, 'featured-photos');
+
+    user.featuredPhotos.push({
+      url: result.secure_url,
+      publicId: result.public_id,
+      caption: caption || ''
+    });
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      message: 'Featured photo added successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Add featured photo error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add featured photo',
+      error: error.message
+    });
+  }
+};
+
+// Update featured photo caption
+const updateFeaturedPhoto = async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const { caption } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const photo = user.featuredPhotos.id(photoId);
+    
+    if (!photo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Featured photo not found'
+      });
+    }
+
+    photo.caption = caption || '';
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      message: 'Featured photo updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Update featured photo error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update featured photo',
+      error: error.message
+    });
+  }
+};
+
+// Delete featured photo
+const deleteFeaturedPhoto = async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const photo = user.featuredPhotos.id(photoId);
+    
+    if (!photo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Featured photo not found'
+      });
+    }
+
+    // Delete from Cloudinary
+    await deleteFromCloudinary(photo.publicId);
+
+    // Remove from array
+    user.featuredPhotos.pull(photoId);
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      message: 'Featured photo deleted successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Delete featured photo error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete featured photo',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  updateProfilePicture,
+  deleteProfilePicture,
+  addFeaturedPhoto,
+  updateFeaturedPhoto,
+  deleteFeaturedPhoto
 };
