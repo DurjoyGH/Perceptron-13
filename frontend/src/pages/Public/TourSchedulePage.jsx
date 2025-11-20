@@ -20,14 +20,64 @@ import {
   CheckCircle2,
   PlayCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Loader
 } from 'lucide-react';
+import { getAllSchedules, getScheduleStats } from '../../services/tourScheduleApi';
+import { toast } from 'sonner';
 
 const TourSchedulePage = () => {
   const [expandedDay, setExpandedDay] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [hoveredEvent, setHoveredEvent] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all'); // all, completed, ongoing, upcoming, cancelled
+  const [tourSchedule, setTourSchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    completed: 0,
+    ongoing: 0,
+    upcoming: 0,
+    cancelled: 0
+  });
+
+  // Fetch schedules from API
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
+  const fetchSchedules = async () => {
+    setLoading(true);
+    try {
+      const [schedulesResponse, statsResponse] = await Promise.all([
+        getAllSchedules(),
+        getScheduleStats()
+      ]);
+      
+      // Transform the data to match the component's expected format
+      const transformedSchedules = schedulesResponse.data.map(schedule => ({
+        ...schedule,
+        dateObj: new Date(schedule.dateObj)
+      }));
+      
+      setTourSchedule(transformedSchedules);
+      
+      if (statsResponse.data) {
+        setStats({
+          total: statsResponse.data.schedules.total,
+          completed: statsResponse.data.schedules.completed,
+          ongoing: statsResponse.data.schedules.ongoing,
+          upcoming: statsResponse.data.schedules.upcoming,
+          cancelled: statsResponse.data.schedules.cancelled
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch schedules:', error);
+      toast.error('Failed to load tour schedules');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Update current time every minute
   useEffect(() => {
@@ -38,182 +88,25 @@ const TourSchedulePage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const tourSchedule = [
-    {
-      day: 1,
-      date: "December 04, 2025",
-      dateObj: new Date("2025-12-04"),
-      title: "Departure Day",
-      location: "JUST Campus → Cox's Bazar",
-      status: "upcoming", // upcoming, ongoing, completed, cancelled
-      events: [
-        { 
-          time: "07:00 PM", 
-          title: "Start Journey from Campus", 
-          icon: <Bus />, 
-          type: "departure", 
-          description: "Board the bus from JUST campus",
-          status: "upcoming" // upcoming, ongoing, completed, cancelled, delayed
-        },
-        { 
-          time: "08:00 PM", 
-          title: "Washroom Break", 
-          icon: <Clock />, 
-          type: "break", 
-          description: "Short rest stop",
-          status: "upcoming"
-        },
-        { 
-          time: "11:00 PM", 
-          title: "Overnight Journey", 
-          icon: <Moon />, 
-          type: "travel", 
-          description: "Continue journey to Cox's Bazar",
-          status: "upcoming"
-        }
-      ]
-    },
-    {
-      day: 2,
-      date: "December 05, 2025",
-      dateObj: new Date("2025-12-05"),
-      title: "Arrival at Cox's Bazar",
-      location: "Cox's Bazar",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Breakfast", icon: <Utensils />, type: "meal", description: "Breakfast at local restaurant", status: "upcoming" },
-        { time: "10:00 AM", title: "Arrival at Cox's Bazar", icon: <MapPin />, type: "arrival", description: "Reach Cox's Bazar", status: "upcoming" },
-        { time: "12:00 PM", title: "Hotel Check-in", icon: <Hotel />, type: "accommodation", description: "Check into hotel and freshen up", status: "upcoming" },
-        { time: "01:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch at hotel", status: "upcoming" },
-        { time: "03:00 PM", title: "Laboni Beach Visit", icon: <Camera />, type: "sightseeing", description: "Explore Laboni Beach", status: "upcoming" },
-        { time: "05:00 PM", title: "Sugandha Beach", icon: <Camera />, type: "sightseeing", description: "Visit Sugandha Beach", status: "upcoming" },
-        { time: "06:30 PM", title: "Kolatoli Beach", icon: <Camera />, type: "sightseeing", description: "Evening at Kolatoli Beach", status: "upcoming" },
-        { time: "08:00 PM", title: "Dinner", icon: <Utensils />, type: "meal", description: "Dinner at hotel", status: "upcoming" },
-        { time: "10:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 3,
-      date: "December 06, 2025",
-      dateObj: new Date("2025-12-06"),
-      title: "Marine Drive Adventure",
-      location: "Marine Drive & Beaches",
-      status: "upcoming",
-      events: [
-        { time: "05:30 AM", title: "Marine Drive Tour Starts", icon: <Sunrise />, type: "activity", description: "Early morning Marine Drive journey", status: "upcoming" },
-        { time: "08:30 AM", title: "Breakfast at Shah Porir Dwip", icon: <Utensils />, type: "meal", description: "Breakfast by the beach", status: "upcoming" },
-        { time: "09:00 AM", title: "Explore Shah Porir Dwip", icon: <Camera />, type: "sightseeing", description: "Visit Shah Porir Dwip", status: "upcoming" },
-        { time: "11:00 AM", title: "Continue Journey", icon: <Bus />, type: "travel", description: "Head towards Himchori", status: "upcoming" },
-        { time: "01:00 PM", title: "Lunch at Himchori", icon: <Utensils />, type: "meal", description: "Lunch break", status: "upcoming" },
-        { time: "01:30 PM", title: "Himchori Exploration", icon: <Camera />, type: "sightseeing", description: "Explore Himchori waterfalls and area", status: "upcoming" },
-        { time: "04:00 PM", title: "Inani Beach Visit", icon: <Camera />, type: "sightseeing", description: "Visit beautiful Inani Beach", status: "upcoming" },
-        { time: "06:00 PM", title: "Return to Hotel", icon: <Hotel />, type: "travel", description: "Journey back to hotel", status: "upcoming" },
-        { time: "09:00 PM", title: "Dinner", icon: <Utensils />, type: "meal", description: "Dinner at hotel", status: "upcoming" },
-        { time: "11:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 4,
-      date: "December 07, 2025",
-      dateObj: new Date("2025-12-07"),
-      title: "Industrial Visit Day",
-      location: "Submarine Cable Station & Dorianagar",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Breakfast", icon: <Utensils />, type: "meal", description: "Breakfast at hotel", status: "upcoming" },
-        { time: "10:30 AM", title: "Submarine Cable Station Visit", icon: <Building2 />, type: "industrial", description: "Industrial visit to Submarine Cable Station", status: "upcoming" },
-        { time: "01:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch break", status: "upcoming" },
-        { time: "02:30 PM", title: "Visit Dorianagar", icon: <Camera />, type: "sightseeing", description: "Explore Dorianagar area", status: "upcoming" },
-        { time: "06:00 PM", title: "Return to Hotel", icon: <Hotel />, type: "travel", description: "Return journey", status: "upcoming" },
-        { time: "09:00 PM", title: "Dinner", icon: <Utensils />, type: "meal", description: "Dinner at hotel", status: "upcoming" },
-        { time: "11:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 5,
-      date: "December 08, 2025",
-      dateObj: new Date("2025-12-08"),
-      title: "Saint Martin's Island Trip",
-      location: "Saint Martin's Island",
-      status: "upcoming",
-      events: [
-        { time: "06:00 AM", title: "Early Morning Departure", icon: <Sunrise />, type: "departure", description: "Depart for Saint Martin's Island", status: "upcoming" },
-        { time: "08:00 AM", title: "Breakfast on Ship", icon: <Utensils />, type: "meal", description: "Breakfast during ship journey", status: "upcoming" },
-        { time: "11:00 AM", title: "Arrive at Saint Martin's", icon: <MapPin />, type: "arrival", description: "Reach Saint Martin's Island", status: "upcoming" },
-        { time: "12:00 PM", title: "Hotel Check-in", icon: <Hotel />, type: "accommodation", description: "Check into island hotel", status: "upcoming" },
-        { time: "01:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch at hotel", status: "upcoming" },
-        { time: "03:00 PM", title: "Island Exploration", icon: <Camera />, type: "sightseeing", description: "Full afternoon island exploration", status: "upcoming" },
-        { time: "06:00 PM", title: "Beach Evening", icon: <Sunset />, type: "sightseeing", description: "Enjoy sunset at the beach", status: "upcoming" },
-        { time: "08:00 PM", title: "Dinner", icon: <Utensils />, type: "meal", description: "Dinner at hotel", status: "upcoming" },
-        { time: "10:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at Saint Martin's hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 6,
-      date: "December 09, 2025",
-      dateObj: new Date("2025-12-09"),
-      title: "Chera Dwip & Barbecue Night",
-      location: "Chera Dwip, Saint Martin's",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Breakfast", icon: <Utensils />, type: "meal", description: "Breakfast at hotel", status: "upcoming" },
-        { time: "09:00 AM", title: "Visit Chera Dwip", icon: <Navigation />, type: "sightseeing", description: "Boat trip to Chera Dwip", status: "upcoming" },
-        { time: "12:00 PM", title: "Beach Activities", icon: <Camera />, type: "activity", description: "Swimming and beach activities", status: "upcoming" },
-        { time: "01:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch on the island", status: "upcoming" },
-        { time: "03:00 PM", title: "Free Time", icon: <Camera />, type: "leisure", description: "Free time for exploration", status: "upcoming" },
-        { time: "07:00 PM", title: "Barbecue Night", icon: <Utensils />, type: "special", description: "Special barbecue dinner night", status: "upcoming" },
-        { time: "10:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 7,
-      date: "December 10, 2025",
-      dateObj: new Date("2025-12-10"),
-      title: "Return to Cox's Bazar",
-      location: "Saint Martin's → Cox's Bazar",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Breakfast", icon: <Utensils />, type: "meal", description: "Breakfast at hotel", status: "upcoming" },
-        { time: "09:00 AM", title: "Free Time", icon: <Camera />, type: "leisure", description: "Morning free time", status: "upcoming" },
-        { time: "12:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch before departure", status: "upcoming" },
-        { time: "02:00 PM", title: "Return Ship Journey", icon: <Navigation />, type: "travel", description: "Ship journey back to Cox's Bazar", status: "upcoming" },
-        { time: "05:00 PM", title: "Arrive Cox's Bazar", icon: <MapPin />, type: "arrival", description: "Reach Cox's Bazar", status: "upcoming" },
-        { time: "06:00 PM", title: "Hotel Check-in", icon: <Hotel />, type: "accommodation", description: "Check into hotel", status: "upcoming" },
-        { time: "08:00 PM", title: "Dinner", icon: <Utensils />, type: "meal", description: "Dinner at hotel", status: "upcoming" },
-        { time: "10:00 PM", title: "Overnight Stay", icon: <Hotel />, type: "accommodation", description: "Rest at hotel", status: "upcoming" }
-      ]
-    },
-    {
-      day: 8,
-      date: "December 11, 2025",
-      dateObj: new Date("2025-12-11"),
-      title: "Shopping & Departure",
-      location: "Cox's Bazar → JUST Campus",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Breakfast", icon: <Utensils />, type: "meal", description: "Breakfast at hotel", status: "upcoming" },
-        { time: "10:00 AM", title: "Hotel Checkout", icon: <Hotel />, type: "accommodation", description: "Checkout and store luggage", status: "upcoming" },
-        { time: "10:30 AM", title: "Shopping Time", icon: <Camera />, type: "shopping", description: "Free time for shopping", status: "upcoming" },
-        { time: "02:00 PM", title: "Lunch", icon: <Utensils />, type: "meal", description: "Lunch break", status: "upcoming" },
-        { time: "03:00 PM", title: "Continue Shopping", icon: <Camera />, type: "shopping", description: "More shopping time", status: "upcoming" },
-        { time: "06:00 PM", title: "Start Return Journey", icon: <Bus />, type: "departure", description: "Board bus for return", status: "upcoming" },
-        { time: "08:00 PM", title: "Dinner at Chittagong", icon: <Utensils />, type: "meal", description: "Dinner stop (Possible: Mejban)", status: "upcoming" },
-        { time: "10:00 PM", title: "Overnight Journey", icon: <Moon />, type: "travel", description: "Continue journey to JUST", status: "upcoming" }
-      ]
-    },
-    {
-      day: 9,
-      date: "December 12, 2025",
-      dateObj: new Date("2025-12-12"),
-      title: "Arrival at Campus",
-      location: "JUST Campus",
-      status: "upcoming",
-      events: [
-        { time: "08:00 AM", title: "Arrive at Campus", icon: <MapPin />, type: "arrival", description: "Safely arrive at JUST campus", status: "upcoming" },
-        { time: "08:30 AM", title: "Tour Completion", icon: <CheckCircle />, type: "completion", description: "End of Industrial Tour 2025", status: "upcoming" }
-      ]
-    }
-  ];
+  // Helper function to get icon for event type
+  const getEventIcon = (type) => {
+    const icons = {
+      departure: <Bus />,
+      arrival: <MapPin />,
+      meal: <Utensils />,
+      accommodation: <Hotel />,
+      sightseeing: <Camera />,
+      activity: <Camera />,
+      industrial: <Building2 />,
+      travel: <Bus />,
+      break: <Clock />,
+      shopping: <Camera />,
+      leisure: <Camera />,
+      special: <Utensils />,
+      completion: <CheckCircle />
+    };
+    return icons[type] || <Clock />;
+  };
 
   // Get status badge configuration
   const getStatusConfig = (status) => {
@@ -335,14 +228,16 @@ const TourSchedulePage = () => {
     ? tourSchedule 
     : tourSchedule.filter(day => day.status === filterStatus);
 
-  // Count statistics
-  const stats = {
-    total: tourSchedule.length,
-    completed: tourSchedule.filter(d => d.status === 'completed').length,
-    ongoing: tourSchedule.filter(d => d.status === 'ongoing').length,
-    upcoming: tourSchedule.filter(d => d.status === 'upcoming').length,
-    cancelled: tourSchedule.filter(d => d.status === 'cancelled').length
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center">
+          <Loader className="animate-spin mx-auto mb-4" size={48} color="#19aaba" />
+          <p className="text-gray-600">Loading tour schedules...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
@@ -559,7 +454,7 @@ const TourSchedulePage = () => {
                                             ) : event.status === 'delayed' ? (
                                               <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                                             ) : (
-                                              <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">{event.icon}</div>
+                                              <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">{getEventIcon(event.type)}</div>
                                             )}
                                           </div>
                                         </div>

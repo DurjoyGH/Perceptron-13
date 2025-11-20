@@ -7,14 +7,17 @@ import {
   Send, 
   CheckCircle, 
   XCircle,
-  Loader
+  Loader,
+  Calendar
 } from 'lucide-react';
 import { getAllUsers, getUserStats, sendEmailToAll, sendEmailToSelected, updateUserRole } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ total: 0, admins: 0, users: 0, recentUsers: 0 });
@@ -137,8 +140,19 @@ const AdminDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] rounded-2xl p-6 md:p-8 text-white shadow-xl">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-cyan-100">Welcome back, {user?.name}!</p>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Admin Dashboard</h1>
+                <p className="text-cyan-100">Welcome back, {user?.name}!</p>
+              </div>
+              <button
+                onClick={() => navigate('/admin/schedules')}
+                className="flex items-center gap-2 bg-white text-[#19aaba] px-4 py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+              >
+                <Calendar size={20} />
+                <span>Manage Schedules</span>
+              </button>
+            </div>
           </div>
         </div>
 
