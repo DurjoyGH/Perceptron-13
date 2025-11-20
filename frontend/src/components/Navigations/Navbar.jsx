@@ -64,6 +64,12 @@ const Navbar = () => {
               Bus Allocation
             </Link>
             <Link
+              to="/ship-seat-allocation"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Ship Allocation
+            </Link>
+            <Link
               to="/room-allocation"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
             >
@@ -75,6 +81,12 @@ const Navbar = () => {
             >
               Members
             </Link>
+            {/* <Link
+              to="/transactions"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+            >
+              Transactions
+            </Link> */}
             <Link
               to="/contact"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
@@ -146,11 +158,18 @@ const Navbar = () => {
                 Schedule
               </Link>
               <Link
-                to="/bus-allocation"
+                to="/bus-seat-allocation"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Bus Allocation
+              </Link>
+              <Link
+                to="/ship-seat-allocation"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Ship Allocation
               </Link>
               <Link
                 to="/room-allocation"
@@ -159,6 +178,13 @@ const Navbar = () => {
               >
                 Room Allocation
               </Link>
+              {/* <Link
+                to="/transactions"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Transactions
+              </Link> */}
               <Link
                 to="/about"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
