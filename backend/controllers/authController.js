@@ -87,11 +87,11 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Student ID/Email and password are required'
+        message: 'Student ID and password are required'
       });
     }
 
-    // Find user by email or studentID
+    // Find user by studentID (email field is used for studentID in login)
     // If input is 6 digits, treat as studentID, otherwise as email
     const isStudentID = /^\d{6}$/.test(email);
     const user = await User.findOne(

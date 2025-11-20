@@ -22,6 +22,30 @@ export const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+export const UserRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader className="animate-spin" size={48} color="#667eea" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If user is admin, redirect to admin dashboard
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children;
+};
+
 export const AdminRoute = ({ children }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const location = useLocation();

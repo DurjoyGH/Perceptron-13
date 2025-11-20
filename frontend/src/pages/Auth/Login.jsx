@@ -23,7 +23,7 @@ const Login = () => {
       if (isAdmin()) {
         navigate('/admin');
       } else {
-        navigate('/');
+        navigate('/user/profile');
       }
     }
   }, []);
@@ -46,16 +46,15 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate Email or Student ID
+    // Validate Student ID only
     if (!formData.email.trim()) {
-      newErrors.email = 'Student ID or Email is required';
+      newErrors.email = 'Student ID is required';
     } else {
       const input = formData.email.trim();
       const isStudentID = /^\d{6}$/.test(input);
-      const isEmail = /^\d{7}\.cse@student\.just\.edu\.bd$/.test(input);
       
-      if (!isStudentID && !isEmail) {
-        newErrors.email = 'Enter 6-digit Student ID (e.g., 200120) or full email';
+      if (!isStudentID) {
+        newErrors.email = 'Enter your 6-digit Student ID (e.g., 200120)';
       }
     }
 
@@ -85,12 +84,12 @@ const Login = () => {
       toast.success('Login successful!');
       
       // Redirect based on role
-      const from = location.state?.from?.pathname || (response.data.user.role === 'admin' ? '/admin' : '/');
+      const from = location.state?.from?.pathname || (response.data.user.role === 'admin' ? '/admin' : '/user/profile');
       navigate(from, { replace: true });
       
     } catch (error) {
       console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message || 'Invalid email or password';
+      const errorMessage = error.response?.data?.message || 'Invalid Student ID or password';
       setErrors({ submit: errorMessage });
       toast.error(errorMessage);
     } finally {
@@ -130,10 +129,10 @@ const Login = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                {/* Email/Student ID Input */}
+                {/* Student ID Input */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Student ID or Email
+                    Student ID
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
@@ -143,7 +142,7 @@ const Login = () => {
                       id="email"
                       name="email"
                       type="text"
-                      placeholder="200120 or 2001120.cse@student.just.edu.bd"
+                      placeholder="Enter your 6-digit Student ID (e.g., 200120)"
                       value={formData.email}
                       onChange={handleChange}
                       className={`block w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border ${

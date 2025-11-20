@@ -4,7 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'sonner';
 import PublicLayout from './components/Layouts/PublicLayout';
 import AdminLayout from './components/Layouts/AdminLayout';
-import { AdminRoute } from './components/ProtectedRoutes/ProtectedRoutes';
+import UserLayout from './components/Layouts/UserLayout';
+import { AdminRoute, UserRoute } from './components/ProtectedRoutes/ProtectedRoutes';
 import HomePage from './pages/Public/HomePage';
 import MembersPage from './pages/Public/MembersPage';
 import MemberProfilePage from './pages/Public/MemberProfilePage';
@@ -16,6 +17,7 @@ import CommitteePage from './pages/Public/CommitteePage';
 import TransactionPage from './pages/Public/TransactionPage';
 import Login from './pages/Auth/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserProfile from './pages/User/UserProfile';
 
 function App() {
   return (
@@ -49,6 +51,11 @@ function App() {
 
           {/* Auth Routes (without layout) */}
           <Route path="/login" element={<Login />} />
+
+          {/* User Routes (Protected) */}
+          <Route path="/user" element={<UserRoute><UserLayout /></UserRoute>}>
+            <Route path="profile" element={<UserProfile />} />
+          </Route>
 
           {/* Admin Routes (Protected) */}
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
