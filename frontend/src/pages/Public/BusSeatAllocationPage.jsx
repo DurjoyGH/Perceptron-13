@@ -222,56 +222,56 @@ const BusSeatAllocationPage = () => {
           <div className="grid lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {/* Bus Seat Layout */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 md:p-6 lg:p-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <Bus className="w-5 h-5 md:w-6 md:h-6 text-[#19aaba]" />
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-2 sm:p-4 md:p-6 lg:p-8 overflow-x-auto">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3 md:gap-4">
+                  <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <Bus className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-[#19aaba]" />
                     Seat Layout
                   </h2>
-                  <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm flex-wrap">
+                  <div className="flex items-center gap-2 md:gap-3 text-[10px] sm:text-xs md:text-sm flex-wrap">
                     <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
                       <span className="text-gray-600">Faculty</span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-3 h-3 md:w-4 md:h-4 bg-[#19aaba] rounded"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-[#19aaba] rounded"></div>
                       <span className="text-gray-600">Male</span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-3 h-3 md:w-4 md:h-4 bg-pink-500 rounded"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-pink-500 rounded"></div>
                       <span className="text-gray-600">Female</span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-3 h-3 md:w-4 md:h-4 bg-gray-100 border border-gray-300 rounded"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-gray-100 border border-gray-300 rounded"></div>
                       <span className="text-gray-600">Empty</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Bus Front */}
-                <div className="mb-4 md:mb-6">
-                  <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-2xl md:rounded-t-3xl p-3 md:p-4 text-center">
-                    <span className="text-white font-bold text-xs md:text-sm">🚌 DRIVER</span>
+                <div className="mb-3 md:mb-4 lg:mb-6">
+                  <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl md:rounded-t-2xl lg:rounded-t-3xl p-2 md:p-3 lg:p-4 text-center">
+                    <span className="text-white font-bold text-[10px] sm:text-xs md:text-sm">🚌 DRIVER</span>
                   </div>
                 </div>
 
                 {/* Seat Grid */}
-                <div className="space-y-2 md:space-y-3 bg-gradient-to-b from-gray-50 to-white p-3 md:p-4 lg:p-6 rounded-2xl border-2 border-gray-200">
+                <div className="space-y-2 sm:space-y-2.5 md:space-y-3 bg-gradient-to-b from-gray-50 to-white p-2 sm:p-3 md:p-4 lg:p-6 rounded-xl md:rounded-2xl border border-gray-200 md:border-2">
                   {busLayout.rows.map((row, rowIndex) => (
-                    <div key={row.label} className="flex items-center gap-2 md:gap-3">
+                    <div key={row.label} className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-2 lg:gap-3">
                       {/* Row Label */}
-                      <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded-lg flex items-center justify-center font-bold text-gray-700 flex-shrink-0 text-xs md:text-base">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 bg-gray-200 rounded flex items-center justify-center font-bold text-gray-700 flex-shrink-0 text-[8px] sm:text-[10px] md:text-xs lg:text-base">
                         {row.label}
                       </div>
 
                       {/* Seats */}
-                      <div className="flex gap-2 md:gap-3 flex-1">
+                      <div className="flex gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 flex-wrap sm:flex-nowrap">
                         {row.seats.map((seat, seatIndex) => {
                           if (seat === null) {
                             // Aisle
                             return (
-                              <div key={seatIndex} className="w-12 md:w-16 flex items-center justify-center text-gray-400 text-[10px] md:text-xs font-medium">
-                                {rowIndex === 0 && 'AISLE'}
+                              <div key={seatIndex} className="w-2 sm:w-3 md:w-4 lg:w-6 flex items-center justify-center text-gray-400 text-[8px] sm:text-[10px] md:text-xs font-medium">
+                                {rowIndex === 0 && <span className="hidden sm:inline">AISLE</span>}
                               </div>
                             );
                           }
@@ -284,34 +284,34 @@ const BusSeatAllocationPage = () => {
                             <div key={seat} className="relative">
                               <button
                                 onClick={() => handleSeatClick(seat)}
-                                className={`w-12 h-12 md:w-16 md:h-16 rounded-lg border-2 ${seatColor} font-bold text-xs transition-all hover:scale-110 hover:shadow-lg flex flex-col items-center justify-center group relative ${
-                                  selectedSeat?.seatNumber === seat ? 'ring-4 ring-yellow-400 scale-110' : ''
+                                className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded border sm:border-2 ${seatColor} font-bold transition-all hover:scale-105 active:scale-95 hover:shadow-lg flex flex-col items-center justify-center group relative ${
+                                  selectedSeat?.seatNumber === seat ? 'ring-1 sm:ring-2 lg:ring-4 ring-yellow-400 scale-105' : ''
                                 }`}
                               >
-                                <span className="text-[9px] md:text-[10px]">{seat}</span>
+                                <span className="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[9px] xl:text-[10px]">{seat}</span>
                                 {passenger && (
                                   <>
-                                    <User className="w-2.5 h-2.5 md:w-3 md:h-3 mt-0.5" />
-                                    <span className="text-[7px] md:text-[8px] font-semibold mt-0.5 truncate w-full px-1 text-center">
+                                    <User className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-0.5" />
+                                    <span className="text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px] font-semibold mt-0.5 truncate w-full px-0.5 text-center leading-tight">
                                       {passenger.name}
                                     </span>
                                   </>
                                 )}
                               
-                                {/* Tooltip */}
+                                {/* Tooltip - Hidden on mobile, visible on larger screens */}
                                 {passenger && (
-                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                                    <div className="font-bold mb-1">{passenger.name}</div>
-                                    <div className="text-[10px] text-gray-300">
+                                  <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1.5 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
+                                    <div className="font-bold mb-0.5">{passenger.name}</div>
+                                    <div className="text-[9px] text-gray-300">
                                       Seat: {seat} • {passenger.role === 'faculty' ? 'Faculty' : 'Student'}
                                     </div>
                                     {partnerInfo.partner && (
-                                      <div className="text-[10px] text-gray-300 mt-1">
+                                      <div className="text-[9px] text-gray-300 mt-0.5">
                                         Partner: {partnerInfo.partner.name} ({partnerInfo.partnerSeat})
                                       </div>
                                     )}
                                     {/* Arrow */}
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[3px] border-r-[3px] border-t-[3px] border-transparent border-t-gray-900"></div>
                                   </div>
                                 )}
                               </button>
@@ -324,17 +324,17 @@ const BusSeatAllocationPage = () => {
                 </div>
 
                 {/* Bus Back */}
-                <div className="mt-4 md:mt-6">
-                  <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-b-2xl md:rounded-b-3xl p-3 md:p-4 text-center">
-                    <span className="text-white font-bold text-xs md:text-sm">EXIT 🚪</span>
+                <div className="mt-3 md:mt-4 lg:mt-6">
+                  <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-b-xl md:rounded-b-2xl lg:rounded-b-3xl p-2 md:p-3 lg:p-4 text-center">
+                    <span className="text-white font-bold text-[10px] sm:text-xs md:text-sm">EXIT 🚪</span>
                   </div>
                 </div>
 
                 {/* Selected Seat Info */}
                 {selectedSeat && (
-                  <div className="mt-4 md:mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-3 md:p-4">
+                  <div className="mt-3 md:mt-4 lg:mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-3 md:p-4">
                     <div className="flex items-start gap-2 md:gap-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-500">
                         <Info className="w-4 h-4 md:w-5 md:h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
