@@ -9,6 +9,7 @@ import BusSeatAllocationPage from './pages/Public/BusSeatAllocationPage';
 import ShipSeatAllocationPage from './pages/Public/ShipSeatAllocationPage';
 import RoomAllocationPage from './pages/Public/RoomAllocationPage';
 import CommitteePage from './pages/Public/CommitteePage';
+import TransactionPage from './pages/Public/TransactionPage';
 import Login from './pages/Auth/Login';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path='bus-seat-allocation' element={<BusSeatAllocationPage />} />
           <Route path='ship-seat-allocation' element={<ShipSeatAllocationPage />} />
           <Route path='room-allocation' element={<RoomAllocationPage />} />
+          <Route path='transactions' element={<TransactionPage />} />
           <Route path="about" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">About Perceptron-13 - Coming Soon</h1></div>} />
           <Route path="votes" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Tour Schedule - Coming Soon</h1></div>} />
           <Route path="contact" element={<CommitteePage />} />
