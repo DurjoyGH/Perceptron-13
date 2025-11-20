@@ -7,6 +7,10 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
+// --- Middleware ---
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // --- Allowed origins ---
 const allowedOrigins = [
   'http://localhost:5173'

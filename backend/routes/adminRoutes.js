@@ -1,7 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
 
-// router.post('/create-vote', adminController.createVote);
+// All admin routes require authentication and admin role
+router.use(authMiddleware);
+router.use(roleMiddleware('admin'));
+
+// Get all users
+router.get('/users', adminController.getAllUsers);
+
+// Get user statistics
+router.get('/stats', adminController.getUserStats);
+
+// Send email to all members
+router.post('/send-email-all', adminController.sendEmailToAll);
+
+// Send email to selected members
+router.post('/send-email-selected', adminController.sendEmailToSelected);
+
+// Update user role
+router.patch('/users/:userId/role', adminController.updateUserRole);
 
 module.exports = router;

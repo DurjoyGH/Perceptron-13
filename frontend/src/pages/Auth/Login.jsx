@@ -1,16 +1,32 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, User, Lock, Eye, EyeOff, ArrowLeft, Compass } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated, isAdmin } = useAuth();
+  
   const [formData, setFormData] = useState({
-    studentId: '',
+    email: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already logged in
+  useState(() => {
+    if (isAuthenticated()) {
+      if (isAdmin()) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,11 +46,17 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate Student ID
-    if (!formData.studentId.trim()) {
-      newErrors.studentId = 'Student ID is required';
-    } else if (!/^\d{6}$/.test(formData.studentId.trim())) {
-      newErrors.studentId = 'Student ID must be 6 digits (e.g., 200120)';
+    // Validate Email or Student ID
+    if (!formData.email.trim()) {
+      newErrors.email = 'Student ID or Email is required';
+    } else {
+      const input = formData.email.trim();
+      const isStudentID = /^\d{6}$/.test(input);
+      const isEmail = /^\d{7}\.cse@student\.just\.edu\.bd$/.test(input);
+      
+      if (!isStudentID && !isEmail) {
+        newErrors.email = 'Enter 6-digit Student ID (e.g., 200120) or full email';
+      }
     }
 
     // Validate Password
@@ -58,19 +80,19 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await loginAPI(formData);
-      console.log('Login Data:', formData);
+      const response = await login(formData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Login successful!');
       
-      // After successful login, navigate to dashboard or home
-      // navigate('/dashboard');
+      // Redirect based on role
+      const from = location.state?.from?.pathname || (response.data.user.role === 'admin' ? '/admin' : '/');
+      navigate(from, { replace: true });
       
-      alert('Login successful! (This is a demo)');
     } catch (error) {
-      setErrors({ submit: 'Invalid Student ID or Password' });
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || 'Invalid email or password';
+      setErrors({ submit: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -108,30 +130,29 @@ const Login = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                {/* Student ID Input */}
+                {/* Email/Student ID Input */}
                 <div>
-                  <label htmlFor="studentId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Student ID
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Student ID or Email
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
                       <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     </div>
                     <input
-                      id="studentId"
-                      name="studentId"
+                      id="email"
+                      name="email"
                       type="text"
-                      placeholder="e.g., 200120"
-                      value={formData.studentId}
+                      placeholder="200120 or 2001120.cse@student.just.edu.bd"
+                      value={formData.email}
                       onChange={handleChange}
-                      maxLength={6}
                       className={`block w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border ${
-                        errors.studentId ? 'border-red-500' : 'border-gray-300'
+                        errors.email ? 'border-red-500' : 'border-gray-300'
                       } rounded-xl focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400`}
                     />
                   </div>
-                  {errors.studentId && (
-                    <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.studentId}</p>
+                  {errors.email && (
+                    <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.email}</p>
                   )}
                 </div>
 
@@ -172,7 +193,7 @@ const Login = () => {
                   )}
                 </div>
 
-                {/* Forgot Password Link */}
+                {/* Remember me and Forgot Password */}
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center">
                     <input
@@ -252,7 +273,7 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right Side - Tour Showcase */}
+          {/* Right Side - Tour Showcase (keep as is) */}
           <div className="order-1 md:order-2">
             <div className="relative h-[400px] sm:h-[500px] md:h-[600px]">
               {/* Background Glow */}
