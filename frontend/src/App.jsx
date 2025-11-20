@@ -18,6 +18,7 @@ import TransactionPage from './pages/Public/TransactionPage';
 import Login from './pages/Auth/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
+import AdminProfile from './pages/Admin/AdminProfile';
 import UserProfile from './pages/User/UserProfile';
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
           {/* Admin Routes (Protected) */}
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboard />} />
+            <Route path="profile" element={<AdminProfile />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
           </Route>
 

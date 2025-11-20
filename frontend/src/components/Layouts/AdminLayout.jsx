@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, LayoutDashboard, Home } from 'lucide-react';
+import { LogOut, LayoutDashboard, Home, User } from 'lucide-react';
 
 const AdminLayout = () => {
   const { user, logout } = useAuth();
@@ -36,15 +36,20 @@ const AdminLayout = () => {
 
             {/* User Info & Logout */}
             <div className="flex items-center gap-4">
-              <div className="text-right hidden md:block">
-                <p className="text-sm font-semibold text-white">{user?.name}</p>
-                <p className="text-xs text-cyan-100">{user?.role?.toUpperCase()}</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30">
-                <span className="text-white font-bold text-lg">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              <Link 
+                to="/admin/profile" 
+                className="flex items-center gap-3 hover:bg-white/10 rounded-lg px-3 py-2 transition-colors group"
+              >
+                <div className="text-right hidden md:block">
+                  <p className="text-sm font-semibold text-white group-hover:text-white">{user?.name}</p>
+                  <p className="text-xs text-cyan-100 group-hover:text-white uppercase">{user?.role}</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 group-hover:border-white/50 group-hover:bg-white/30 transition-all">
+                  <span className="text-white font-bold text-lg">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-white hover:bg-white/10 rounded-lg transition-all duration-200 font-medium border border-white/20 hover:border-white/40"
