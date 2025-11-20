@@ -13,10 +13,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- Allowed origins ---
-const allowedOrigins = [
-  'http://localhost:5173'
-];
+// --- Allowed origins from environment variable ---
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173'];
 
 // --- CORS Middleware ---
 app.use(cors({
