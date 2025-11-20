@@ -73,7 +73,7 @@ const RoomAllocationPage = () => {
       number: 2, 
       beds: [
         { bedNumber: 1, occupants: [
-          { name: "Shibli", role: "student", gender: "male" },
+          { name: "Sibly", role: "student", gender: "male" },
           { name: "Noman", role: "student", gender: "male" }
         ]},
         { bedNumber: 2, occupants: [
@@ -119,7 +119,7 @@ const RoomAllocationPage = () => {
       beds: [
         { bedNumber: 1, occupants: [
           { name: "Oveshek", role: "student", gender: "male" },
-          { name: "Topu", role: "student", gender: "male" }
+          { name: "Tapu", role: "student", gender: "male" }
         ]},
         { bedNumber: 2, occupants: [
           { name: "Tanvir", role: "student", gender: "male" },
@@ -138,7 +138,7 @@ const RoomAllocationPage = () => {
         ]},
         { bedNumber: 2, occupants: [
           { name: "Risan", role: "student", gender: "male" },
-          { name: "Rezoan", role: "student", gender: "male" }
+          { name: "Rezowan", role: "student", gender: "male" }
         ]}
       ],
       type: 'male'
