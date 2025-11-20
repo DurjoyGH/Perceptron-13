@@ -13,7 +13,9 @@ import {
   PlayCircle,
   XCircle,
   AlertCircle,
-  Loader
+  Loader,
+  Image as ImageIcon,
+  Upload
 } from 'lucide-react';
 import { 
   getAllSchedules, 
@@ -23,7 +25,10 @@ import {
   addEvent,
   updateEvent,
   deleteEvent,
-  getScheduleStats
+  getScheduleStats,
+  addGalleryImage,
+  updateGalleryImage,
+  deleteGalleryImage
 } from '../../services/tourScheduleApi';
 import { toast } from 'sonner';
 
@@ -35,6 +40,11 @@ const ManageTourSchedules = () => {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imageCaption, setImageCaption] = useState('');
   const [scheduleForm, setScheduleForm] = useState({
     day: '',
     date: '',
@@ -164,6 +174,61 @@ const ManageTourSchedules = () => {
       console.error('Failed to delete event:', error);
       toast.error(error.response?.data?.message || 'Failed to delete event');
     }
+  };
+
+  const handleUploadImage = async () => {
+    if (!selectedSchedule || !imageFile) {
+      toast.error('Please select an image');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const response = await addGalleryImage(selectedSchedule.day, imageFile, imageCaption);
+      toast.success(response.message);
+      setShowGalleryModal(false);
+      setImageFile(null);
+      setImageCaption('');
+      fetchData();
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleUpdateImageCaption = async (imageId, newCaption) => {
+    if (!selectedSchedule) return;
+
+    try {
+      const response = await updateGalleryImage(selectedSchedule.day, imageId, newCaption);
+      toast.success(response.message);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to update caption:', error);
+      toast.error(error.response?.data?.message || 'Failed to update caption');
+    }
+  };
+
+  const handleDeleteImage = async (imageId) => {
+    if (!selectedSchedule || !window.confirm('Are you sure you want to delete this image?')) return;
+
+    try {
+      const response = await deleteGalleryImage(selectedSchedule.day, imageId);
+      toast.success(response.message);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete image');
+    }
+  };
+
+  const openGalleryModal = (schedule) => {
+    setSelectedSchedule(schedule);
+    setImageFile(null);
+    setImageCaption('');
+    setShowGalleryModal(true);
   };
 
   const openScheduleModal = (schedule = null) => {
@@ -351,7 +416,7 @@ const ManageTourSchedules = () => {
               </div>
 
               {/* Events List */}
-              <div className="p-4 md:p-6">
+              <div className="p-4 md:p-6 border-b-2 border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-bold text-gray-800">Events</h4>
                   <button
@@ -403,6 +468,77 @@ const ManageTourSchedules = () => {
                   ))}
                   {schedule.events.length === 0 && (
                     <p className="text-center text-gray-500 py-4">No events added yet</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Gallery Section */}
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                    <ImageIcon size={18} />
+                    Gallery ({schedule.gallery?.length || 0})
+                  </h4>
+                  <button
+                    onClick={() => openGalleryModal(schedule)}
+                    className="flex items-center gap-2 text-sm bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Upload size={16} />
+                    Upload Image
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {schedule.gallery?.map((image) => (
+                    <div key={image._id} className="group relative bg-gray-50 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#19aaba] transition-all">
+                      <div className="aspect-square relative overflow-hidden">
+                        <img 
+                          src={image.url} 
+                          alt={image.caption || 'Gallery image'} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => {
+                              const newCaption = prompt('Enter new caption:', image.caption);
+                              if (newCaption !== null) {
+                                handleUpdateImageCaption(image._id, newCaption);
+                              }
+                            }}
+                            className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            title="Edit Caption"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteImage(image._id)}
+                            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            title="Delete Image"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      {image.caption && (
+                        <div className="p-2 bg-white">
+                          <p className="text-xs text-gray-600 line-clamp-2">{image.caption}</p>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        {new Date(image.uploadedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
+                  {(!schedule.gallery || schedule.gallery.length === 0) && (
+                    <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                      <p className="text-gray-500 mb-2">No images uploaded yet</p>
+                      <button
+                        onClick={() => openGalleryModal(schedule)}
+                        className="text-sm text-[#19aaba] hover:underline"
+                      >
+                        Upload your first image
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -646,6 +782,90 @@ const ManageTourSchedules = () => {
               >
                 <Save size={20} />
                 {selectedEvent ? 'Update' : 'Add'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Upload Modal */}
+      {showGalleryModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Upload size={24} />
+                Upload Gallery Image
+              </h2>
+              <p className="text-purple-100 mt-1">Day {selectedSchedule?.day} - {selectedSchedule?.title}</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Image *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
+                  className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                />
+                {imageFile && (
+                  <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <p className="text-sm text-purple-700 font-medium">Selected: {imageFile.name}</p>
+                    <p className="text-xs text-purple-600 mt-1">
+                      Size: {(imageFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Caption (Optional)
+                </label>
+                <textarea
+                  value={imageCaption}
+                  onChange={(e) => setImageCaption(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  rows="3"
+                  placeholder="Add a caption to describe this image..."
+                />
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> Images will be automatically resized to 1200x1200 pixels. Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 p-6 bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={() => {
+                  setShowGalleryModal(false);
+                  setImageFile(null);
+                  setImageCaption('');
+                }}
+                disabled={uploadingImage}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <X size={20} />
+                Cancel
+              </button>
+              <button
+                onClick={handleUploadImage}
+                disabled={!imageFile || uploadingImage}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploadingImage ? (
+                  <>
+                    <Loader className="animate-spin" size={20} />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={20} />
+                    Upload Image
+                  </>
+                )}
               </button>
             </div>
           </div>

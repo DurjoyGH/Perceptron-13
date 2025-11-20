@@ -1,4 +1,5 @@
 const TourSchedule = require('../models/tourSchedule');
+const { cloudinary } = require('../configs/cloudinary');
 
 // Get all tour schedules
 const getAllSchedules = async (req, res) => {
@@ -346,6 +347,158 @@ const getScheduleStats = async (req, res) => {
   }
 };
 
+// Add image to gallery
+const addGalleryImage = async (req, res) => {
+  try {
+    const { day } = req.params;
+    const { caption } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    const schedule = await TourSchedule.findOne({ day: parseInt(day) });
+
+    if (!schedule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Schedule not found'
+      });
+    }
+
+    // Upload image to Cloudinary using buffer
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'tour-gallery',
+          transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
+    // Add image to gallery
+    schedule.gallery.push({
+      url: uploadResult.secure_url,
+      publicId: uploadResult.public_id,
+      caption: caption || ''
+    });
+
+    await schedule.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Image added to gallery successfully',
+      data: schedule
+    });
+  } catch (error) {
+    console.error('Add gallery image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add image to gallery',
+      error: error.message
+    });
+  }
+};
+
+// Update gallery image caption
+const updateGalleryImage = async (req, res) => {
+  try {
+    const { day, imageId } = req.params;
+    const { caption } = req.body;
+
+    const schedule = await TourSchedule.findOne({ day: parseInt(day) });
+
+    if (!schedule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Schedule not found'
+      });
+    }
+
+    const image = schedule.gallery.id(imageId);
+
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found'
+      });
+    }
+
+    image.caption = caption || '';
+    await schedule.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Image caption updated successfully',
+      data: schedule
+    });
+  } catch (error) {
+    console.error('Update gallery image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update image caption',
+      error: error.message
+    });
+  }
+};
+
+// Delete image from gallery
+const deleteGalleryImage = async (req, res) => {
+  try {
+    const { day, imageId } = req.params;
+
+    const schedule = await TourSchedule.findOne({ day: parseInt(day) });
+
+    if (!schedule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Schedule not found'
+      });
+    }
+
+    const image = schedule.gallery.id(imageId);
+
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found'
+      });
+    }
+
+    // Delete image from Cloudinary
+    try {
+      await cloudinary.uploader.destroy(image.publicId);
+    } catch (cloudinaryError) {
+      console.error('Failed to delete from Cloudinary:', cloudinaryError);
+    }
+
+    // Remove image from gallery array
+    schedule.gallery.pull(imageId);
+    await schedule.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Image deleted successfully',
+      data: schedule
+    });
+  } catch (error) {
+    console.error('Delete gallery image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete image',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllSchedules,
   getScheduleByDay,
@@ -355,5 +508,8 @@ module.exports = {
   addEvent,
   updateEvent,
   deleteEvent,
-  getScheduleStats
+  getScheduleStats,
+  addGalleryImage,
+  updateGalleryImage,
+  deleteGalleryImage
 };

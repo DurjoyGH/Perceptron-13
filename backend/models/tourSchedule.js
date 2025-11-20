@@ -25,6 +25,25 @@ const eventSchema = new mongoose.Schema({
   }
 }, { _id: true });
 
+const galleryImageSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: true
+  },
+  publicId: {
+    type: String,
+    required: true
+  },
+  caption: {
+    type: String,
+    default: ''
+  },
+  uploadedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: true });
+
 const tourScheduleSchema = new mongoose.Schema({
   day: {
     type: Number,
@@ -53,6 +72,7 @@ const tourScheduleSchema = new mongoose.Schema({
     default: 'upcoming'
   },
   events: [eventSchema],
+  gallery: [galleryImageSchema],
   isActive: {
     type: Boolean,
     default: true
@@ -61,8 +81,7 @@ const tourScheduleSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better query performance
-tourScheduleSchema.index({ day: 1 });
+// Index for better query performance (day already has unique index, so we skip it here)
 tourScheduleSchema.index({ dateObj: 1 });
 tourScheduleSchema.index({ status: 1 });
 

@@ -115,3 +115,43 @@ export const deleteEvent = async (day, eventId) => {
     throw error;
   }
 };
+
+// Add image to gallery (admin only)
+export const addGalleryImage = async (day, imageFile, caption) => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    if (caption) {
+      formData.append('caption', caption);
+    }
+
+    const response = await api.post(`/schedules/${day}/gallery`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Update gallery image caption (admin only)
+export const updateGalleryImage = async (day, imageId, caption) => {
+  try {
+    const response = await api.put(`/schedules/${day}/gallery/${imageId}`, { caption });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete image from gallery (admin only)
+export const deleteGalleryImage = async (day, imageId) => {
+  try {
+    const response = await api.delete(`/schedules/${day}/gallery/${imageId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

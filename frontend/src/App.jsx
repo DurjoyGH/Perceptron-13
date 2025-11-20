@@ -18,6 +18,7 @@ import TransactionPage from './pages/Public/TransactionPage';
 import Login from './pages/Auth/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
+import ManageGallery from './pages/Admin/ManageGallery';
 import AdminProfile from './pages/Admin/AdminProfile';
 import UserProfile from './pages/User/UserProfile';
 
@@ -64,6 +65,7 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
+            <Route path="gallery" element={<ManageGallery />} />
           </Route>
 
           {/* 404 Route */}
