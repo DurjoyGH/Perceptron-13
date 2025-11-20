@@ -18,7 +18,7 @@ const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Changed default to false for mobile-first
 
   const handleLogout = async () => {
     await logout();
@@ -58,24 +58,30 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex">
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full bg-gradient-to-b from-[#19aaba] to-[#158c99] text-white transition-all duration-300 z-40 ${
-        sidebarOpen ? 'w-64' : 'w-20'
-      }`}>
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      } w-64 lg:w-64`}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-cyan-600/50">
           <div className="flex items-center justify-between">
-            {sidebarOpen && (
-              <div className="flex items-center gap-2">
-                <LayoutDashboard size={24} />
-                <span className="text-xl font-bold">Admin Panel</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <LayoutDashboard size={24} />
+              <span className="text-xl font-bold">Admin Panel</span>
+            </div>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors ml-auto"
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors lg:hidden"
             >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              <X size={20} />
             </button>
           </div>
         </div>
@@ -90,15 +96,15 @@ const AdminLayout = () => {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   active
                     ? 'bg-white text-[#19aaba] shadow-lg font-semibold'
                     : 'hover:bg-white/10 text-white'
                 }`}
-                title={!sidebarOpen ? item.label : ''}
               >
                 <Icon size={20} className="flex-shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
+                <span>{item.label}</span>
               </Link>
             );
           })}
@@ -108,11 +114,11 @@ const AdminLayout = () => {
         <div className="absolute bottom-20 left-0 right-0 p-4">
           <Link
             to="/"
+            onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-all text-cyan-100 hover:text-white"
-            title={!sidebarOpen ? 'Back to Site' : ''}
           >
             <Home size={20} className="flex-shrink-0" />
-            {sidebarOpen && <span>Back to Site</span>}
+            <span>Back to Site</span>
           </Link>
         </div>
 
@@ -121,23 +127,28 @@ const AdminLayout = () => {
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-500/20 transition-all border border-white/20 hover:border-red-300"
-            title={!sidebarOpen ? 'Logout' : ''}
           >
             <LogOut size={20} className="flex-shrink-0" />
-            {sidebarOpen && <span>Logout</span>}
+            <span>Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-1 w-full transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-64'}`}>
         {/* Top Navigation Bar */}
-        <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-30">
+        <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-20">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              {/* Page Title - Can be dynamic based on route */}
+              {/* Mobile Menu Button + Page Title */}
               <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-gray-800">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Menu size={24} className="text-gray-600" />
+                </button>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                   {location.pathname === '/admin' && 'Dashboard'}
                   {location.pathname === '/admin/schedules' && 'Tour Schedules'}
                   {location.pathname === '/admin/gallery' && 'Gallery Management'}
@@ -146,8 +157,8 @@ const AdminLayout = () => {
               </div>
 
               {/* User Info */}
-              <div className="flex items-center gap-4">
-                <div className="text-right hidden md:block">
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
                   <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-600 uppercase">{user?.role}</p>
                 </div>

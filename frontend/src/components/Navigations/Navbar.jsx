@@ -1,26 +1,30 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { LayoutDashboard, User, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // You can connect this to your AuthContext
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleAuthToggle = () => {
-    if (isLoggedIn) {
-      // Logout logic
-      setIsLoggedIn(false);
-      // TODO: Add your logout API call here
-      // Clear user data, tokens, etc.
-      navigate('/');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+    setIsMenuOpen(false);
+  };
+
+  const handleDashboardClick = () => {
+    if (user?.role === 'admin') {
+      navigate('/admin');
     } else {
-      // Navigate to login page
-      navigate('/login');
+      navigate('/user/profile');
     }
+    setIsMenuOpen(false);
   };
 
   return (
@@ -28,9 +32,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-md transform hover:rotate-12 transition-transform duration-300 overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-md transform hover:rotate-12 transition-transform duration-300 overflow-hidden">
                 <img 
                   src="/logo.jpg" 
                   alt="VoterX Logo" 
@@ -38,13 +42,13 @@ const Navbar = () => {
                 />
               </div>
             </div>
-            <Link to="/" className="text-2xl font-bold text-white tracking-tight hover:text-gray-100 transition-colors duration-200">
+            <Link to="/" className="text-xl sm:text-2xl font-bold text-white tracking-tight hover:text-gray-100 transition-colors duration-200">
               Perceptron-13
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             <Link
               to="/"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
@@ -59,19 +63,19 @@ const Navbar = () => {
             </Link>
             <Link
               to="/bus-seat-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
             >
               Bus Allocation
             </Link>
             <Link
               to="/ship-seat-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
             >
               Ship Allocation
             </Link>
             <Link
               to="/room-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
             >
               Room Allocation
             </Link>
@@ -81,12 +85,6 @@ const Navbar = () => {
             >
               Members
             </Link>
-            {/* <Link
-              to="/transactions"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
-            >
-              Transactions
-            </Link> */}
             <Link
               to="/contact"
               className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
@@ -94,21 +92,53 @@ const Navbar = () => {
               Contact
             </Link>
             
-            {/* Login/Logout Toggle Button */}
-            <button
-              onClick={handleAuthToggle}
-              className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg ${
-                isLoggedIn
-                  ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-white hover:bg-gray-100 text-[#19aaba]'
-              }`}
-            >
-              {isLoggedIn ? 'Logout' : 'Login'}
-            </button>
+            {/* Auth Buttons */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                {/* Dashboard/Profile Button */}
+                <button
+                  onClick={handleDashboardClick}
+                  className="flex items-center gap-2 px-3 xl:px-4 py-2 bg-white text-[#19aaba] rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap"
+                >
+                  {user.role === 'admin' ? (
+                    <>
+                      <LayoutDashboard size={16} />
+                      <span className="hidden xl:inline">Dashboard</span>
+                      <span className="xl:hidden">Admin</span>
+                    </>
+                  ) : (
+                    <>
+                      <User size={16} />
+                      <span>Profile</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 xl:px-6 py-2 bg-white text-[#19aaba] rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:bg-gray-100"
+              >
+                Login
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="lg:hidden flex items-center gap-2">
+            {/* Mobile Auth Button */}
+            {user && (
+              <button
+                onClick={handleDashboardClick}
+                className="p-2 bg-white text-[#19aaba] rounded-full shadow-lg"
+              >
+                {user.role === 'admin' ? (
+                  <LayoutDashboard size={20} />
+                ) : (
+                  <User size={20} />
+                )}
+              </button>
+            )}
             <button
               onClick={toggleMenu}
               className="text-white hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg p-2"
@@ -134,7 +164,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4 animate-slideDown">
+          <div className="lg:hidden pb-4 animate-slideDown">
             <div className="flex flex-col space-y-2">
               <Link
                 to="/"
@@ -144,18 +174,18 @@ const Navbar = () => {
                 Home
               </Link>
               <Link
-                to="/members"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Members
-              </Link>
-              <Link
                 to="/schedule"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Schedule
+              </Link>
+              <Link
+                to="/members"
+                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Members
               </Link>
               <Link
                 to="/bus-seat-allocation"
@@ -178,20 +208,6 @@ const Navbar = () => {
               >
                 Room Allocation
               </Link>
-              {/* <Link
-                to="/transactions"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Transactions
-              </Link> */}
-              <Link
-                to="/about"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About Us
-              </Link>
               <Link
                 to="/contact"
                 className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
@@ -199,19 +215,45 @@ const Navbar = () => {
               >
                 Contact
               </Link>
-              <button
-                onClick={() => {
-                  handleAuthToggle();
-                  setIsMenuOpen(false);
-                }}
-                className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 shadow-lg ${
-                  isLoggedIn
-                    ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-white hover:bg-gray-100 text-[#19aaba]'
-                }`}
-              >
-                {isLoggedIn ? 'Logout' : 'Login'}
-              </button>
+              
+              {/* Auth Buttons - Mobile */}
+              {user ? (
+                <div className="pt-4 border-t border-white/20 space-y-2">
+                  <button
+                    onClick={handleDashboardClick}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#19aaba] rounded-full font-semibold text-sm transition-all duration-300 shadow-lg hover:bg-gray-100"
+                  >
+                    {user.role === 'admin' ? (
+                      <>
+                        <LayoutDashboard size={16} />
+                        <span>Admin Dashboard</span>
+                      </>
+                    ) : (
+                      <>
+                        <User size={16} />
+                        <span>My Profile</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white rounded-full font-semibold text-sm transition-all duration-300 shadow-lg hover:bg-red-600"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    navigate('/login');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-6 py-3 bg-white text-[#19aaba] rounded-full font-semibold text-sm transition-all duration-300 shadow-lg hover:bg-gray-100 mt-4"
+                >
+                  Login
+                </button>
+              )}
             </div>
           </div>
         )}
