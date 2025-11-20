@@ -26,7 +26,7 @@ const BusSeatAllocationPage = () => {
     { id: 5, name: "Puspita", role: "student", pair: 6, gender: "female" },
     { id: 6, name: "Munni", role: "student", pair: 5, gender: "female" },
     { id: 7, name: "Sadik", role: "student", pair: 8, gender: "male" },
-    { id: 8, name: "Takir", role: "student", pair: 7, gender: "male" },
+    { id: 8, name: "Takbir", role: "student", pair: 7, gender: "male" },
     { id: 9, name: "Shibli", role: "student", pair: 10, gender: "male" },
     { id: 10, name: "Noman", role: "student", pair: 9, gender: "male" },
     { id: 11, name: "Tahmid", role: "student", pair: 12, gender: "male" },

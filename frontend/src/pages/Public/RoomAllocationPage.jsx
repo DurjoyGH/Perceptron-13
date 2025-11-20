@@ -59,7 +59,7 @@ const RoomAllocationPage = () => {
       beds: [
         { bedNumber: 1, occupants: [
           { name: "Sadik", role: "student", gender: "male" },
-          { name: "Takir", role: "student", gender: "male" }
+          { name: "Takbir", role: "student", gender: "male" }
         ]},
         { bedNumber: 2, occupants: [
           { name: "Azaz", role: "student", gender: "male" },

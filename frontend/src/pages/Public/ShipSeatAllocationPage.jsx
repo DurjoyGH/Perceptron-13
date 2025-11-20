@@ -27,7 +27,7 @@ const ShipSeatAllocationPage = () => {
     { id: 6, name: "Puspita", role: "student", gender: "female" },
     { id: 7, name: "Munni", role: "student", gender: "female" },
     { id: 8, name: "Sadik", role: "student", gender: "male" },
-    { id: 9, name: "Takir", role: "student", gender: "male" },
+    { id: 9, name: "Takbir", role: "student", gender: "male" },
     { id: 10, name: "Shibli", role: "student", gender: "male" },
     { id: 11, name: "Noman", role: "student", gender: "male" },
     { id: 12, name: "Tahmid", role: "student", gender: "male" },
