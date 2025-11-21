@@ -4,7 +4,11 @@ const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { upload } = require('../configs/cloudinary');
 
-// All user routes require authentication
+// Public routes (no authentication required)
+router.get('/members', userController.getAllMembers);
+router.get('/members/:studentId', userController.getMemberByStudentId);
+
+// Protected routes (require authentication)
 router.use(authMiddleware);
 
 // Get user profile

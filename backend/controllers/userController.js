@@ -33,6 +33,55 @@ const deleteFromCloudinary = async (publicId) => {
   }
 };
 
+// Get all users (public - for members page)
+const getAllMembers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select('-password -__v')
+      .sort({ studentID: 1 });
+    
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users
+    });
+  } catch (error) {
+    console.error('Get all members error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch members',
+      error: error.message
+    });
+  }
+};
+
+// Get user by student ID (public - for member profile page)
+const getMemberByStudentId = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const user = await User.findOne({ studentID: studentId }).select('-password -__v');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Get member by student ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch member',
+      error: error.message
+    });
+  }
+};
+
 // Get user profile
 const getUserProfile = async (req, res) => {
   try {
@@ -399,6 +448,8 @@ const deleteFeaturedPhoto = async (req, res) => {
 };
 
 module.exports = {
+  getAllMembers,
+  getMemberByStudentId,
   getUserProfile,
   updateUserProfile,
   updateProfilePicture,

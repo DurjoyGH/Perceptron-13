@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Users, 
@@ -9,48 +9,45 @@ import {
   UserCheck,
   Award,
   ArrowRight,
-  User
+  User,
+  Loader2
 } from 'lucide-react';
+import { getAllMembers } from '../../services/userApi';
+import CustomToast from '../../components/Toast/CustomToast';
 
 const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const members = [
-    { id: "200102", name: "MD. RAFID AHMMED", type: "student", gender: "male" },
-    { id: "200104", name: "NAZMUS SAKIB SIBLY", type: "student", gender: "male" },
-    { id: "200105", name: "ABRAR HOSSAIN", type: "student", gender: "male" },
-    { id: "200107", name: "ABDULLA AL NOMAN", type: "student", gender: "male" },
-    { id: "200110", name: "TAPU GHOSH", type: "student", gender: "male" },
-    { id: "200111", name: "TAHMID MUNTASER KAIF", type: "student", gender: "male" },
-    { id: "200114", name: "RAMJAN ALI KHA", type: "student", gender: "male" },
-    { id: "200117", name: "A. K. M. S. LIMON", type: "student", gender: "male" },
-    { id: "200118", name: "MOHAMMAD AZAZUL ISLAM", type: "student", gender: "male" },
-    { id: "200120", name: "TARIN PROSAD GHOSH", type: "student", gender: "male" },
-    { id: "200121", name: "MD. MUSHFIQUR RAHMAN", type: "student", gender: "male" },
-    { id: "200122", name: "FAHIM AHMED", type: "student", gender: "male" },
-    { id: "200124", name: "S. AHMAD MUSA REZOWAN", type: "student", gender: "male" },
-    { id: "200126", name: "JOY KUMAR ACHARJEE", type: "student", gender: "male" },
-    { id: "200132", name: "MD. SADIK MAHMUD RAIHAN", type: "student", gender: "male" },
-    { id: "200133", name: "IBNUS NAHIYAN SAMIT", type: "student", gender: "male" },
-    { id: "200135", name: "ANIKA TABASSUM", type: "student", gender: "female" },
-    { id: "200137", name: "RISAN MAHFUZ", type: "student", gender: "male" },
-    { id: "200140", name: "MD. ARAFATUZZAMAN", type: "student", gender: "male" },
-    { id: "200142", name: "TANVIR MAHTAB TAFHIM", type: "student", gender: "male" },
-    { id: "200145", name: "PUSPITA SARKER", type: "student", gender: "female" },
-    { id: "200146", name: "BISWAJIT DEB", type: "student", gender: "male" },
-    { id: "200149", name: "ARIFUL ISLAM", type: "student", gender: "male" },
-    { id: "200150", name: "MUNNI KHANOM", type: "student", gender: "female" },
-    { id: "200151", name: "MD. ABU SAYED", type: "student", gender: "male" },
-    { id: "200152", name: "SAJID HASAN TAKBIR", type: "student", gender: "male" },
-    { id: "200153", name: "ANAMIKA MARMA", type: "student", gender: "female" },
-    { id: "200154", name: "OVESHEK KUNDU TOTON", type: "student", gender: "male" }
-  ];
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllMembers();
+      setMembers(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching members:', err);
+      setError('Failed to load members');
+      CustomToast({
+        type: 'error',
+        message: 'Failed to load members. Please try again later.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter members based on search term and filter type
   const filteredMembers = members.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.id.includes(searchTerm);
+                         member.studentID.includes(searchTerm);
     const matchesFilter = filterType === 'all' || 
                          (filterType === 'male' && member.gender === 'male') ||
                          (filterType === 'female' && member.gender === 'female');
@@ -86,6 +83,17 @@ const MembersPage = () => {
     ];
     return gradients[index % gradients.length];
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-[#19aaba] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading members...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -256,18 +264,26 @@ const MembersPage = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredMembers.map((member, index) => (
-                    <tr key={member.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={member._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
                         <span className="text-sm font-medium text-gray-900">{index + 1}</span>
                       </td>
                       <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="text-sm font-mono font-semibold text-[#19aaba]">{member.id}</span>
+                        <span className="text-sm font-mono font-semibold text-[#19aaba]">{member.studentID}</span>
                       </td>
                       <td className="px-4 lg:px-6 py-3 lg:py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                            {getInitials(member.name)}
-                          </div>
+                          {member.profilePicture?.url ? (
+                            <img
+                              src={member.profilePicture.url}
+                              alt={member.name}
+                              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                              {getInitials(member.name)}
+                            </div>
+                          )}
                           <span className="text-sm font-medium text-gray-900">{member.name}</span>
                         </div>
                       </td>
@@ -282,7 +298,7 @@ const MembersPage = () => {
                       </td>
                       <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-right">
                         <Link
-                          to={`/member/${member.id}`}
+                          to={`/member/${member.studentID}`}
                           className="inline-flex items-center gap-1 text-sm font-medium text-[#19aaba] hover:text-[#158c99] transition-colors"
                         >
                           View Profile
@@ -298,12 +314,20 @@ const MembersPage = () => {
             {/* Mobile Card View */}
             <div className="md:hidden divide-y divide-gray-200">
               {filteredMembers.map((member, index) => (
-                <div key={member.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div key={member._id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
-                    <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                      {getInitials(member.name)}
-                    </div>
+                    {member.profilePicture?.url ? (
+                      <img
+                        src={member.profilePicture.url}
+                        alt={member.name}
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                        {getInitials(member.name)}
+                      </div>
+                    )}
                     
                     {/* Info */}
                     <div className="flex-1 min-w-0">
@@ -313,7 +337,7 @@ const MembersPage = () => {
                             {member.name}
                           </h3>
                           <p className="text-xs font-mono font-semibold text-[#19aaba]">
-                            {member.id}
+                            {member.studentID}
                           </p>
                         </div>
                         <span className="text-xs font-medium text-gray-500 flex-shrink-0">
@@ -331,7 +355,7 @@ const MembersPage = () => {
                         </span>
                         
                         <Link
-                          to={`/member/${member.id}`}
+                          to={`/member/${member.studentID}`}
                           className="inline-flex items-center gap-1 text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95"
                         >
                           View Profile

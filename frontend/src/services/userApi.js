@@ -8,6 +8,18 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// Get all members (public - no auth required)
+export const getAllMembers = async () => {
+  const response = await axios.get(`${API_URL}/members`);
+  return response.data;
+};
+
+// Get member by student ID (public - no auth required)
+export const getMemberByStudentId = async (studentId) => {
+  const response = await axios.get(`${API_URL}/members/${studentId}`);
+  return response.data;
+};
+
 // Get user profile
 export const getUserProfile = async () => {
   const response = await axios.get(`${API_URL}/profile`, {

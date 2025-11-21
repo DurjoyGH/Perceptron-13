@@ -8,6 +8,7 @@ import UserLayout from './components/Layouts/UserLayout';
 import { AdminRoute, UserRoute } from './components/ProtectedRoutes/ProtectedRoutes';
 import HomePage from './pages/Public/HomePage';
 import MembersPage from './pages/Public/MembersPage';
+import MemberProfilePage from './pages/Public/MemberProfilePage';
 import TourSchedulePage from './pages/Public/TourSchedulePage';
 import BusSeatAllocationPage from './pages/Public/BusSeatAllocationPage';
 import ShipSeatAllocationPage from './pages/Public/ShipSeatAllocationPage';
@@ -35,7 +36,7 @@ function App() {
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomePage />} />
             <Route path="members" element={<MembersPage />} />
-            <Route path="member/:id" element={<ProfilePage />} />
+            <Route path="member/:id" element={<MemberProfilePage />} />
             <Route path="schedule" element={<TourSchedulePage />} />
             <Route path='bus-seat-allocation' element={<BusSeatAllocationPage />} />
             <Route path='ship-seat-allocation' element={<ShipSeatAllocationPage />} />
