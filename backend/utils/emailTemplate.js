@@ -1,4 +1,4 @@
-const getEmailTemplate = ({ title, userName, content, type = 'general' }) => {
+const getEmailTemplate = ({ title, userName, content }) => {
   const baseTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -58,15 +58,6 @@ const getEmailTemplate = ({ title, userName, content, type = 'general' }) => {
         .footer p {
           margin: 5px 0;
         }
-        .badge {
-          display: inline-block;
-          padding: 5px 10px;
-          background-color: #19aaba;
-          color: white;
-          border-radius: 4px;
-          font-size: 12px;
-          margin-bottom: 15px;
-        }
       </style>
     </head>
     <body>
@@ -76,7 +67,6 @@ const getEmailTemplate = ({ title, userName, content, type = 'general' }) => {
           <p style="margin: 10px 0 0 0; font-size: 14px;">CSE JUST Tour 2025</p>
         </div>
         <div class="content">
-          <div class="badge">${type.toUpperCase()}</div>
           <div class="greeting">Hello ${userName},</div>
           <div class="message">${content}</div>
           <p style="margin-top: 30px; color: #666;">

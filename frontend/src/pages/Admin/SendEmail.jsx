@@ -17,8 +17,7 @@ const SendEmail = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [emailForm, setEmailForm] = useState({
     subject: '',
-    message: '',
-    emailType: 'general'
+    message: ''
   });
   const [sendingEmail, setSendingEmail] = useState(false);
 
@@ -80,7 +79,7 @@ const SendEmail = () => {
       }
 
       toast.success(response.message);
-      setEmailForm({ subject: '', message: '', emailType: 'general' });
+      setEmailForm({ subject: '', message: '' });
       setSelectedUsers([]);
     } catch (error) {
       console.error('Failed to send email:', error);
@@ -129,22 +128,6 @@ const SendEmail = () => {
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Compose Email</h2>
             
             <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Type
-                </label>
-                <select
-                  value={emailForm.emailType}
-                  onChange={(e) => setEmailForm({ ...emailForm, emailType: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all"
-                >
-                  <option value="general">📧 General</option>
-                  <option value="announcement">📢 Announcement</option>
-                  <option value="reminder">⏰ Reminder</option>
-                  <option value="urgent">🚨 Urgent</option>
-                </select>
-              </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Subject

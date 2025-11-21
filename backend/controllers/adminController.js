@@ -58,7 +58,7 @@ const getUserStats = async (req, res) => {
 // Send email to all members
 const sendEmailToAll = async (req, res) => {
   try {
-    const { subject, message, emailType = 'general' } = req.body;
+    const { subject, message } = req.body;
 
     if (!subject || !message) {
       return res.status(400).json({
@@ -85,8 +85,7 @@ const sendEmailToAll = async (req, res) => {
       const htmlContent = getEmailTemplate({
         title: subject,
         userName: user.name,
-        content: message,
-        type: emailType
+        content: message
       });
 
       const emailPromise = sendEmail({
@@ -130,7 +129,7 @@ const sendEmailToAll = async (req, res) => {
 // Send email to specific users
 const sendEmailToSelected = async (req, res) => {
   try {
-    const { userIds, subject, message, emailType = 'general' } = req.body;
+    const { userIds, subject, message } = req.body;
 
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return res.status(400).json({
@@ -166,8 +165,7 @@ const sendEmailToSelected = async (req, res) => {
       const htmlContent = getEmailTemplate({
         title: subject,
         userName: user.name,
-        content: message,
-        type: emailType
+        content: message
       });
 
       const emailPromise = sendEmail({
