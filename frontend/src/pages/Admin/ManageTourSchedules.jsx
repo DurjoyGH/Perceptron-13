@@ -301,11 +301,11 @@ const ManageTourSchedules = () => {
 
   const getStatusIcon = (status) => {
     const icons = {
-      completed: <CheckCircle2 className="w-4 h-4" />,
-      ongoing: <PlayCircle className="w-4 h-4" />,
-      upcoming: <Clock className="w-4 h-4" />,
-      cancelled: <XCircle className="w-4 h-4" />,
-      delayed: <AlertCircle className="w-4 h-4" />
+      completed: <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      ongoing: <PlayCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      upcoming: <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      cancelled: <XCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      delayed: <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
     };
     return icons[status] || icons.upcoming;
   };
@@ -325,19 +325,19 @@ const ManageTourSchedules = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="max-w-7xl mx-auto p-4 md:p-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] rounded-2xl p-6 md:p-8 text-white shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Manage Tour Schedules</h1>
-                <p className="text-cyan-100">Create, edit, and update tour schedules</p>
+        <div className="mb-6 sm:mb-8">
+          <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">Manage Tour Schedules</h1>
+                <p className="text-cyan-100 text-sm sm:text-base">Create, edit, and update tour schedules</p>
               </div>
               <button
                 onClick={() => openScheduleModal()}
-                className="flex items-center gap-2 bg-white text-[#19aaba] px-4 py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+                className="flex items-center gap-2 bg-white text-[#19aaba] px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm sm:text-base w-full sm:w-auto justify-center"
               >
-                <Plus size={20} />
-                <span className="hidden sm:inline">Add Schedule</span>
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Add Schedule</span>
               </button>
             </div>
           </div>
@@ -345,146 +345,148 @@ const ManageTourSchedules = () => {
 
         {/* Statistics */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-[#19aaba]">
-              <p className="text-gray-600 text-sm mb-1">Total Days</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.schedules.total}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 border-l-4 border-[#19aaba]">
+              <p className="text-gray-600 text-xs sm:text-sm mb-1">Total Days</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.schedules.total}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-green-500">
-              <p className="text-gray-600 text-sm mb-1">Completed</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.schedules.completed}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 border-l-4 border-green-500">
+              <p className="text-gray-600 text-xs sm:text-sm mb-1">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.schedules.completed}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-blue-500">
-              <p className="text-gray-600 text-sm mb-1">Total Events</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.events.total}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 border-l-4 border-blue-500">
+              <p className="text-gray-600 text-xs sm:text-sm mb-1">Total Events</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.events.total}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-orange-500">
-              <p className="text-gray-600 text-sm mb-1">Upcoming</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.schedules.upcoming}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 border-l-4 border-orange-500">
+              <p className="text-gray-600 text-xs sm:text-sm mb-1">Upcoming</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.schedules.upcoming}</p>
             </div>
           </div>
         )}
 
         {/* Schedules List */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {schedules.map((schedule) => (
-            <div key={schedule._id} className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 hover:shadow-xl transition-shadow duration-300">
+            <div key={schedule._id} className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 hover:shadow-xl transition-shadow duration-300">
               {/* Schedule Header */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 md:p-6 border-b-2 border-gray-200">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl font-bold text-[#19aaba]">Day {schedule.day}</span>
-                      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(schedule.status)}`}>
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6 border-b-2 border-gray-200">
+                <div className="flex items-start justify-between gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+                      <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#19aaba]">Day {schedule.day}</span>
+                      <span className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold border ${getStatusColor(schedule.status)}`}>
                         {getStatusIcon(schedule.status)}
-                        {schedule.status.toUpperCase()}
+                        <span className="hidden min-[400px]:inline">{schedule.status.toUpperCase()}</span>
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{schedule.title}</h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{schedule.date}</span>
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 break-words">{schedule.title}</h3>
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="truncate">{schedule.date}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{schedule.location}</span>
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="truncate">{schedule.location}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <List className="w-4 h-4" />
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <List className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                         <span>{schedule.events.length} events</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
                     <button
                       onClick={() => openScheduleModal(schedule)}
-                      className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                      className="p-1.5 sm:p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
                       title="Edit Schedule"
                     >
-                      <Edit2 size={18} />
+                      <Edit2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                     </button>
                     <button
                       onClick={() => handleDeleteSchedule(schedule.day)}
-                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      className="p-1.5 sm:p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                       title="Delete Schedule"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Events List */}
-              <div className="p-4 md:p-6 border-b-2 border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-gray-800">Events</h4>
+              <div className="p-3 sm:p-4 md:p-6 border-b-2 border-gray-200">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <h4 className="font-bold text-gray-800 text-sm sm:text-base">Events</h4>
                   <button
                     onClick={() => openEventModal(schedule)}
-                    className="flex items-center gap-2 text-sm bg-[#19aaba] text-white px-3 py-2 rounded-lg hover:bg-[#158c99] transition-colors"
+                    className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm bg-[#19aaba] text-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-[#158c99] transition-colors whitespace-nowrap"
                   >
-                    <Plus size={16} />
-                    Add Event
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden min-[400px]:inline">Add Event</span>
+                    <span className="min-[400px]:hidden">Add</span>
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {schedule.events.map((event) => (
-                    <div key={event._id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#19aaba] transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold text-[#19aaba] bg-cyan-100 px-2 py-1 rounded">
+                    <div key={event._id} className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#19aaba] transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                          <span className="text-[10px] sm:text-xs font-bold text-[#19aaba] bg-cyan-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">
                             {event.time}
                           </span>
-                          <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-bold border ${getStatusColor(event.status)}`}>
+                          <span className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold border ${getStatusColor(event.status)}`}>
                             {getStatusIcon(event.status)}
-                            {event.status.toUpperCase()}
+                            <span className="hidden min-[400px]:inline">{event.status.toUpperCase()}</span>
                           </span>
-                          <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                          <span className="text-[10px] sm:text-xs text-gray-500 bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded truncate max-w-[100px] sm:max-w-none">
                             {event.type}
                           </span>
                         </div>
-                        <h5 className="font-semibold text-gray-900 mb-1">{event.title}</h5>
+                        <h5 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base break-words">{event.title}</h5>
                         {event.description && (
-                          <p className="text-sm text-gray-600">{event.description}</p>
+                          <p className="text-xs sm:text-sm text-gray-600 break-words">{event.description}</p>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                         <button
                           onClick={() => openEventModal(schedule, event)}
-                          className="p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                          className="p-1 sm:p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
                           title="Edit Event"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 className="w-3 h-3 sm:w-[14px] sm:h-[14px]" />
                         </button>
                         <button
                           onClick={() => handleDeleteEvent(event._id)}
-                          className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
+                          className="p-1 sm:p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
                           title="Delete Event"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 className="w-3 h-3 sm:w-[14px] sm:h-[14px]" />
                         </button>
                       </div>
                     </div>
                   ))}
                   {schedule.events.length === 0 && (
-                    <p className="text-center text-gray-500 py-4">No events added yet</p>
+                    <p className="text-center text-gray-500 py-4 text-sm">No events added yet</p>
                   )}
                 </div>
               </div>
 
               {/* Gallery Section */}
-              <div className="p-4 md:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-gray-800 flex items-center gap-2">
-                    <ImageIcon size={18} />
+              <div className="p-3 sm:p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <h4 className="font-bold text-gray-800 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                    <ImageIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                     Gallery ({schedule.gallery?.length || 0})
                   </h4>
                   <button
                     onClick={() => openGalleryModal(schedule)}
-                    className="flex items-center gap-2 text-sm bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm bg-purple-600 text-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
                   >
-                    <Upload size={16} />
-                    Upload Image
+                    <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden min-[400px]:inline">Upload Image</span>
+                    <span className="min-[400px]:hidden">Upload</span>
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
