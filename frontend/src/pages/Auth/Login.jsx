@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, User, Lock, Eye, EyeOff, ArrowLeft, Compass } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -18,15 +18,15 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already logged in
-  useState(() => {
+  useEffect(() => {
     if (isAuthenticated()) {
       if (isAdmin()) {
-        navigate('/admin');
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/user/profile');
+        navigate('/user/profile', { replace: true });
       }
     }
-  }, []);
+  }, [isAuthenticated, isAdmin, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
