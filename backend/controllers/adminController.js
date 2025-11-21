@@ -146,10 +146,9 @@ const sendEmailToSelected = async (req, res) => {
       });
     }
 
-    // Get selected users
+    // Get selected users (including admins)
     const users = await User.find({ 
-      _id: { $in: userIds },
-      role: 'user' 
+      _id: { $in: userIds }
     }).select('email name');
 
     if (users.length === 0) {
