@@ -1,13 +1,21 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, User, LogOut } from 'lucide-react';
 import UserAvatar from '../common/UserAvatar';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -52,43 +60,71 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             <Link
               to="/"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                isActive('/') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Home
             </Link>
             <Link
               to="/schedule"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                isActive('/schedule') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Schedule
             </Link>
             <Link
               to="/bus-seat-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                isActive('/bus-seat-allocation') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Bus Allocation
             </Link>
             <Link
               to="/ship-seat-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                isActive('/ship-seat-allocation') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Ship Allocation
             </Link>
             <Link
               to="/room-allocation"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10 whitespace-nowrap"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                isActive('/room-allocation') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Room Allocation
             </Link>
             <Link
               to="/members"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                isActive('/members') || isActive('/member/') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Members
             </Link>
             <Link
               to="/contact"
-              className="text-white hover:text-gray-100 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-white/10"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                isActive('/contact') 
+                  ? 'bg-white/20 text-white border-b-2 border-white' 
+                  : 'text-white hover:text-gray-100 hover:bg-white/10'
+              }`}
             >
               Contact
             </Link>
@@ -169,49 +205,77 @@ const Navbar = () => {
             <div className="flex flex-col space-y-2">
               <Link
                 to="/"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/schedule"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/schedule') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Schedule
               </Link>
               <Link
                 to="/members"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/members') || isActive('/member/') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Members
               </Link>
               <Link
                 to="/bus-seat-allocation"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/bus-seat-allocation') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Bus Allocation
               </Link>
               <Link
                 to="/ship-seat-allocation"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/ship-seat-allocation') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Ship Allocation
               </Link>
               <Link
                 to="/room-allocation"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/room-allocation') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Room Allocation
               </Link>
               <Link
                 to="/contact"
-                className="text-white hover:text-gray-100 hover:bg-white/10 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+                className={`px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                  isActive('/contact') 
+                    ? 'bg-white/20 text-white border-l-4 border-white' 
+                    : 'text-white hover:text-gray-100 hover:bg-white/10'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
