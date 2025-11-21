@@ -172,13 +172,13 @@ const AdminLayout = () => {
               </div>
 
               {/* User Info */}
-              <div className="flex items-center gap-3">
+              <Link to="/admin/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-600 uppercase">{user?.role}</p>
                 </div>
                 <UserAvatar user={user} size="md" showBorder borderColor="border-cyan-200" />
-              </div>
+              </Link>
             </div>
           </div>
         </nav>

@@ -549,7 +549,7 @@ const ManageGallery = () => {
 
       {/* Image View Modal */}
       {showImageModal && selectedImage && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-2 sm:p-4" onClick={() => setShowImageModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4" onClick={() => setShowImageModal(false)}>
           <div className="max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
             <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden">
               <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] p-3 sm:p-4 text-white flex items-center justify-between gap-2">

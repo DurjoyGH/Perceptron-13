@@ -567,9 +567,7 @@ const ProfilePage = () => {
                         className={`w-full h-full object-cover ${isOwnProfile ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}
                       />
                       {isOwnProfile && (
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                          <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
+                        <div className="absolute inset-0 transition-colors duration-300 flex items-center justify-center"></div>
                       )}
                     </div>
                   ) : (

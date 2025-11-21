@@ -6,6 +6,7 @@ import {
   Search,
   UserCog
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getAllUsers, getUserStats, updateUserRole } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -179,20 +180,20 @@ const ManageUsers = () => {
                       <tr key={usr._id} className="hover:bg-cyan-50 transition-colors duration-150">
                         <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
                         <td className="px-4 py-4">
-                          <div className="flex items-center gap-3">
+                          <Link to={`/member/${usr.studentID}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             {usr.profilePicture?.url ? (
                               <img
                                 src={usr.profilePicture.url}
                                 alt={usr.name}
-                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-transparent hover:ring-[#19aaba] transition-all"
                               />
                             ) : (
-                              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hover:scale-105 transition-transform`}>
                                 {getInitials(usr.name)}
                               </div>
                             )}
-                            <span className="font-medium text-gray-900">{usr.name}</span>
-                          </div>
+                            <span className="font-medium text-gray-900 hover:text-[#19aaba] transition-colors">{usr.name}</span>
+                          </Link>
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-600">{usr.email}</td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-700">{usr.studentID}</td>
@@ -235,17 +236,19 @@ const ManageUsers = () => {
                   <div key={usr._id} className="p-4 hover:bg-cyan-50 transition-colors">
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
-                      {usr.profilePicture?.url ? (
-                        <img
-                          src={usr.profilePicture.url}
-                          alt={usr.name}
-                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                        />
-                      ) : (
-                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                          {getInitials(usr.name)}
-                        </div>
-                      )}
+                      <Link to={`/member/${usr.studentID}`} className="flex-shrink-0">
+                        {usr.profilePicture?.url ? (
+                          <img
+                            src={usr.profilePicture.url}
+                            alt={usr.name}
+                            className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all"
+                          />
+                        ) : (
+                          <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform`}>
+                            {getInitials(usr.name)}
+                          </div>
+                        )}
+                      </Link>
                       
                       {/* Info */}
                       <div className="flex-1 min-w-0">
