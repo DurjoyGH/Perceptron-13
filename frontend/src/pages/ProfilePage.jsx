@@ -71,12 +71,16 @@ const ProfilePage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    contactNumber: '',
+    dialogue: '',
     studentID: ''
   });
 
   const [tempFormData, setTempFormData] = useState({
     name: '',
     email: '',
+    contactNumber: '',
+    dialogue: '',
     studentID: ''
   });
 
@@ -108,6 +112,8 @@ const ProfilePage = () => {
       const data = {
         name: user.name || '',
         email: user.email || '',
+        contactNumber: user.contactNumber || '',
+        dialogue: user.dialogue || '',
         studentID: user.studentID || ''
       };
       setFormData(data);
@@ -164,7 +170,7 @@ const ProfilePage = () => {
     if (!tempFormData.email.trim()) {
       newErrors.email = 'Email is required';
     } else {
-      const emailRegex = /^\d{7}\.cse@student\.just\.edu\.bd$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(tempFormData.email)) {
         newErrors.email = 'Invalid email format';
       }
@@ -187,7 +193,9 @@ const ProfilePage = () => {
       // Don't send studentID in update request - it cannot be changed
       const updateData = {
         name: tempFormData.name,
-        email: tempFormData.email
+        email: tempFormData.email,
+        contactNumber: tempFormData.contactNumber,
+        dialogue: tempFormData.dialogue
       };
       
       const response = await updateUserProfile(updateData);
@@ -195,6 +203,8 @@ const ProfilePage = () => {
       setFormData({
         name: response.data.name,
         email: response.data.email,
+        contactNumber: response.data.contactNumber || '',
+        dialogue: response.data.dialogue || '',
         studentID: response.data.studentID
       });
       updateUser(response.data);
@@ -750,7 +760,7 @@ const ProfilePage = () => {
                         className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                           errors.email ? 'border-red-500' : 'border-gray-300'
                         } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base`}
-                        placeholder="2001xxx.cse@student.just.edu.bd"
+                        placeholder="your.email@example.com"
                       />
                       {errors.email && (
                         <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.email}</p>
@@ -760,6 +770,50 @@ const ProfilePage = () => {
                     <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg break-all text-sm sm:text-base">
                       {formData.email}
                     </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Contact Number
+                  </label>
+                  {isOwnProfile && isEditing ? (
+                    <input
+                      type="text"
+                      name="contactNumber"
+                      value={tempFormData.contactNumber}
+                      onChange={handleTempChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                      placeholder="Enter your contact number"
+                    />
+                  ) : (
+                    <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                      {formData.contactNumber || 'Not provided'}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Dialogue/Testimonial
+                  </label>
+                  {isOwnProfile && isEditing ? (
+                    <textarea
+                      name="dialogue"
+                      value={tempFormData.dialogue}
+                      onChange={handleTempChange}
+                      rows={4}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base resize-vertical"
+                      placeholder="Share your thoughts about the tour..."
+                      maxLength={500}
+                    />
+                  ) : (
+                    <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base min-h-[100px] whitespace-pre-wrap">
+                      {formData.dialogue || 'No testimonial shared yet'}
+                    </p>
+                  )}
+                  {isOwnProfile && isEditing && (
+                    <p className="mt-1 text-xs text-gray-500">{tempFormData.dialogue.length}/500</p>
                   )}
                 </div>
 

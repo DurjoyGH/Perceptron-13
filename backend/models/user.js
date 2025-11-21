@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema(
       url: { type: String, default: null },
       publicId: { type: String, default: null }
     },
+    contactNumber: { type: String, default: null },
+    dialogue: { type: String, default: null },
     featuredPhotos: [
       {
         url: { type: String, required: true },

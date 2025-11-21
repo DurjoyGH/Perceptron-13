@@ -25,6 +25,7 @@ import {
   Loader
 } from 'lucide-react';
 import { getAllSchedules } from '../../services/tourScheduleApi';
+import { getAllMembers } from '../../services/userApi';
 import { toast } from 'sonner';
 
 const HomePage = () => {
@@ -43,6 +44,10 @@ const HomePage = () => {
   // Tour Schedule State
   const [tourSchedule, setTourSchedule] = useState([]);
   const [loadingSchedules, setLoadingSchedules] = useState(true);
+
+  // Testimonials State
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
   // Fetch tour schedules with gallery images
   useEffect(() => {
@@ -76,6 +81,35 @@ const HomePage = () => {
     };
 
     fetchSchedules();
+  }, []);
+
+  // Fetch testimonials
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoadingTestimonials(true);
+        const response = await getAllMembers();
+        
+        // Filter users who have dialogues and select relevant fields
+        const usersWithDialogues = response.data.filter(user => user.dialogue && user.dialogue.trim() !== '').map(user => ({
+          id: user._id,
+          name: user.name,
+          studentID: user.studentID,
+          type: user.type,
+          dialogue: user.dialogue,
+          profilePicture: user.profilePicture
+        }));
+        
+        setTestimonials(usersWithDialogues);
+      } catch (error) {
+        console.error('Failed to fetch testimonials:', error);
+        setTestimonials([]);
+      } finally {
+        setLoadingTestimonials(false);
+      }
+    };
+
+    fetchTestimonials();
   }, []);
 
   // Helper function to get icon based on day
@@ -580,6 +614,86 @@ const HomePage = () => {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+              What Our <span className="bg-gradient-to-r from-[#19aaba] to-[#158c99] bg-clip-text text-transparent">Members Say</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Hear from our amazing batch members about their experiences and expectations for this incredible journey.
+            </p>
+          </div>
+
+          {loadingTestimonials ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : testimonials.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {testimonials.map((testimonial) => (
+                <div 
+                  key={testimonial.id}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[#19aaba]/20"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="relative">
+                      {testimonial.profilePicture?.url ? (
+                        <img
+                          src={testimonial.profilePicture.url}
+                          alt={testimonial.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-[#19aaba]/20"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#19aaba] to-[#158c99] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {testimonial.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-600">{testimonial.studentID} • {testimonial.type}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="text-4xl text-[#19aaba]/20 absolute -top-2 -left-2">"</div>
+                    <p className="text-gray-700 italic leading-relaxed pl-4">
+                      {testimonial.dialogue}
+                    </p>
+                    <div className="text-4xl text-[#19aaba]/20 absolute -bottom-4 -right-2">"</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-500 text-lg">No testimonials available yet</p>
+              <p className="text-gray-400 text-sm mt-2">Members will share their thoughts soon!</p>
+            </div>
+          )}
         </div>
       </section>
 

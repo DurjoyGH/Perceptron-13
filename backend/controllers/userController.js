@@ -111,7 +111,7 @@ const getUserProfile = async (req, res) => {
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    const { name, email, currentPassword, newPassword } = req.body;
+    const { name, email, contactNumber, dialogue, currentPassword, newPassword } = req.body;
     
     // Prevent studentID from being updated
     if (req.body.studentID) {
@@ -130,13 +130,13 @@ const updateUserProfile = async (req, res) => {
       });
     }
 
-    // Check if email format is valid for JUST student (if email is being updated)
+    // Check if email format is valid (if email is being updated)
     if (email && email !== user.email) {
-      const emailRegex = /^\d{7}\.cse@student\.just\.edu\.bd$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid email format. Use format: 2001xxx.cse@student.just.edu.bd'
+          message: 'Invalid email format'
         });
       }
 
@@ -177,6 +177,8 @@ const updateUserProfile = async (req, res) => {
     // Update other fields (studentID cannot be changed)
     if (name) user.name = name;
     if (email) user.email = email;
+    if (contactNumber !== undefined) user.contactNumber = contactNumber;
+    if (dialogue !== undefined) user.dialogue = dialogue;
 
     await user.save();
 

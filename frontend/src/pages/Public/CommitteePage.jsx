@@ -8,8 +8,26 @@ import {
   MessageSquare
 } from 'lucide-react';
 
+// Import member photos
+import abdullahAlNoman from '../../assets/noman.jpg';
+import mohammadAzazulIslam from '../../assets/azaz.jpg';
+import durjoyGhosh from '../../assets/durjoy.jpg';
+import mdSadikMahmudRaihan from '../../assets/sadik.jpg';
+import mdArafatuzzaman from '../../assets/makky.jpg';
+import sajidHasanTakbir from '../../assets/takbir.jpg';
+
 const CommitteePage = () => {
   const [selectedMember, setSelectedMember] = useState(null);
+
+  // Member photos mapping
+  const memberPhotos = {
+    "200107": abdullahAlNoman,
+    "200118": mohammadAzazulIslam,
+    "200120": durjoyGhosh,
+    "200132": mdSadikMahmudRaihan,
+    "200140": mdArafatuzzaman,
+    "200152": sajidHasanTakbir
+  };
 
   // Committee members data - using actual student members
   const committeeMembers = [
@@ -117,7 +135,16 @@ const CommitteePage = () => {
                 {/* Profile Image */}
                 <div className="relative -mt-16 px-6 mb-4">
                   <div className="w-28 h-28 md:w-32 md:h-32 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <img 
+                      src={memberPhotos[member.id]} 
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center hidden">
                       <User className="w-12 h-12 md:w-16 md:h-16 text-gray-400" />
                     </div>
                   </div>
@@ -251,7 +278,16 @@ const CommitteePage = () => {
 
             <div className="relative -mt-16 px-6 pb-6">
               <div className="w-28 h-28 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100 mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <img 
+                  src={memberPhotos[selectedMember.id]} 
+                  alt={selectedMember.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center hidden">
                   <User className="w-12 h-12 text-gray-400" />
                 </div>
               </div>

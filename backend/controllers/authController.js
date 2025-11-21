@@ -15,12 +15,12 @@ const register = async (req, res) => {
       });
     }
 
-    // Check if email format is valid for JUST student
-    const emailRegex = /^\d{7}\.cse@student\.just\.edu\.bd$/;
+    // Check if email format is valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid email format. Use format: 2001xxx.cse@student.just.edu.bd'
+        message: 'Invalid email format'
       });
     }
 

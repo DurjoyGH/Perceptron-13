@@ -210,6 +210,53 @@ const MemberProfilePage = () => {
               </div>
             </div>
 
+            {/* Contact Information */}
+            {(member.contactNumber || member.email) && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <Phone className="w-5 h-5 text-[#19aaba]" />
+                  Contact Information
+                </h3>
+                <div className="space-y-3">
+                  {member.email && (
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-gray-500">Email</p>
+                        <p className="text-sm font-medium text-gray-900 break-all">{member.email}</p>
+                      </div>
+                    </div>
+                  )}
+                  {member.contactNumber && (
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-gray-500">Phone</p>
+                        <p className="text-sm font-medium text-gray-900">{member.contactNumber}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Testimonial */}
+            {member.dialogue && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-[#19aaba]" />
+                  Testimonial
+                </h3>
+                <div className="relative">
+                  <div className="text-4xl text-[#19aaba]/20 absolute -top-2 -left-2">"</div>
+                  <p className="text-gray-700 italic leading-relaxed pl-4 text-sm sm:text-base">
+                    {member.dialogue}
+                  </p>
+                  <div className="text-4xl text-[#19aaba]/20 absolute -bottom-4 -right-2">"</div>
+                </div>
+              </div>
+            )}
+
             {/* Tour Highlights */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
