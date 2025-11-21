@@ -13,7 +13,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { getAllMembers } from '../../services/userApi';
-import CustomToast from '../../components/Toast/CustomToast';
+import CustomToast from '../../components/ScrollTop/ScrollTop';
 
 const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');

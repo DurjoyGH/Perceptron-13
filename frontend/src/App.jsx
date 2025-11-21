@@ -6,6 +6,7 @@ import PublicLayout from './components/Layouts/PublicLayout';
 import AdminLayout from './components/Layouts/AdminLayout';
 import UserLayout from './components/Layouts/UserLayout';
 import { AdminRoute, UserRoute } from './components/ProtectedRoutes/ProtectedRoutes';
+import ScrollTop from './components/ScrollTop/ScrollTop';
 import HomePage from './pages/Public/HomePage';
 import MembersPage from './pages/Public/MembersPage';
 import MemberProfilePage from './pages/Public/MemberProfilePage';
@@ -31,6 +32,7 @@ function App() {
           closeButton
           duration={3000}
         />
+        <ScrollTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout />}>
