@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Image as ImageIcon,
   Upload,
@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 
 const ManageGallery = () => {
+  const fileInputRef = useRef(null);
   const [schedules, setSchedules] = useState([]);
   const [allImages, setAllImages] = useState([]);
   const [filteredImages, setFilteredImages] = useState([]);
@@ -104,16 +105,20 @@ const ManageGallery = () => {
     setUploadingImage(true);
     try {
       const response = await addGalleryImage(selectedDay, imageFile, imageCaption);
-      toast.success(response.message);
+      toast.success('Image uploaded successfully');
       setShowUploadModal(false);
       setImageFile(null);
       setImageCaption('');
       setSelectedDay('');
       setImagePreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       fetchData();
     } catch (error) {
       console.error('Failed to upload image:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload image');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to upload image';
+      toast.error(errorMessage);
     } finally {
       setUploadingImage(false);
     }
@@ -150,6 +155,10 @@ const ManageGallery = () => {
   const handleCancelImagePreview = () => {
     setImageFile(null);
     setImagePreview(null);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleUpdateCaption = async (image, newCaption) => {
@@ -181,6 +190,9 @@ const ManageGallery = () => {
     setImageCaption('');
     setSelectedDay('');
     setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setShowUploadModal(true);
   };
 
@@ -401,46 +413,46 @@ const ManageGallery = () => {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
-            <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] p-6 text-white">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Upload size={24} />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] p-4 sm:p-6 text-white">
+              <h2 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+                <Upload size={20} className="sm:w-6 sm:h-6" />
                 Upload Homepage Gallery Photo
               </h2>
-              <p className="text-cyan-100 mt-1">Add a photo that will be displayed on the homepage for a specific tour day</p>
+              <p className="text-cyan-100 mt-1 text-xs sm:text-sm">Add a photo that will be displayed on the homepage for a specific tour day</p>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
               {/* Image Preview */}
               {imagePreview && (
                 <div className="relative">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="w-full h-48 sm:h-64 object-cover rounded-lg"
                   />
                   <button
                     onClick={handleCancelImagePreview}
                     disabled={uploadingImage}
-                    className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50"
+                    className="absolute top-2 right-2 p-1.5 sm:p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50"
                   >
-                    <X size={20} />
+                    <X size={18} className="sm:w-5 sm:h-5" />
                   </button>
-                  <div className="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-sm">
+                  <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm">
                     Preview
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Select Tour Day *
                 </label>
                 <select
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
                   disabled={uploadingImage}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent disabled:opacity-50"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent disabled:opacity-50"
                 >
                   <option value="">Choose a day...</option>
                   {schedules.map(schedule => (
@@ -452,19 +464,20 @@ const ManageGallery = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Select Image *
                 </label>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleImageFileChange}
                   disabled={uploadingImage}
-                  className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-[#19aaba] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-[#19aaba] hover:file:bg-cyan-100 disabled:opacity-50"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm border-2 border-dashed border-gray-300 rounded-lg focus:border-[#19aaba] focus:outline-none file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-cyan-50 file:text-[#19aaba] hover:file:bg-cyan-100 disabled:opacity-50"
                 />
                 {imageFile && !imagePreview && (
-                  <div className="mt-3 p-3 bg-cyan-50 rounded-lg border border-cyan-200">
-                    <p className="text-sm text-[#19aaba] font-medium">Selected: {imageFile.name}</p>
+                  <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <p className="text-xs sm:text-sm text-[#19aaba] font-medium break-all">Selected: {imageFile.name}</p>
                     <p className="text-xs text-cyan-700 mt-1">
                       Size: {(imageFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
@@ -473,51 +486,59 @@ const ManageGallery = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Caption (Optional)
                 </label>
                 <textarea
                   value={imageCaption}
                   onChange={(e) => setImageCaption(e.target.value)}
                   disabled={uploadingImage}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent resize-none disabled:opacity-50"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent resize-none disabled:opacity-50"
                   rows="3"
                   placeholder="Add a caption to describe this photo..."
                 />
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-blue-800">
                   <strong>Note:</strong> This photo will appear on the homepage in the gallery section for the selected tour day. Images will be automatically resized to 1200x1200 pixels. Maximum file size: 5MB.
                 </p>
               </div>
             </div>
-            <div className="flex gap-4 p-6 bg-gray-50 rounded-b-2xl">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-b-xl sm:rounded-b-2xl">
               <button
                 onClick={() => {
                   setShowUploadModal(false);
                   setImagePreview(null);
                   setImageFile(null);
+                  setImageCaption('');
+                  setSelectedDay('');
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
                 }}
                 disabled={uploadingImage}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                <X size={18} className="sm:w-5 sm:h-5" />
                 Cancel
               </button>
               <button
                 onClick={handleUploadImage}
                 disabled={!selectedDay || !imageFile || uploadingImage}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-lg hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-lg hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {uploadingImage ? (
                   <>
-                    <Loader className="animate-spin" size={20} />
-                    Uploading...
+                    <Loader className="animate-spin" size={18} />
+                    <span className="hidden sm:inline">Uploading...</span>
+                    <span className="sm:hidden">Uploading...</span>
                   </>
                 ) : (
                   <>
-                    <Upload size={20} />
-                    Upload Photo
+                    <Upload size={18} className="sm:w-5 sm:h-5" />
+                    <span className="hidden sm:inline">Upload Photo</span>
+                    <span className="sm:hidden">Upload</span>
                   </>
                 )}
               </button>
@@ -528,33 +549,33 @@ const ManageGallery = () => {
 
       {/* Image View Modal */}
       {showImageModal && selectedImage && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4" onClick={() => setShowImageModal(false)}>
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-2 sm:p-4" onClick={() => setShowImageModal(false)}>
           <div className="max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-white rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] p-4 text-white flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-lg">Day {selectedImage.scheduleDay} - {selectedImage.scheduleTitle}</h3>
-                  <p className="text-sm text-cyan-100">{selectedImage.scheduleDate} • Homepage Gallery Photo</p>
+            <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] p-3 sm:p-4 text-white flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm sm:text-lg truncate">Day {selectedImage.scheduleDay} - {selectedImage.scheduleTitle}</h3>
+                  <p className="text-xs sm:text-sm text-cyan-100 truncate">{selectedImage.scheduleDate} • Homepage Gallery Photo</p>
                 </div>
                 <button
                   onClick={() => setShowImageModal(false)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                 >
-                  <Eye size={24} />
+                  <X size={20} className="sm:w-6 sm:h-6" />
                 </button>
               </div>
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <img 
                   src={selectedImage.url} 
                   alt={selectedImage.caption || 'Gallery image'} 
                   className="w-full h-auto rounded-lg"
                 />
                 {selectedImage.caption && (
-                  <div className="mt-4 p-4 bg-cyan-50 rounded-lg border border-cyan-200">
-                    <p className="text-gray-700 italic">"{selectedImage.caption}"</p>
+                  <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <p className="text-gray-700 italic text-xs sm:text-sm break-words">"{selectedImage.caption}"</p>
                   </div>
                 )}
-                <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+                <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-gray-600">
                   <span>Uploaded: {new Date(selectedImage.uploadedAt).toLocaleString()}</span>
                   <a 
                     href={selectedImage.url} 
@@ -562,7 +583,7 @@ const ManageGallery = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-[#19aaba] hover:text-[#158c99] font-semibold"
                   >
-                    <Download size={16} />
+                    <Download size={14} className="sm:w-4 sm:h-4" />
                     Download
                   </a>
                 </div>

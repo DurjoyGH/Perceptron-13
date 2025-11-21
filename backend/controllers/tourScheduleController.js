@@ -377,8 +377,12 @@ const addGalleryImage = async (req, res) => {
           transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
         },
         (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            reject(error);
+          } else {
+            resolve(result);
+          }
         }
       );
       uploadStream.end(req.file.buffer);

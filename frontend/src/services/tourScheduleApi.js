@@ -17,6 +17,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Don't override Content-Type if it's FormData (let browser set it with boundary)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)
@@ -125,11 +131,7 @@ export const addGalleryImage = async (day, imageFile, caption) => {
       formData.append('caption', caption);
     }
 
-    const response = await api.post(`/schedules/${day}/gallery`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post(`/schedules/${day}/gallery`, formData);
     return response.data;
   } catch (error) {
     throw error;

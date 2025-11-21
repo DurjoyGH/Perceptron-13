@@ -21,8 +21,11 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Loader
 } from 'lucide-react';
+import { getAllSchedules } from '../../services/tourScheduleApi';
+import { toast } from 'sonner';
 
 const HomePage = () => {
   // Countdown Timer State
@@ -36,6 +39,60 @@ const HomePage = () => {
   // Gallery Modal State
   const [selectedDay, setSelectedDay] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Tour Schedule State
+  const [tourSchedule, setTourSchedule] = useState([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(true);
+
+  // Fetch tour schedules with gallery images
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        setLoadingSchedules(true);
+        const response = await getAllSchedules();
+        
+        // Transform the schedules to match the display format
+        const transformedSchedules = response.data.map(schedule => {
+          return {
+            day: `Day ${schedule.day}`,
+            date: new Date(schedule.dateObj).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
+            location: schedule.location,
+            activities: schedule.events.map(event => `${event.time}: ${event.title}`).slice(0, 3),
+            icon: getIconForDay(schedule.day),
+            images: schedule.gallery?.map(img => ({
+              url: img.url,
+              caption: img.caption || 'Tour photo'
+            })) || []
+          };
+        });
+        
+        setTourSchedule(transformedSchedules);
+      } catch (error) {
+        console.error('Failed to fetch schedules:', error);
+        setTourSchedule([]);
+      } finally {
+        setLoadingSchedules(false);
+      }
+    };
+
+    fetchSchedules();
+  }, []);
+
+  // Helper function to get icon based on day
+  const getIconForDay = (day) => {
+    const icons = {
+      1: <Bus className="w-5 h-5" />,
+      2: <MapPin className="w-5 h-5" />,
+      3: <Camera className="w-5 h-5" />,
+      4: <Factory className="w-5 h-5" />,
+      5: <Plane className="w-5 h-5" />,
+      6: <Hotel className="w-5 h-5" />,
+      7: <Camera className="w-5 h-5" />,
+      8: <Bus className="w-5 h-5" />,
+      9: <MapPin className="w-5 h-5" />
+    };
+    return icons[day] || <Calendar className="w-5 h-5" />;
+  };
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -137,123 +194,13 @@ const HomePage = () => {
     { text: "Visit Chera Dwip & Beach exploration", icon: <CheckCircle2 className="w-5 h-5" /> },
     { text: "Barbecue night & team building activities", icon: <CheckCircle2 className="w-5 h-5" /> }
   ];
-  const tourSchedule = [
-    {
-      day: "Day 1",
-      date: "Dec 04",
-      location: "Departure",
-      activities: ["07:00 PM: Start journey from campus", "Travel by bus to Cox's Bazar", "Overnight on bus"],
-      icon: <Bus className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800", caption: "Starting our journey" },
-        { url: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800", caption: "Team gathering at campus" },
-        { url: "https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=800", caption: "Boarding the bus" }
-      ]
-    },
-    {
-      day: "Day 2",
-      date: "Dec 05",
-      location: "Cox's Bazar",
-      activities: ["Arrival & hotel check-in", "Visit Laboni, Sugandha & Kolatoli Beach", "Overnight at hotel"],
-      icon: <MapPin className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800", caption: "Cox's Bazar Beach" },
-        { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", caption: "Beautiful sunset at beach" },
-        { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", caption: "Team at the beach" }
-      ]
-    },
-    {
-      day: "Day 3",
-      date: "Dec 06",
-      location: "Marine Drive",
-      activities: ["05:30 AM: Marine Drive tour", "Explore Shah Porir Dwip", "Visit Himchori & Inani Beach"],
-      icon: <Camera className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800", caption: "Marine Drive scenic view" },
-        { url: "https://images.unsplash.com/photo-1504870712357-65ea720d6078?w=800", caption: "Himchori waterfall" },
-        { url: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800", caption: "Inani Beach" }
-      ]
-    },
-    {
-      day: "Day 4",
-      date: "Dec 07",
-      location: "Industrial Visit",
-      activities: ["10:30 AM: Submarine Cable Station", "Visit Dorianagar", "Overnight at hotel"],
-      icon: <Factory className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800", caption: "Submarine Cable Station" },
-        { url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800", caption: "Technical infrastructure" },
-        { url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800", caption: "Learning session" }
-      ]
-    },
-    {
-      day: "Day 5",
-      date: "Dec 08",
-      location: "Saint Martin's",
-      activities: ["Depart by ship to Saint Martin's", "Full-day island exploration", "Overnight on island"],
-      icon: <Plane className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800", caption: "Ship journey to island" },
-        { url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800", caption: "Saint Martin's Island" },
-        { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800", caption: "Crystal clear waters" }
-      ]
-    },
-    {
-      day: "Day 6",
-      date: "Dec 09",
-      location: "Chera Dwip",
-      activities: ["Visit Chera Dwip", "Beach activities", "Barbecue dinner night"],
-      icon: <Target className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800", caption: "Chera Dwip exploration" },
-        { url: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800", caption: "Beach activities" },
-        { url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800", caption: "Barbecue night" }
-      ]
-    },
-    {
-      day: "Day 7",
-      date: "Dec 10",
-      location: "Return Trip",
-      activities: ["Free time for exploration", "Return to Cox's Bazar by ship", "Overnight at hotel"],
-      icon: <Hotel className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", caption: "Last moments at island" },
-        { url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800", caption: "Ship ride back" },
-        { url: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800", caption: "Hotel comfort" }
-      ]
-    },
-    {
-      day: "Day 8",
-      date: "Dec 11",
-      location: "Shopping Day",
-      activities: ["Hotel checkout", "Shopping & free time", "06:00 PM: Start return journey"],
-      icon: <Clock className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800", caption: "Shopping time" },
-        { url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800", caption: "Local markets" },
-        { url: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800", caption: "Souvenir shopping" }
-      ]
-    },
-    {
-      day: "Day 9",
-      date: "Dec 12",
-      location: "Campus Arrival",
-      activities: ["Arrive safely at campus", "End of tour", "Memories for lifetime"],
-      icon: <CheckCircle2 className="w-5 h-5" />,
-      images: [
-        { url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800", caption: "Back to campus" },
-        { url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800", caption: "Team reunion" },
-        { url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800", caption: "Memories forever" }
-      ]
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Gallery Modal */}
-      {selectedDay !== null && (
+      {selectedDay !== null && tourSchedule[selectedDay] && tourSchedule[selectedDay].images.length > 0 && (
         <div 
-          className="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={closeGallery}
         >
           <button
@@ -294,37 +241,36 @@ const HomePage = () => {
               )}
 
               {/* Image Counter */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
                 {currentImageIndex + 1} / {tourSchedule[selectedDay].images.length}
               </div>
             </div>
 
-            {/* Image Info */}
-            <div className="mt-4 text-center">
-              <h3 className="text-white text-2xl font-bold mb-2">
-                {tourSchedule[selectedDay].day} - {tourSchedule[selectedDay].location}
-              </h3>
-              <p className="text-gray-300 text-lg">
-                {tourSchedule[selectedDay].images[currentImageIndex].caption}
-              </p>
-            </div>
+            {/* Image Caption */}
+            {tourSchedule[selectedDay].images[currentImageIndex].caption && (
+              <div className="mt-4 text-center">
+                <p className="text-white text-lg font-medium">
+                  {tourSchedule[selectedDay].images[currentImageIndex].caption}
+                </p>
+              </div>
+            )}
 
             {/* Thumbnail Strip */}
             {tourSchedule[selectedDay].images.length > 1 && (
-              <div className="mt-6 flex gap-3 justify-center overflow-x-auto pb-2">
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {tourSchedule[selectedDay].images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                      currentImageIndex === index 
-                        ? 'border-[#19aaba] scale-110' 
-                        : 'border-transparent hover:border-gray-500'
+                      index === currentImageIndex 
+                        ? 'border-white scale-110' 
+                        : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img
                       src={image.url}
-                      alt={image.caption}
+                      alt={image.caption || 'Tour photo'}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -523,37 +469,73 @@ const HomePage = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tourSchedule.map((schedule, index) => (
-              <div 
-                key={index}
-                onClick={() => openGallery(index)}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-[#19aaba] cursor-pointer group"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] text-white p-3 rounded-xl">
-                    {schedule.icon}
+            {loadingSchedules ? (
+              // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-200 animate-pulse">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+                    <div className="flex-1">
+                      <div className="h-5 bg-gray-200 rounded w-20 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{schedule.day}</h3>
-                    <p className="text-xs text-gray-500 font-medium">{schedule.date}</p>
-                    <p className="text-sm text-[#19aaba] font-semibold">{schedule.location}</p>
+                  <div className="space-y-2 mb-4">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                   </div>
+                  <div className="h-8 bg-gray-200 rounded"></div>
                 </div>
-                <ul className="space-y-2 mb-4">
-                  {schedule.activities.map((activity, actIndex) => (
-                    <li key={actIndex} className="flex items-start gap-2 text-gray-700 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>{activity}</span>
-                    </li>
-                  ))}
-                </ul>
-                {/* View Gallery Button */}
-                <div className="flex items-center justify-center gap-2 text-[#19aaba] font-semibold text-sm pt-3 border-t border-gray-100 group-hover:gap-3 transition-all">
-                  <ImageIcon className="w-4 h-4" />
-                  <span>View Gallery ({schedule.images.length} photos)</span>
+              ))
+            ) : tourSchedule.length > 0 ? (
+              tourSchedule.map((schedule, index) => (
+                <div 
+                  key={index}
+                  onClick={() => schedule.images.length > 0 ? openGallery(index) : null}
+                  className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-transparent ${
+                    schedule.images.length > 0 ? 'hover:border-[#19aaba] cursor-pointer group' : 'cursor-default'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] text-white p-3 rounded-xl">
+                      {schedule.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">{schedule.day}</h3>
+                      <p className="text-xs text-gray-500 font-medium">{schedule.date}</p>
+                      <p className="text-sm text-[#19aaba] font-semibold">{schedule.location}</p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2 mb-4">
+                    {schedule.activities.map((activity, actIndex) => (
+                      <li key={actIndex} className="flex items-start gap-2 text-gray-700 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>{activity}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* View Gallery Button */}
+                  {schedule.images.length > 0 ? (
+                    <div className="flex items-center justify-center gap-2 text-[#19aaba] font-semibold text-sm pt-3 border-t border-gray-100 group-hover:gap-3 transition-all">
+                      <ImageIcon className="w-4 h-4" />
+                      <span>View Gallery ({schedule.images.length} photos)</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 text-gray-400 text-sm pt-3 border-t border-gray-100">
+                      <ImageIcon className="w-4 h-4" />
+                      <span>No photos yet</span>
+                    </div>
+                  )}
                 </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg">No tour schedules available yet</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>

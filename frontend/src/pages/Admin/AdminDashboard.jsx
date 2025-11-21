@@ -214,7 +214,7 @@ const AdminDashboard = () => {
                             </span>
                           </td>
                           <td className="px-4 py-4">
-                            {usr._id !== user?.id && (
+                            {usr._id !== user?._id && (
                               <button
                                 onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
                                 className="text-sm text-[#19aaba] hover:text-[#158c99] font-semibold hover:underline transition-colors"
