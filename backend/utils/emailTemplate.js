@@ -64,7 +64,7 @@ const getEmailTemplate = ({ title, userName, content }) => {
       <div class="container">
         <div class="header">
           <h1>🎓 Perceptron-13</h1>
-          <p style="margin: 10px 0 0 0; font-size: 14px;">CSE JUST Tour 2025</p>
+          <p style="margin: 10px 0 0 0; font-size: 14px;">Industrial Tour 2025</p>
         </div>
         <div class="content">
           <div class="greeting">Hello ${userName},</div>
@@ -75,8 +75,8 @@ const getEmailTemplate = ({ title, userName, content }) => {
           </p>
         </div>
         <div class="footer">
-          <p><strong>Perceptron-13 - CSE JUST</strong></p>
-          <p>Department of Computer Science & Engineering</p>
+          <p><strong>Perceptron-13</strong></p>
+          <p>Computer Science & Engineering</p>
           <p>Jashore University of Science & Technology</p>
           <p style="margin-top: 10px; font-size: 11px; color: #999;">
             This is an automated email. Please do not reply to this message.
