@@ -101,8 +101,8 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © {currentYear} Perceptron-13, CSE, JUST. All rights reserved. Built with ❤️ by Batch 13.
+            <p className="text-gray-400 text-sm text-center md:text-left">
+              © {currentYear} Perceptron-13, CSE, JUST. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-indigo-400 text-sm transition-colors duration-200">
