@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { 
   getUserProfile, 
   updateUserProfile, 
@@ -8,7 +9,7 @@ import {
   addFeaturedPhoto,
   updateFeaturedPhoto,
   deleteFeaturedPhoto 
-} from '../../services/userApi';
+} from '../services/userApi';
 import { toast } from 'sonner';
 import { 
   User, 
@@ -34,11 +35,11 @@ import {
   Trash2,
   Plus
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import ProfilePictureModal from '../../components/Profile/ProfilePictureModal';
-import ImageViewModal from '../../components/Profile/ImageViewModal';
+import ProfilePictureModal from '../components/Profile/ProfilePictureModal';
+import ImageViewModal from '../components/Profile/ImageViewModal';
 
-const UserProfile = () => {
+const ProfilePage = () => {
+  const { id } = useParams(); // Get user ID from URL params (if viewing another user)
   const { user: authUser, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -87,13 +88,18 @@ const UserProfile = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Determine if viewing own profile or another user's profile
+  const isOwnProfile = !id || id === authUser?.studentID;
+
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+  }, [id]);
 
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
+      // TODO: If viewing another user's profile (id is set), fetch that user's data
+      // For now, we'll always fetch the logged-in user's profile
       const response = await getUserProfile();
       const user = response.data;
       setUserData(user);
@@ -275,6 +281,16 @@ const UserProfile = () => {
     }
   };
 
+  const handleBackNavigation = () => {
+    if (authUser?.role === 'admin') {
+      navigate('/admin');
+    } else if (isOwnProfile) {
+      navigate('/');
+    } else {
+      navigate('/members');
+    }
+  };
+
   // Profile picture handlers
   const handleProfilePictureClick = () => {
     profilePictureInputRef.current?.click();
@@ -284,24 +300,20 @@ const UserProfile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       e.target.value = '';
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
       e.target.value = '';
       return;
     }
 
-    // Store the file
     setProfilePictureFile(file);
 
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setProfilePicturePreview(reader.result);
@@ -318,8 +330,6 @@ const UserProfile = () => {
 
     setUploadingImage(true);
     try {
-      // In a real implementation, you would apply the adjustments (scale, rotation, position)
-      // to the image before uploading. For now, we'll upload the original.
       const response = await updateProfilePicture(profilePictureFile);
       setUserData(response.data);
       updateUser(response.data);
@@ -369,14 +379,12 @@ const UserProfile = () => {
     }
   };
 
-  // View profile picture in modal
   const handleViewProfilePicture = () => {
     if (userData?.profilePicture?.url) {
       setShowProfileImageViewModal(true);
     }
   };
 
-  // View featured image in modal
   const handleViewFeaturedImage = (photo) => {
     setViewingFeaturedImage(photo);
     setShowFeaturedImageViewModal(true);
@@ -395,21 +403,18 @@ const UserProfile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       e.target.value = '';
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
       e.target.value = '';
       return;
     }
 
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setFeaturedPhotoPreview(reader.result);
@@ -495,34 +500,6 @@ const UserProfile = () => {
     }
   };
 
-  // Featured images for the user
-  const featuredImages = [
-    {
-      url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-      caption: "Beach exploration at Cox's Bazar"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
-      caption: "Saint Martin's Island adventure"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800",
-      caption: "Marine Drive scenic tour"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800",
-      caption: "Industrial visit experience"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800",
-      caption: "Beach activities with team"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800",
-      caption: "Barbecue night memories"
-    }
-  ];
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -541,26 +518,32 @@ const UserProfile = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <button
-              onClick={() => navigate('/')}
+              onClick={handleBackNavigation}
               className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Home</span>
+              <span className="font-medium">
+                {authUser?.role === 'admin' ? 'Back to Dashboard' : isOwnProfile ? 'Back to Home' : 'Back to Members'}
+              </span>
             </button>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="font-medium">Logout</span>
-            </button>
+            {isOwnProfile && (
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="font-medium">Logout</span>
+              </button>
+            )}
           </div>
           
           <div className="flex items-center gap-2 text-sm mb-2">
             <Users className="w-4 h-4" />
             <span>Industrial Tour 2025</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold">My Profile</h1>
+          <h1 className="text-3xl md:text-4xl font-bold">
+            {isOwnProfile ? 'My Profile' : 'Member Profile'}
+          </h1>
         </div>
       </div>
 
@@ -575,44 +558,50 @@ const UserProfile = () => {
                 <div className="relative w-32 h-32 mx-auto mb-4">
                   {userData?.profilePicture?.url ? (
                     <div 
-                      className="w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white cursor-pointer group"
-                      onClick={handleViewProfilePicture}
+                      className={`w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white ${isOwnProfile ? 'cursor-pointer group' : ''}`}
+                      onClick={isOwnProfile ? handleViewProfilePicture : undefined}
                     >
                       <img 
                         src={userData.profilePicture.url} 
                         alt={formData.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        className={`w-full h-full object-cover ${isOwnProfile ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                        <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
+                      {isOwnProfile && (
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                          <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg">
                       {getInitials(formData.name)}
                     </div>
                   )}
-                  <button
-                    onClick={handleProfilePictureClick}
-                    disabled={uploadingImage}
-                    className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
-                    title="Change profile picture"
-                  >
-                    {uploadingImage ? (
-                      <Loader className="w-5 h-5 text-[#19aaba] animate-spin" />
-                    ) : (
-                      <Camera className="w-5 h-5 text-[#19aaba]" />
-                    )}
-                  </button>
-                  <input
-                    ref={profilePictureInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfilePictureChange}
-                    className="hidden"
-                  />
+                  {isOwnProfile && (
+                    <>
+                      <button
+                        onClick={handleProfilePictureClick}
+                        disabled={uploadingImage}
+                        className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
+                        title="Change profile picture"
+                      >
+                        {uploadingImage ? (
+                          <Loader className="w-5 h-5 text-[#19aaba] animate-spin" />
+                        ) : (
+                          <Camera className="w-5 h-5 text-[#19aaba]" />
+                        )}
+                      </button>
+                      <input
+                        ref={profilePictureInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePictureChange}
+                        className="hidden"
+                      />
+                    </>
+                  )}
                 </div>
-                {userData?.profilePicture?.url && (
+                {isOwnProfile && userData?.profilePicture?.url && (
                   <button
                     onClick={handleDeleteProfilePicture}
                     disabled={uploadingImage}
@@ -657,15 +646,17 @@ const UserProfile = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => setShowPasswordModal(true)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
-                  >
-                    <Lock className="w-4 h-4" />
-                    Change Password
-                  </button>
-                </div>
+                {isOwnProfile && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => setShowPasswordModal(true)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                    >
+                      <Lock className="w-4 h-4" />
+                      Change Password
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -679,7 +670,7 @@ const UserProfile = () => {
                   <User className="w-5 h-5 text-[#19aaba]" />
                   Personal Information
                 </h3>
-                {!isEditing ? (
+                {isOwnProfile && !isEditing && (
                   <button
                     onClick={handleEditClick}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors"
@@ -687,7 +678,8 @@ const UserProfile = () => {
                     <Edit2 className="w-4 h-4" />
                     Edit Profile
                   </button>
-                ) : (
+                )}
+                {isOwnProfile && isEditing && (
                   <div className="flex gap-2">
                     <button
                       onClick={handleCancelEdit}
@@ -722,7 +714,7 @@ const UserProfile = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name
                   </label>
-                  {isEditing ? (
+                  {isOwnProfile && isEditing ? (
                     <>
                       <input
                         type="text"
@@ -749,7 +741,7 @@ const UserProfile = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
-                  {isEditing ? (
+                  {isOwnProfile && isEditing ? (
                     <>
                       <input
                         type="text"
@@ -766,7 +758,7 @@ const UserProfile = () => {
                       )}
                     </>
                   ) : (
-                    <p className="text-gray-900 font-medium px-4 py-3 bg-gray-50 rounded-lg">
+                    <p className="text-gray-900 font-medium px-4 py-3 bg-gray-50 rounded-lg break-all">
                       {formData.email}
                     </p>
                   )}
@@ -776,7 +768,7 @@ const UserProfile = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Student ID
                   </label>
-                  {isEditing ? (
+                  {isOwnProfile && isEditing ? (
                     <>
                       <input
                         type="text"
@@ -831,14 +823,14 @@ const UserProfile = () => {
               </div>
             </div>
 
-            {/* Tour Highlights */}
+            {/* Featured Photos */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   <Camera className="w-5 h-5 text-[#19aaba]" />
                   Featured Photos
                 </h3>
-                {(!userData?.featuredPhotos || userData.featuredPhotos.length < 6) && (
+                {isOwnProfile && (!userData?.featuredPhotos || userData.featuredPhotos.length < 6) && (
                   <button
                     onClick={handleAddPhotoClick}
                     disabled={uploadingImage}
@@ -869,52 +861,58 @@ const UserProfile = () => {
                             {photo.caption && (
                               <p className="text-white text-sm font-medium mb-2 line-clamp-2">{photo.caption}</p>
                             )}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditCaption(photo);
-                                }}
-                                className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-sm font-medium transition-colors"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                                Edit
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteFeaturedPhoto(photo._id);
-                                }}
-                                disabled={uploadingImage}
-                                className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors disabled:opacity-50"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                                Delete
-                              </button>
-                            </div>
+                            {isOwnProfile && (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditCaption(photo);
+                                  }}
+                                  className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-sm font-medium transition-colors"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteFeaturedPhoto(photo._id);
+                                  }}
+                                  disabled={uploadingImage}
+                                  className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors disabled:opacity-50"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  Delete
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 text-center">
-                    <p className="text-gray-500 text-sm">
-                      {userData.featuredPhotos.length} of 6 photos
-                    </p>
-                  </div>
+                  {isOwnProfile && (
+                    <div className="mt-4 text-center">
+                      <p className="text-gray-500 text-sm">
+                        {userData.featuredPhotos.length} of 6 photos
+                      </p>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="text-center py-12">
                   <Camera className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 mb-4">No featured photos yet</p>
-                  <button
-                    onClick={handleAddPhotoClick}
-                    disabled={uploadingImage}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Add Your First Photo
-                  </button>
+                  {isOwnProfile && (
+                    <button
+                      onClick={handleAddPhotoClick}
+                      disabled={uploadingImage}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Add Your First Photo
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -922,8 +920,8 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Change Password Modal */}
-      {showPasswordModal && (
+      {/* Change Password Modal - Only for own profile */}
+      {isOwnProfile && showPasswordModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
@@ -1072,8 +1070,8 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Add Photo Modal */}
-      {showAddPhotoModal && (
+      {/* Add Photo Modal - Only for own profile */}
+      {isOwnProfile && showAddPhotoModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
@@ -1095,7 +1093,6 @@ const UserProfile = () => {
               </div>
 
               <div className="space-y-4">
-                {/* Preview Section */}
                 {featuredPhotoPreview && (
                   <div className="relative">
                     <img
@@ -1177,8 +1174,8 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Edit Caption Modal */}
-      {showEditCaptionModal && (
+      {/* Edit Caption Modal - Only for own profile */}
+      {isOwnProfile && showEditCaptionModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
@@ -1262,14 +1259,16 @@ const UserProfile = () => {
       )}
 
       {/* Profile Picture Preview Modal - Telegram Style */}
-      <ProfilePictureModal
-        isOpen={showProfilePicturePreviewModal}
-        onClose={handleCancelProfilePictureUpload}
-        imageUrl={profilePicturePreview}
-        onUpload={handleConfirmProfilePictureUpload}
-        isUploading={uploadingImage}
-        title="Adjust Profile Picture"
-      />
+      {isOwnProfile && (
+        <ProfilePictureModal
+          isOpen={showProfilePicturePreviewModal}
+          onClose={handleCancelProfilePictureUpload}
+          imageUrl={profilePicturePreview}
+          onUpload={handleConfirmProfilePictureUpload}
+          isUploading={uploadingImage}
+          title="Adjust Profile Picture"
+        />
+      )}
 
       {/* Profile Picture View Modal - WhatsApp Style */}
       {userData?.profilePicture?.url && (
@@ -1278,8 +1277,8 @@ const UserProfile = () => {
           onClose={() => setShowProfileImageViewModal(false)}
           imageUrl={userData.profilePicture.url}
           imageName={formData.name}
-          onDelete={handleDeleteProfilePicture}
-          canDelete={true}
+          onDelete={isOwnProfile ? handleDeleteProfilePicture : undefined}
+          canDelete={isOwnProfile}
           isDeleting={uploadingImage}
         />
       )}
@@ -1301,4 +1300,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default ProfilePage;

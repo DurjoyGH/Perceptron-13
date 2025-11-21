@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import UserAvatar from '../common/UserAvatar';
 import { 
   LogOut, 
   LayoutDashboard, 
@@ -162,11 +163,7 @@ const AdminLayout = () => {
                   <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-600 uppercase">{user?.role}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#19aaba] to-[#158c99] flex items-center justify-center border-2 border-cyan-200">
-                  <span className="text-white font-bold text-lg">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <UserAvatar user={user} size="md" showBorder borderColor="border-cyan-200" />
               </div>
             </div>
           </div>

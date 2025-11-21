@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, User, LogOut } from 'lucide-react';
+import UserAvatar from '../common/UserAvatar';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -108,7 +109,7 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <User size={16} />
+                      <UserAvatar user={user} size="xs" />
                       <span>Profile</span>
                     </>
                   )}
@@ -135,7 +136,7 @@ const Navbar = () => {
                 {user.role === 'admin' ? (
                   <LayoutDashboard size={20} />
                 ) : (
-                  <User size={20} />
+                  <UserAvatar user={user} size="sm" />
                 )}
               </button>
             )}
@@ -230,7 +231,7 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <User size={16} />
+                        <UserAvatar user={user} size="xs" />
                         <span>My Profile</span>
                       </>
                     )}

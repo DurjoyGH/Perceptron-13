@@ -8,7 +8,6 @@ import UserLayout from './components/Layouts/UserLayout';
 import { AdminRoute, UserRoute } from './components/ProtectedRoutes/ProtectedRoutes';
 import HomePage from './pages/Public/HomePage';
 import MembersPage from './pages/Public/MembersPage';
-import MemberProfilePage from './pages/Public/MemberProfilePage';
 import TourSchedulePage from './pages/Public/TourSchedulePage';
 import BusSeatAllocationPage from './pages/Public/BusSeatAllocationPage';
 import ShipSeatAllocationPage from './pages/Public/ShipSeatAllocationPage';
@@ -19,8 +18,7 @@ import Login from './pages/Auth/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
-import AdminProfile from './pages/Admin/AdminProfile';
-import UserProfile from './pages/User/UserProfile';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -37,7 +35,7 @@ function App() {
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomePage />} />
             <Route path="members" element={<MembersPage />} />
-            <Route path="member/:id" element={<MemberProfilePage />} />
+            <Route path="member/:id" element={<ProfilePage />} />
             <Route path="schedule" element={<TourSchedulePage />} />
             <Route path='bus-seat-allocation' element={<BusSeatAllocationPage />} />
             <Route path='ship-seat-allocation' element={<ShipSeatAllocationPage />} />
@@ -57,13 +55,13 @@ function App() {
 
           {/* User Routes (Protected) */}
           <Route path="/user" element={<UserRoute><UserLayout /></UserRoute>}>
-            <Route path="profile" element={<UserProfile />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           {/* Admin Routes (Protected) */}
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboard />} />
-            <Route path="profile" element={<AdminProfile />} />
+            <Route path="profile" element={<ProfilePage />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
             <Route path="gallery" element={<ManageGallery />} />
           </Route>
