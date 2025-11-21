@@ -285,7 +285,7 @@ const Login = () => {
                   {/* Photo 1 - Top Left (Tilted) */}
                   <div className="absolute top-0 left-0 w-[45%] h-[40%] sm:h-[45%] transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10">
                     <div className="w-full h-full bg-white p-1.5 sm:p-2 rounded-lg shadow-xl">
-                      <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-blue-500 rounded"></div>
+                      <img  className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 rounded" src="src/assets/login1.avif" alt="" />
                     </div>
                     <div className="absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 bg-red-500 rounded-full shadow-lg transform rotate-12"></div>
                   </div>
@@ -293,7 +293,7 @@ const Login = () => {
                   {/* Photo 2 - Top Right (Tilted opposite) */}
                   <div className="absolute top-0 right-0 w-[45%] h-[40%] sm:h-[45%] transform rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10">
                     <div className="w-full h-full bg-white p-1.5 sm:p-2 rounded-lg shadow-xl">
-                      <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 rounded"></div>
+                      <img  className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 rounded" src="src/assets/login2.jpg" alt="" />
                     </div>
                     <div className="absolute -bottom-2 -left-2 w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full shadow-lg transform -rotate-12"></div>
                   </div>
@@ -301,7 +301,7 @@ const Login = () => {
                   {/* Photo 3 - Bottom Left */}
                   <div className="absolute bottom-0 left-0 w-[45%] h-[40%] sm:h-[45%] transform rotate-1 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10">
                     <div className="w-full h-full bg-white p-1.5 sm:p-2 rounded-lg shadow-xl">
-                      <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 rounded"></div>
+                      <img  className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 rounded" src="src/assets/login3.jpg" alt="" />
                     </div>
                     <div className="absolute -top-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full shadow-lg transform rotate-45"></div>
                   </div>
@@ -309,7 +309,7 @@ const Login = () => {
                   {/* Photo 4 - Bottom Right */}
                   <div className="absolute bottom-0 right-0 w-[45%] h-[40%] sm:h-[45%] transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10">
                     <div className="w-full h-full bg-white p-1.5 sm:p-2 rounded-lg shadow-xl">
-                      <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded"></div>
+                      <img  className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded" src="src/assets/login4.jpg" alt="" />
                     </div>
                     <div className="absolute -top-2 -left-2 w-6 h-6 sm:w-8 sm:h-8 bg-yellow-500 rounded-full shadow-lg transform -rotate-45"></div>
                   </div>
