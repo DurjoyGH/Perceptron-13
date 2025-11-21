@@ -122,6 +122,19 @@ export const deleteEvent = async (day, eventId) => {
   }
 };
 
+// Send event notification email (admin only)
+export const sendEventEmail = async (day, eventId, subject) => {
+  try {
+    const response = await api.post(`/schedules/${day}/events/${eventId}/send-email`, { 
+      eventId,
+      subject 
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Add image to gallery (admin only)
 export const addGalleryImage = async (day, imageFile, caption) => {
   try {

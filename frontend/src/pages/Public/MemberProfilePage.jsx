@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { getMemberByStudentId } from '../../services/userApi';
+import AvatarModal from '../../components/Profile/AvatarModal';
 
 const MemberProfilePage = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const MemberProfilePage = () => {
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   useEffect(() => {
     fetchMemberData();
@@ -110,17 +112,22 @@ const MemberProfilePage = () => {
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden lg:sticky lg:top-8">
               {/* Avatar Section */}
               <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-6 sm:p-8 text-center">
-                {member.profilePicture?.url ? (
-                  <img
-                    src={member.profilePicture.url}
-                    alt={member.name}
-                    className="w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-full object-cover shadow-lg mb-3 sm:mb-4 border-4 border-white"
-                  />
-                ) : (
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-white rounded-full flex items-center justify-center text-[#19aaba] text-3xl sm:text-4xl font-bold shadow-lg mb-3 sm:mb-4">
-                    {getInitials(member.name)}
-                  </div>
-                )}
+                <button
+                  onClick={() => setShowAvatarModal(true)}
+                  className="mx-auto block focus:outline-none focus:ring-4 focus:ring-white/50 rounded-full transition-transform hover:scale-105 mb-3 sm:mb-4"
+                >
+                  {member.profilePicture?.url ? (
+                    <img
+                      src={member.profilePicture.url}
+                      alt={member.name}
+                      className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover shadow-lg border-4 border-white cursor-pointer"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center text-[#19aaba] text-3xl sm:text-4xl font-bold shadow-lg cursor-pointer">
+                      {getInitials(member.name)}
+                    </div>
+                  )}
+                </button>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{member.name}</h2>
                 <p className="text-white/90 font-mono text-base sm:text-lg">{member.studentID}</p>
               </div>
@@ -249,6 +256,13 @@ const MemberProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Avatar Modal */}
+      <AvatarModal
+        user={member}
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+      />
     </div>
   );
 };

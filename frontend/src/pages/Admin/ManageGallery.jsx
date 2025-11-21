@@ -19,6 +19,7 @@ import {
   deleteGalleryImage
 } from '../../services/tourScheduleApi';
 import { toast } from 'sonner';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const ManageGallery = () => {
   const fileInputRef = useRef(null);
@@ -36,6 +37,8 @@ const ManageGallery = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDay, setFilterDay] = useState('all');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -173,15 +176,22 @@ const ManageGallery = () => {
   };
 
   const handleDeleteImage = async (image) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return;
+    setImageToDelete(image);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteImage = async () => {
+    if (!imageToDelete) return;
 
     try {
-      const response = await deleteGalleryImage(image.scheduleDay, image._id);
+      const response = await deleteGalleryImage(imageToDelete.scheduleDay, imageToDelete._id);
       toast.success(response.message);
       fetchData();
     } catch (error) {
       console.error('Failed to delete image:', error);
       toast.error(error.response?.data?.message || 'Failed to delete image');
+    } finally {
+      setImageToDelete(null);
     }
   };
 
@@ -592,6 +602,21 @@ const ManageGallery = () => {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setImageToDelete(null);
+        }}
+        onConfirm={confirmDeleteImage}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

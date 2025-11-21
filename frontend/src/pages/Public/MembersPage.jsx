@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getAllMembers } from '../../services/userApi';
 import CustomToast from '../../components/ScrollTop/ScrollTop';
+import AvatarModal from '../../components/Profile/AvatarModal';
 
 const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +22,8 @@ const MembersPage = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   useEffect(() => {
     fetchMembers();
@@ -42,6 +45,11 @@ const MembersPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAvatarClick = (member) => {
+    setSelectedMember(member);
+    setShowAvatarModal(true);
   };
 
   // Filter members based on search term and filter type
@@ -273,17 +281,22 @@ const MembersPage = () => {
                       </td>
                       <td className="px-4 lg:px-6 py-3 lg:py-4">
                         <div className="flex items-center gap-3">
-                          {member.profilePicture?.url ? (
-                            <img
-                              src={member.profilePicture.url}
-                              alt={member.name}
-                              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                            />
-                          ) : (
-                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                              {getInitials(member.name)}
-                            </div>
-                          )}
+                          <button 
+                            onClick={() => handleAvatarClick(member)}
+                            className="flex-shrink-0 focus:outline-none"
+                          >
+                            {member.profilePicture?.url ? (
+                              <img
+                                src={member.profilePicture.url}
+                                alt={member.name}
+                                className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
+                              />
+                            ) : (
+                              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
+                                {getInitials(member.name)}
+                              </div>
+                            )}
+                          </button>
                           <span className="text-sm font-medium text-gray-900">{member.name}</span>
                         </div>
                       </td>
@@ -317,17 +330,22 @@ const MembersPage = () => {
                 <div key={member._id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
-                    {member.profilePicture?.url ? (
-                      <img
-                        src={member.profilePicture.url}
-                        alt={member.name}
-                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                      />
-                    ) : (
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                        {getInitials(member.name)}
-                      </div>
-                    )}
+                    <button 
+                      onClick={() => handleAvatarClick(member)}
+                      className="flex-shrink-0 focus:outline-none"
+                    >
+                      {member.profilePicture?.url ? (
+                        <img
+                          src={member.profilePicture.url}
+                          alt={member.name}
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
+                          {getInitials(member.name)}
+                        </div>
+                      )}
+                    </button>
                     
                     {/* Info */}
                     <div className="flex-1 min-w-0">
@@ -481,6 +499,13 @@ const MembersPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Avatar Modal */}
+      <AvatarModal 
+        user={selectedMember}
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+      />
     </div>
   );
 };

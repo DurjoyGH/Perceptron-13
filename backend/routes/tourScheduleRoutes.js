@@ -24,6 +24,9 @@ router.post('/schedules/:day/events', tourScheduleController.addEvent);
 router.put('/schedules/:day/events/:eventId', tourScheduleController.updateEvent);
 router.delete('/schedules/:day/events/:eventId', tourScheduleController.deleteEvent);
 
+// Send event notification email
+router.post('/schedules/:day/events/:eventId/send-email', tourScheduleController.sendEventEmail);
+
 // Gallery management within schedules
 router.post('/schedules/:day/gallery', upload.single('image'), tourScheduleController.addGalleryImage);
 router.put('/schedules/:day/gallery/:imageId', tourScheduleController.updateGalleryImage);

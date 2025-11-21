@@ -1,5 +1,8 @@
 const TourSchedule = require('../models/tourSchedule');
+const User = require('../models/user');
 const { cloudinary } = require('../configs/cloudinary');
+const sendEmail = require('../services/emailService');
+const { getEventEmailTemplate } = require('../utils/eventEmailTemplates');
 
 // Get all tour schedules
 const getAllSchedules = async (req, res) => {
@@ -503,6 +506,112 @@ const deleteGalleryImage = async (req, res) => {
   }
 };
 
+// Send event notification email
+const sendEventEmail = async (req, res) => {
+  try {
+    const { day } = req.params;
+    const { eventId, subject } = req.body;
+
+    if (!eventId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event ID is required'
+      });
+    }
+
+    // Find the schedule
+    const schedule = await TourSchedule.findOne({ day: parseInt(day) });
+
+    if (!schedule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Schedule not found'
+      });
+    }
+
+    // Find the event
+    const event = schedule.events.id(eventId);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    // Get all users
+    const users = await User.find({ role: 'user' }).select('email name');
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No users found to send email'
+      });
+    }
+
+    const emailPromises = [];
+    const failedEmails = [];
+
+    // Send emails to all users
+    for (const user of users) {
+      const htmlContent = getEventEmailTemplate({
+        eventType: event.type,
+        schedule: {
+          day: schedule.day,
+          date: schedule.date,
+          title: schedule.title,
+          location: schedule.location
+        },
+        event: {
+          time: event.time,
+          title: event.title,
+          description: event.description,
+          type: event.type
+        },
+        userName: user.name
+      });
+
+      const emailSubject = subject || `${event.title} - Day ${schedule.day} | Perceptron-13 Tour`;
+
+      const emailPromise = sendEmail({
+        to: user.email,
+        subject: emailSubject,
+        text: `${event.title} at ${event.time}. Location: ${schedule.location}`,
+        html: htmlContent
+      }).catch(error => {
+        console.error(`Failed to send email to ${user.email}:`, error);
+        failedEmails.push({ email: user.email, name: user.name });
+      });
+
+      emailPromises.push(emailPromise);
+    }
+
+    await Promise.allSettled(emailPromises);
+
+    const successCount = users.length - failedEmails.length;
+
+    res.status(200).json({
+      success: true,
+      message: `Event notification sent to ${successCount} out of ${users.length} users`,
+      data: {
+        event: event.title,
+        totalUsers: users.length,
+        successCount,
+        failedCount: failedEmails.length,
+        failedEmails
+      }
+    });
+
+  } catch (error) {
+    console.error('Send event email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send event emails',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllSchedules,
   getScheduleByDay,
@@ -513,6 +622,7 @@ module.exports = {
   updateEvent,
   deleteEvent,
   getScheduleStats,
+  sendEventEmail,
   addGalleryImage,
   updateGalleryImage,
   deleteGalleryImage

@@ -111,7 +111,15 @@ const getUserProfile = async (req, res) => {
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    const { name, email, studentID, currentPassword, newPassword } = req.body;
+    const { name, email, currentPassword, newPassword } = req.body;
+    
+    // Prevent studentID from being updated
+    if (req.body.studentID) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student ID cannot be changed'
+      });
+    }
     
     const user = await User.findById(req.user._id);
     
@@ -142,17 +150,6 @@ const updateUserProfile = async (req, res) => {
       }
     }
 
-    // Check if studentID is being updated and if it's already taken
-    if (studentID && studentID !== user.studentID) {
-      const existingUser = await User.findOne({ studentID });
-      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Student ID already in use'
-        });
-      }
-    }
-
     // If password change is requested
     if (currentPassword && newPassword) {
       // Verify current password
@@ -177,10 +174,9 @@ const updateUserProfile = async (req, res) => {
       user.password = await bcrypt.hash(newPassword, salt);
     }
 
-    // Update other fields
+    // Update other fields (studentID cannot be changed)
     if (name) user.name = name;
     if (email) user.email = email;
-    if (studentID) user.studentID = studentID;
 
     await user.save();
 

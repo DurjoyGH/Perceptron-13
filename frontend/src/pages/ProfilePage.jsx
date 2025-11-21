@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import ProfilePictureModal from '../components/Profile/ProfilePictureModal';
 import ImageViewModal from '../components/Profile/ImageViewModal';
+import AvatarModal from '../components/Profile/AvatarModal';
 
 const ProfilePage = () => {
   const { id } = useParams(); // Get user ID from URL params (if viewing another user)
@@ -60,6 +61,7 @@ const ProfilePage = () => {
   const [showProfileImageViewModal, setShowProfileImageViewModal] = useState(false);
   const [showFeaturedImageViewModal, setShowFeaturedImageViewModal] = useState(false);
   const [viewingFeaturedImage, setViewingFeaturedImage] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   
   const profilePictureInputRef = useRef(null);
   const featuredPhotoInputRef = useRef(null);
@@ -168,11 +170,7 @@ const ProfilePage = () => {
       }
     }
 
-    if (!tempFormData.studentID.trim()) {
-      newErrors.studentID = 'Student ID is required';
-    } else if (!/^\d{6}$/.test(tempFormData.studentID)) {
-      newErrors.studentID = 'Must be 6 digits';
-    }
+    // Student ID cannot be changed, so no validation needed
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -186,7 +184,13 @@ const ProfilePage = () => {
     setUpdating(true);
 
     try {
-      const response = await updateUserProfile(tempFormData);
+      // Don't send studentID in update request - it cannot be changed
+      const updateData = {
+        name: tempFormData.name,
+        email: tempFormData.email
+      };
+      
+      const response = await updateUserProfile(updateData);
       toast.success('Profile updated successfully!');
       setFormData({
         name: response.data.name,
@@ -381,7 +385,7 @@ const ProfilePage = () => {
 
   const handleViewProfilePicture = () => {
     if (userData?.profilePicture?.url) {
-      setShowProfileImageViewModal(true);
+      setShowAvatarModal(true);
     }
   };
 
@@ -558,17 +562,14 @@ const ProfilePage = () => {
                 <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-3 sm:mb-4">
                   {userData?.profilePicture?.url ? (
                     <div 
-                      className={`w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white ${isOwnProfile ? 'cursor-pointer group' : ''}`}
-                      onClick={isOwnProfile ? handleViewProfilePicture : undefined}
+                      className="w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white cursor-pointer group"
+                      onClick={handleViewProfilePicture}
                     >
                       <img 
                         src={userData.profilePicture.url} 
                         alt={formData.name}
-                        className={`w-full h-full object-cover ${isOwnProfile ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
-                      {isOwnProfile && (
-                        <div className="absolute inset-0 transition-colors duration-300 flex items-center justify-center"></div>
-                      )}
                     </div>
                   ) : (
                     <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg">
@@ -766,26 +767,11 @@ const ProfilePage = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Student ID
                   </label>
-                  {isOwnProfile && isEditing ? (
-                    <>
-                      <input
-                        type="text"
-                        name="studentID"
-                        value={tempFormData.studentID}
-                        onChange={handleTempChange}
-                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
-                          errors.studentID ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base`}
-                        placeholder="200120"
-                      />
-                      {errors.studentID && (
-                        <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.studentID}</p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="text-gray-900 font-medium font-mono px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
-                      {formData.studentID}
-                    </p>
+                  <p className="text-gray-900 font-medium font-mono px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-100 rounded-lg text-sm sm:text-base border border-gray-300">
+                    {formData.studentID}
+                  </p>
+                  {isOwnProfile && isEditing && (
+                    <p className="mt-1 text-xs text-gray-500">Student ID cannot be changed</p>
                   )}
                 </div>
               </div>
@@ -1294,6 +1280,13 @@ const ProfilePage = () => {
           canDelete={false}
         />
       )}
+
+      {/* Avatar Modal */}
+      <AvatarModal
+        user={userData}
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+      />
     </div>
   );
 };

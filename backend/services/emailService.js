@@ -16,7 +16,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
 
     const mailOptions = {
       from: {
-        name: 'VoterX',
+        name: 'Perceptron-13',
         address: process.env.EMAIL_USER
       },
       to,

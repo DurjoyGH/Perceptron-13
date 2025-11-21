@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { getAllUsers, getUserStats, updateUserRole } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import AvatarModal from '../../components/Profile/AvatarModal';
 
 const ManageUsers = () => {
   const { user } = useAuth();
@@ -17,6 +18,8 @@ const ManageUsers = () => {
   const [stats, setStats] = useState({ total: 0, admins: 0, users: 0, recentUsers: 0 });
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -52,6 +55,11 @@ const ManageUsers = () => {
       console.error('Failed to update role:', error);
       toast.error(error.response?.data?.message || 'Failed to update user role');
     }
+  };
+
+  const handleAvatarClick = (usr) => {
+    setSelectedUser(usr);
+    setShowAvatarModal(true);
   };
 
   const filteredUsers = users.filter(usr => 
@@ -180,20 +188,27 @@ const ManageUsers = () => {
                       <tr key={usr._id} className="hover:bg-cyan-50 transition-colors duration-150">
                         <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
                         <td className="px-4 py-4">
-                          <Link to={`/member/${usr.studentID}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                            {usr.profilePicture?.url ? (
-                              <img
-                                src={usr.profilePicture.url}
-                                alt={usr.name}
-                                className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-transparent hover:ring-[#19aaba] transition-all"
-                              />
-                            ) : (
-                              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hover:scale-105 transition-transform`}>
-                                {getInitials(usr.name)}
-                              </div>
-                            )}
-                            <span className="font-medium text-gray-900 hover:text-[#19aaba] transition-colors">{usr.name}</span>
-                          </Link>
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => handleAvatarClick(usr)}
+                              className="flex-shrink-0 focus:outline-none"
+                            >
+                              {usr.profilePicture?.url ? (
+                                <img
+                                  src={usr.profilePicture.url}
+                                  alt={usr.name}
+                                  className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
+                                />
+                              ) : (
+                                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
+                                  {getInitials(usr.name)}
+                                </div>
+                              )}
+                            </button>
+                            <Link to={`/member/${usr.studentID}`} className="font-medium text-gray-900 hover:text-[#19aaba] transition-colors">
+                              {usr.name}
+                            </Link>
+                          </div>
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-600">{usr.email}</td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-700">{usr.studentID}</td>
@@ -236,19 +251,22 @@ const ManageUsers = () => {
                   <div key={usr._id} className="p-4 hover:bg-cyan-50 transition-colors">
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
-                      <Link to={`/member/${usr.studentID}`} className="flex-shrink-0">
+                      <button 
+                        onClick={() => handleAvatarClick(usr)}
+                        className="flex-shrink-0 focus:outline-none"
+                      >
                         {usr.profilePicture?.url ? (
                           <img
                             src={usr.profilePicture.url}
                             alt={usr.name}
-                            className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all"
+                            className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
                           />
                         ) : (
-                          <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform`}>
+                          <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
                             {getInitials(usr.name)}
                           </div>
                         )}
-                      </Link>
+                      </button>
                       
                       {/* Info */}
                       <div className="flex-1 min-w-0">
@@ -298,6 +316,13 @@ const ManageUsers = () => {
           </div>
         </div>
       </div>
+
+      {/* Avatar Modal */}
+      <AvatarModal 
+        user={selectedUser}
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+      />
     </div>
   );
 };

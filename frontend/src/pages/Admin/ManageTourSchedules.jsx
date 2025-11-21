@@ -13,7 +13,8 @@ import {
   PlayCircle,
   XCircle,
   AlertCircle,
-  Loader
+  Loader,
+  Mail
 } from 'lucide-react';
 import { 
   getAllSchedules, 
@@ -23,9 +24,12 @@ import {
   addEvent,
   updateEvent,
   deleteEvent,
-  getScheduleStats
+  getScheduleStats,
+  sendEventEmail
 } from '../../services/tourScheduleApi';
 import { toast } from 'sonner';
+import ConfirmModal from '../../components/common/ConfirmModal';
+
 
 const ManageTourSchedules = () => {
   const [schedules, setSchedules] = useState([]);
@@ -35,6 +39,9 @@ const ManageTourSchedules = () => {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [sendingEmail, setSendingEmail] = useState(null); // Track which event is sending email
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
   const [scheduleForm, setScheduleForm] = useState({
     day: '',
     date: '',
@@ -107,8 +114,17 @@ const ManageTourSchedules = () => {
   };
 
   const handleDeleteSchedule = async (day) => {
-    if (!window.confirm('Are you sure you want to delete this schedule?')) return;
+    setConfirmAction({
+      type: 'deleteSchedule',
+      data: day,
+      title: 'Delete Schedule',
+      message: 'Are you sure you want to delete this schedule? All events under this schedule will also be deleted.',
+      confirmText: 'Delete'
+    });
+    setShowConfirmModal(true);
+  };
 
+  const confirmDeleteSchedule = async (day) => {
     try {
       const response = await deleteSchedule(day);
       toast.success(response.message);
@@ -154,8 +170,19 @@ const ManageTourSchedules = () => {
   };
 
   const handleDeleteEvent = async (eventId) => {
-    if (!selectedSchedule || !window.confirm('Are you sure you want to delete this event?')) return;
+    if (!selectedSchedule) return;
+    
+    setConfirmAction({
+      type: 'deleteEvent',
+      data: eventId,
+      title: 'Delete Event',
+      message: 'Are you sure you want to delete this event? This action cannot be undone.',
+      confirmText: 'Delete'
+    });
+    setShowConfirmModal(true);
+  };
 
+  const confirmDeleteEvent = async (eventId) => {
     try {
       const response = await deleteEvent(selectedSchedule.day, eventId);
       toast.success(response.message);
@@ -164,6 +191,50 @@ const ManageTourSchedules = () => {
       console.error('Failed to delete event:', error);
       toast.error(error.response?.data?.message || 'Failed to delete event');
     }
+  };
+
+  const handleSendEventEmail = async (schedule, event) => {
+    setConfirmAction({
+      type: 'sendEmail',
+      data: { schedule, event },
+      title: 'Send Email Notification',
+      message: `Send email notification for "${event.title}" to all members?`,
+      confirmText: 'Send Email'
+    });
+    setShowConfirmModal(true);
+  };
+
+  const confirmSendEventEmail = async ({ schedule, event }) => {
+    setSendingEmail(event._id);
+    try {
+      const response = await sendEventEmail(schedule.day, event._id);
+      toast.success(response.message);
+    } catch (error) {
+      console.error('Failed to send event email:', error);
+      toast.error(error.response?.data?.message || 'Failed to send event email');
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+
+    switch (confirmAction.type) {
+      case 'deleteSchedule':
+        confirmDeleteSchedule(confirmAction.data);
+        break;
+      case 'deleteEvent':
+        confirmDeleteEvent(confirmAction.data);
+        break;
+      case 'sendEmail':
+        confirmSendEventEmail(confirmAction.data);
+        break;
+      default:
+        break;
+    }
+    
+    setConfirmAction(null);
   };
 
   const openScheduleModal = (schedule = null) => {
@@ -385,6 +456,18 @@ const ManageTourSchedules = () => {
                         )}
                       </div>
                       <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => handleSendEventEmail(schedule, event)}
+                          disabled={sendingEmail === event._id}
+                          className="p-1 sm:p-1.5 bg-cyan-100 text-cyan-600 rounded hover:bg-cyan-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Send Email Notification"
+                        >
+                          {sendingEmail === event._id ? (
+                            <Loader className="w-3 h-3 sm:w-[14px] sm:h-[14px] animate-spin" />
+                          ) : (
+                            <Mail className="w-3 h-3 sm:w-[14px] sm:h-[14px]" />
+                          )}
+                        </button>
                         <button
                           onClick={() => openEventModal(schedule, event)}
                           className="p-1 sm:p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
@@ -653,7 +736,20 @@ const ManageTourSchedules = () => {
         </div>
       )}
 
-
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setConfirmAction(null);
+        }}
+        onConfirm={handleConfirmAction}
+        title={confirmAction?.title || 'Confirm Action'}
+        message={confirmAction?.message || 'Are you sure you want to proceed?'}
+        confirmText={confirmAction?.confirmText || 'Confirm'}
+        cancelText="Cancel"
+        type={confirmAction?.type === 'sendEmail' ? 'info' : 'danger'}
+      />
     </div>
   );
 };
