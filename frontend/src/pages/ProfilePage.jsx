@@ -514,14 +514,14 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
+      <div className="bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
             <button
               onClick={handleBackNavigation}
-              className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm sm:text-base"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="font-medium">
                 {authUser?.role === 'admin' ? 'Back to Dashboard' : isOwnProfile ? 'Back to Home' : 'Back to Members'}
               </span>
@@ -529,7 +529,7 @@ const ProfilePage = () => {
             {isOwnProfile && (
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 transition-colors"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 transition-colors text-sm sm:text-base"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="font-medium">Logout</span>
@@ -537,25 +537,25 @@ const ProfilePage = () => {
             )}
           </div>
           
-          <div className="flex items-center gap-2 text-sm mb-2">
-            <Users className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm mb-2">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>Industrial Tour 2025</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
             {isOwnProfile ? 'My Profile' : 'Member Profile'}
           </h1>
         </div>
       </div>
 
       {/* Profile Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column - Profile Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden sticky top-8">
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden lg:sticky lg:top-8">
               {/* Avatar Section */}
-              <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-8 text-center relative">
-                <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-6 sm:p-8 text-center relative">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-3 sm:mb-4">
                   {userData?.profilePicture?.url ? (
                     <div 
                       className={`w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white ${isOwnProfile ? 'cursor-pointer group' : ''}`}
@@ -582,13 +582,13 @@ const ProfilePage = () => {
                       <button
                         onClick={handleProfilePictureClick}
                         disabled={uploadingImage}
-                        className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
+                        className="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors border-2 border-[#19aaba] disabled:opacity-50"
                         title="Change profile picture"
                       >
                         {uploadingImage ? (
-                          <Loader className="w-5 h-5 text-[#19aaba] animate-spin" />
+                          <Loader className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba] animate-spin" />
                         ) : (
-                          <Camera className="w-5 h-5 text-[#19aaba]" />
+                          <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
                         )}
                       </button>
                       <input
@@ -605,24 +605,24 @@ const ProfilePage = () => {
                   <button
                     onClick={handleDeleteProfilePicture}
                     disabled={uploadingImage}
-                    className="text-white/90 hover:text-white text-sm underline mb-2 disabled:opacity-50"
+                    className="text-white/90 hover:text-white text-xs sm:text-sm underline mb-2 disabled:opacity-50"
                   >
                     Remove photo
                   </button>
                 )}
-                <h2 className="text-2xl font-bold text-white mb-2">{formData.name}</h2>
-                <p className="text-white/90 font-mono text-lg">{formData.studentID}</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2 break-words px-2">{formData.name}</h2>
+                <p className="text-white/90 font-mono text-base sm:text-lg">{formData.studentID}</p>
               </div>
 
               {/* Quick Info */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-3 text-gray-700">
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <GraduationCap className="w-5 h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Program</p>
-                    <p className="text-sm font-medium">B.Sc. in CSE</p>
+                    <p className="text-sm font-medium truncate">B.Sc. in CSE</p>
                   </div>
                 </div>
 
@@ -630,9 +630,9 @@ const ProfilePage = () => {
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Award className="w-5 h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Batch</p>
-                    <p className="text-sm font-medium">Perceptron-13</p>
+                    <p className="text-sm font-medium truncate">Perceptron-13</p>
                   </div>
                 </div>
 
@@ -640,20 +640,20 @@ const ProfilePage = () => {
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-5 h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Institution</p>
-                    <p className="text-sm font-medium">Jashore University of Science and Technology</p>
+                    <p className="text-sm font-medium break-words">Jashore University of Science and Technology</p>
                   </div>
                 </div>
 
                 {isOwnProfile && (
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-3 sm:pt-4 border-t border-gray-200">
                     <button
                       onClick={() => setShowPasswordModal(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm"
                     >
                       <Lock className="w-4 h-4" />
-                      Change Password
+                      <span>Change Password</span>
                     </button>
                   </div>
                 )}
@@ -662,47 +662,47 @@ const ProfilePage = () => {
           </div>
 
           {/* Right Column - Details */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Personal Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                   <User className="w-5 h-5 text-[#19aaba]" />
-                  Personal Information
+                  <span>Personal Information</span>
                 </h3>
                 {isOwnProfile && !isEditing && (
                   <button
                     onClick={handleEditClick}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors text-sm w-full sm:w-auto"
                   >
                     <Edit2 className="w-4 h-4" />
-                    Edit Profile
+                    <span>Edit Profile</span>
                   </button>
                 )}
                 {isOwnProfile && isEditing && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={handleCancelEdit}
                       disabled={updating}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50 text-sm"
                     >
                       <X className="w-4 h-4" />
-                      Cancel
+                      <span>Cancel</span>
                     </button>
                     <button
                       onClick={handleSaveProfile}
                       disabled={updating}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 text-sm"
                     >
                       {updating ? (
                         <>
                           <Loader className="w-4 h-4 animate-spin" />
-                          Saving...
+                          <span>Saving...</span>
                         </>
                       ) : (
                         <>
                           <Check className="w-4 h-4" />
-                          Save
+                          <span>Save</span>
                         </>
                       )}
                     </button>
@@ -721,17 +721,17 @@ const ProfilePage = () => {
                         name="name"
                         value={tempFormData.name}
                         onChange={handleTempChange}
-                        className={`w-full px-4 py-3 border ${
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                           errors.name ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all`}
+                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base`}
                         placeholder="Enter your full name"
                       />
                       {errors.name && (
-                        <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.name}</p>
                       )}
                     </>
                   ) : (
-                    <p className="text-gray-900 font-medium px-4 py-3 bg-gray-50 rounded-lg">
+                    <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg break-words text-sm sm:text-base">
                       {formData.name}
                     </p>
                   )}
@@ -748,17 +748,17 @@ const ProfilePage = () => {
                         name="email"
                         value={tempFormData.email}
                         onChange={handleTempChange}
-                        className={`w-full px-4 py-3 border ${
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                           errors.email ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all`}
+                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base`}
                         placeholder="2001xxx.cse@student.just.edu.bd"
                       />
                       {errors.email && (
-                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.email}</p>
                       )}
                     </>
                   ) : (
-                    <p className="text-gray-900 font-medium px-4 py-3 bg-gray-50 rounded-lg break-all">
+                    <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg break-all text-sm sm:text-base">
                       {formData.email}
                     </p>
                   )}
@@ -775,17 +775,17 @@ const ProfilePage = () => {
                         name="studentID"
                         value={tempFormData.studentID}
                         onChange={handleTempChange}
-                        className={`w-full px-4 py-3 border ${
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                           errors.studentID ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all`}
+                        } rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base`}
                         placeholder="200120"
                       />
                       {errors.studentID && (
-                        <p className="mt-1 text-sm text-red-600">{errors.studentID}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.studentID}</p>
                       )}
                     </>
                   ) : (
-                    <p className="text-gray-900 font-medium font-mono px-4 py-3 bg-gray-50 rounded-lg">
+                    <p className="text-gray-900 font-medium font-mono px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
                       {formData.studentID}
                     </p>
                   )}
@@ -794,50 +794,50 @@ const ProfilePage = () => {
             </div>
 
             {/* Academic Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-[#19aaba]" />
-                Academic Information
+                <span>Academic Information</span>
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Student ID</span>
-                  <span className="font-mono font-semibold text-gray-900">{formData.studentID}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm">Student ID</span>
+                  <span className="font-mono font-semibold text-gray-900 text-sm sm:text-base">{formData.studentID}</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Department</span>
-                  <span className="font-semibold text-gray-900">Computer Science & Engineering</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm">Department</span>
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Computer Science & Engineering</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Batch Name</span>
-                  <span className="font-semibold text-gray-900">Perceptron-13</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm">Batch Name</span>
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base">Perceptron-13</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Session</span>
-                  <span className="font-semibold text-gray-900">2020-21</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm">Session</span>
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base">2020-21</span>
                 </div>
-                <div className="flex justify-between py-3">
-                  <span className="text-gray-600">University</span>
-                  <span className="font-semibold text-gray-900">Jashore University of Science and Technology</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-3 gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm">University</span>
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Jashore University of Science and Technology</span>
                 </div>
               </div>
             </div>
 
             {/* Featured Photos */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                   <Camera className="w-5 h-5 text-[#19aaba]" />
-                  Featured Photos
+                  <span>Featured Photos</span>
                 </h3>
                 {isOwnProfile && (!userData?.featuredPhotos || userData.featuredPhotos.length < 6) && (
                   <button
                     onClick={handleAddPhotoClick}
                     disabled={uploadingImage}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors disabled:opacity-50 text-sm w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4" />
-                    Add Photo
+                    <span>Add Photo</span>
                   </button>
                 )}
               </div>

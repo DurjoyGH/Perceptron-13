@@ -84,86 +84,86 @@ const MemberProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-8">
+      <div className="bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate('/members')}
-            className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium">Back to Members</span>
           </button>
           
-          <div className="flex items-center gap-2 text-sm mb-2">
-            <Users className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm mb-2">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>Industrial Tour 2025</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold">Member Profile</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Member Profile</h1>
         </div>
       </div>
 
       {/* Profile Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Profile Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden sticky top-8">
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden lg:sticky lg:top-8">
               {/* Avatar Section */}
-              <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-8 text-center">
+              <div className="bg-gradient-to-br from-[#19aaba] to-[#158c99] p-6 sm:p-8 text-center">
                 {member.profilePicture?.url ? (
                   <img
                     src={member.profilePicture.url}
                     alt={member.name}
-                    className="w-32 h-32 mx-auto rounded-full object-cover shadow-lg mb-4 border-4 border-white"
+                    className="w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-full object-cover shadow-lg mb-3 sm:mb-4 border-4 border-white"
                   />
                 ) : (
-                  <div className="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center text-[#19aaba] text-4xl font-bold shadow-lg mb-4">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-white rounded-full flex items-center justify-center text-[#19aaba] text-3xl sm:text-4xl font-bold shadow-lg mb-3 sm:mb-4">
                     {getInitials(member.name)}
                   </div>
                 )}
-                <h2 className="text-2xl font-bold text-white mb-2">{member.name}</h2>
-                <p className="text-white/90 font-mono text-lg">{member.studentID}</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{member.name}</h2>
+                <p className="text-white/90 font-mono text-base sm:text-lg">{member.studentID}</p>
               </div>
 
               {/* Quick Info */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="w-5 h-5 text-[#19aaba]" />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-gray-500">Program</p>
                     <p className="text-sm font-medium">B.Sc. in CSE</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Award className="w-5 h-5 text-[#19aaba]" />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-gray-500">Batch</p>
                     <p className="text-sm font-medium">Perceptron-13</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-[#19aaba]" />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-gray-500">Gender</p>
                     <p className="text-sm font-medium capitalize">{member.gender}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-[#19aaba]" />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-gray-500">Institution</p>
-                    <p className="text-sm font-medium">Jashore University of Science and Technology</p>
+                    <p className="text-sm font-medium break-words">Jashore University of Science and Technology</p>
                   </div>
                 </div>
               </div>
@@ -174,45 +174,45 @@ const MemberProfilePage = () => {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Academic Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-[#19aaba]" />
                 Academic Information
               </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Student ID</span>
-                  <span className="font-mono font-semibold text-gray-900">{member.studentID}</span>
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-sm sm:text-base text-gray-600">Student ID</span>
+                  <span className="font-mono font-semibold text-sm sm:text-base text-gray-900 sm:text-right">{member.studentID}</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Department</span>
-                  <span className="font-semibold text-gray-900">Computer Science & Engineering</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-sm sm:text-base text-gray-600">Department</span>
+                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Computer Science & Engineering</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Batch Name</span>
-                  <span className="font-semibold text-gray-900">Perceptron-13</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-sm sm:text-base text-gray-600">Batch Name</span>
+                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">Perceptron-13</span>
                 </div>
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Session</span>
-                  <span className="font-semibold text-gray-900">2020-21</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                  <span className="text-sm sm:text-base text-gray-600">Session</span>
+                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">2020-21</span>
                 </div>
-                <div className="flex justify-between py-3">
-                  <span className="text-gray-600">University</span>
-                  <span className="font-semibold text-gray-900">Jashore University of Science and Technology</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 gap-1 sm:gap-0">
+                  <span className="text-sm sm:text-base text-gray-600">University</span>
+                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Jashore University of Science and Technology</span>
                 </div>
               </div>
             </div>
 
             {/* Tour Highlights */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                 <Camera className="w-5 h-5 text-[#19aaba]" />
                 Featured Photos
               </h3>
               
               {member.featuredPhotos && member.featuredPhotos.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {member.featuredPhotos.map((image, index) => (
                       <div 
                         key={index}
@@ -225,24 +225,24 @@ const MemberProfilePage = () => {
                         />
                         {image.caption && (
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <p className="text-white text-sm font-medium">{image.caption}</p>
+                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+                              <p className="text-white text-xs sm:text-sm font-medium break-words">{image.caption}</p>
                             </div>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 text-center">
-                    <p className="text-gray-500 text-sm">
+                  <div className="mt-3 sm:mt-4 text-center">
+                    <p className="text-gray-500 text-xs sm:text-sm">
                       {member.featuredPhotos.length} photos from the tour
                     </p>
                   </div>
                 </>
               ) : (
-                <div className="text-center py-12">
-                  <Camera className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-base">No photos available</p>
+                <div className="text-center py-8 sm:py-12">
+                  <Camera className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-gray-500 text-sm sm:text-base">No photos available</p>
                 </div>
               )}
             </div>
