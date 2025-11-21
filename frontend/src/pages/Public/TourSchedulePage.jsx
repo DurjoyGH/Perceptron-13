@@ -112,7 +112,7 @@ const TourSchedulePage = () => {
   const getStatusConfig = (status) => {
     const configs = {
       completed: {
-        icon: <CheckCircle2 className="w-4 h-4" />,
+        icon: <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
         label: 'Completed',
         bgColor: 'bg-green-100',
         textColor: 'text-green-700',
@@ -120,7 +120,7 @@ const TourSchedulePage = () => {
         dotColor: 'bg-green-500'
       },
       ongoing: {
-        icon: <PlayCircle className="w-4 h-4" />,
+        icon: <PlayCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
         label: 'Ongoing',
         bgColor: 'bg-blue-100',
         textColor: 'text-blue-700',
@@ -128,7 +128,7 @@ const TourSchedulePage = () => {
         dotColor: 'bg-blue-500'
       },
       upcoming: {
-        icon: <Clock3 className="w-4 h-4" />,
+        icon: <Clock3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
         label: 'Upcoming',
         bgColor: 'bg-gray-100',
         textColor: 'text-gray-600',
@@ -136,7 +136,7 @@ const TourSchedulePage = () => {
         dotColor: 'bg-gray-400'
       },
       cancelled: {
-        icon: <XCircle className="w-4 h-4" />,
+        icon: <XCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
         label: 'Cancelled',
         bgColor: 'bg-red-100',
         textColor: 'text-red-700',
@@ -144,7 +144,7 @@ const TourSchedulePage = () => {
         dotColor: 'bg-red-500'
       },
       delayed: {
-        icon: <AlertCircle className="w-4 h-4" />,
+        icon: <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
         label: 'Delayed',
         bgColor: 'bg-yellow-100',
         textColor: 'text-yellow-700',
@@ -378,10 +378,8 @@ const TourSchedulePage = () => {
                                     Day {daySchedule.day}
                                   </span>
                                   <div className={`flex items-center gap-1 sm:gap-1.5 ${statusConfig.bgColor} ${statusConfig.textColor} px-2 sm:px-2.5 md:px-3 py-0.5 sm:py-1 rounded-full border ${statusConfig.borderColor}`}>
-                                    <div className="w-3 h-3 sm:w-4 sm:h-4">
-                                      {statusConfig.icon}
-                                    </div>
-                                    <span className="text-[10px] sm:text-xs font-bold uppercase">{statusConfig.label}</span>
+                                    {statusConfig.icon}
+                                    <span className="text-[10px] sm:text-xs font-bold uppercase whitespace-nowrap">{statusConfig.label}</span>
                                   </div>
                                 </div>
                                 <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
@@ -464,13 +462,11 @@ const TourSchedulePage = () => {
                                               {event.time}
                                             </span>
                                             <div className={`flex items-center gap-1 sm:gap-1.5 ${eventStatusConfig.bgColor} ${eventStatusConfig.textColor} px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase border ${eventStatusConfig.borderColor}`}>
-                                              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4">
-                                                {eventStatusConfig.icon}
-                                              </div>
-                                              <span className="hidden min-[400px]:inline">{eventStatusConfig.label}</span>
+                                              {eventStatusConfig.icon}
+                                              <span className="hidden min-[400px]:inline whitespace-nowrap">{eventStatusConfig.label}</span>
                                             </div>
                                             {event.status === 'ongoing' && (
-                                              <span className="px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 bg-blue-500 text-white text-[10px] sm:text-xs font-bold rounded-full animate-pulse shadow-lg">
+                                              <span className="px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 bg-blue-500 text-white text-[10px] sm:text-xs font-bold rounded-full animate-pulse shadow-lg whitespace-nowrap">
                                                 LIVE
                                               </span>
                                             )}
