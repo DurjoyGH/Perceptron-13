@@ -20,6 +20,8 @@ import Login from './pages/Auth/Login';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
+import ManageUsers from './pages/Admin/ManageUsers';
+import SendEmail from './pages/Admin/SendEmail';
 import ProfilePage from './pages/ProfilePage';
 
 function App() {
@@ -65,6 +67,8 @@ function App() {
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="manage-users" element={<ManageUsers />} />
+            <Route path="send-email" element={<SendEmail />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
             <Route path="gallery" element={<ManageGallery />} />
           </Route>

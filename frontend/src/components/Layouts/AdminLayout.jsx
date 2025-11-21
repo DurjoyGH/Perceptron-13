@@ -12,7 +12,9 @@ import {
   Mail,
   Menu,
   X,
-  Image as ImageIcon
+  Image as ImageIcon,
+  UserCog,
+  MailPlus
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -32,6 +34,16 @@ const AdminLayout = () => {
       icon: LayoutDashboard,
       label: 'Dashboard',
       exact: true
+    },
+    {
+      path: '/admin/manage-users',
+      icon: UserCog,
+      label: 'Manage Users'
+    },
+    {
+      path: '/admin/send-email',
+      icon: MailPlus,
+      label: 'Send Email'
     },
     {
       path: '/admin/schedules',
@@ -151,6 +163,8 @@ const AdminLayout = () => {
                 </button>
                 <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                   {location.pathname === '/admin' && 'Dashboard'}
+                  {location.pathname === '/admin/manage-users' && 'Manage Users'}
+                  {location.pathname === '/admin/send-email' && 'Send Email'}
                   {location.pathname === '/admin/schedules' && 'Tour Schedules'}
                   {location.pathname === '/admin/gallery' && 'Gallery Management'}
                   {location.pathname === '/admin/profile' && 'My Profile'}
