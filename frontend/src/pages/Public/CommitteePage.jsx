@@ -203,49 +203,28 @@ const CommitteePage = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* General Inquiry */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <Mail className="w-6 h-6 text-blue-600" />
+          <div className="flex justify-center">
+            {/* Tour Contact */}
+            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200 hover:shadow-xl transition-shadow max-w-md w-full">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-[#19aaba]/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <Mail className="w-8 h-8 text-[#19aaba]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">General Inquiry</h3>
-              <p className="text-gray-600 text-center mb-4">For general questions about the tour</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Contact Us</h3>
+              <p className="text-gray-600 text-center mb-6">
+                For general inquiries, technical support, and all tour-related questions
+              </p>
               <a
-                href="mailto:info@perceptron13.com"
-                className="block text-center text-[#19aaba] hover:text-[#158c99] font-semibold text-sm"
+                href="mailto:tour@perceptron13.fun"
+                className="block text-center text-[#19aaba] hover:text-[#158c99] font-bold text-lg mb-4 transition-colors"
               >
-                info@perceptron13.com
+                tour@perceptron13.fun
               </a>
-            </div>
-
-            {/* Emergency Contact */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <Phone className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">Emergency Contact</h3>
-              <p className="text-gray-600 text-center mb-4">24/7 emergency support</p>
               <a
-                href="tel:+8801XXXXXXXXX"
-                className="block text-center text-[#19aaba] hover:text-[#158c99] font-semibold text-sm"
+                href="mailto:tour@perceptron13.fun"
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                +880 1XXX-XXXXXX
-              </a>
-            </div>
-
-            {/* Support */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <MessageSquare className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">Technical Support</h3>
-              <p className="text-gray-600 text-center mb-4">Help with the platform</p>
-              <a
-                href="mailto:support@perceptron13.com"
-                className="block text-center text-[#19aaba] hover:text-[#158c99] font-semibold text-sm"
-              >
-                support@perceptron13.com
+                <MessageSquare className="w-5 h-5" />
+                Send Email
               </a>
             </div>
           </div>
