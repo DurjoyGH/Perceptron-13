@@ -164,10 +164,6 @@ const ShipSeatAllocationPage = () => {
       {/* Header */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-8 md:py-12 lg:py-16">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0">
-          <Waves className="absolute top-0 right-0 w-64 h-64 opacity-10 animate-pulse" />
-          <Waves className="absolute bottom-0 left-0 w-48 h-48 opacity-10 animate-pulse" />
-        </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6 md:mb-8">

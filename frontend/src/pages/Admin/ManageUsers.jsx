@@ -328,9 +328,11 @@ const ManageUsers = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
-                              {usr.name}
-                            </h3>
+                            <Link to={`/member/${usr.studentID}`} className="block">
+                              <h3 className="text-sm font-semibold text-gray-900 hover:text-[#19aaba] transition-colors mb-1 line-clamp-1">
+                                {usr.name}
+                              </h3>
+                            </Link>
                             <p className="text-xs text-gray-600 line-clamp-1 mb-1">
                               {usr.email}
                             </p>

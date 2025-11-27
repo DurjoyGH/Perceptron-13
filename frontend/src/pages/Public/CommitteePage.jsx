@@ -34,7 +34,7 @@ const CommitteePage = () => {
     {
       id: "200107",
       name: "ABDULLAH AL NOMAN",
-      phone: "+880 1712-345107",
+      phone: "+880 1839-743638",
       email: "200107.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
@@ -43,7 +43,7 @@ const CommitteePage = () => {
     {
       id: "200118",
       name: "MOHAMMAD AZAZUL ISLAM",
-      phone: "+880 1712-345118",
+      phone: "+880 1810-434885",
       email: "200118.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
@@ -52,7 +52,7 @@ const CommitteePage = () => {
     {
       id: "200120",
       name: "DURJOY GHOSH",
-      phone: "+880 1712-345120",
+      phone: "+880 1859-093806",
       email: "200120.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
@@ -61,7 +61,7 @@ const CommitteePage = () => {
     {
       id: "200132",
       name: "MD. SADIK MAHMUD RAIHAN",
-      phone: "+880 1712-345132",
+      phone: "+880 1774-651008",
       email: "200132.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
@@ -70,7 +70,7 @@ const CommitteePage = () => {
     {
       id: "200140",
       name: "MD. ARAFATUZZAMAN",
-      phone: "+880 1712-345140",
+      phone: "+880 1522-100079",
       email: "200140.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
@@ -79,7 +79,7 @@ const CommitteePage = () => {
     {
       id: "200152",
       name: "SAJID HASAN TAKBIR",
-      phone: "+880 1712-345152",
+      phone: "+880 1750-006553",
       email: "200152.cse@student.just.edu.bd",
       department: "Computer Science & Engineering",
       type: "student",
