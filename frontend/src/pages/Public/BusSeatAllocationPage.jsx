@@ -52,36 +52,75 @@ const BusSeatAllocationPage = () => {
   ];
 
   // Seat allocation mapping - passengers swap seats with their pair in alternating segments
-  const seatAllocationMap = {
+const seatAllocationMap = {
+    // Leg 1: Jashore to Cumilla (P1, P2)
     jasToCum: {
       C1: 2, C2: 1, C3: 1, C4: 1, B1: 3, B2: 4, B3: 5, B4: 6, 
-      A1: 7, A2: 8, A3: 9, A4: 10, D1: 11, D2: 12,
-      H3: 13, H4: 14, D3: 15, D4: 16, E1: 17, E2: 18,
-      E3: 19, E4: 20, F1: 21, F2: 22, F3: 23, F4: 24,
-      G1: 25, G2: 26, G3: 27, G4: 28, H1: 29, H2: 30
+      A1: 7, A2: 8, // Sadik (7), Takbir (8)
+      A3: 9, A4: 10, // Sibly (9), Noman (10)
+      D1: 11, D2: 12, // Tahmid (11), Rafid (12)
+      H3: 13, H4: 14, // Makky (13), Durjoy (14)
+      D3: 15, D4: 16, // Nehal (15), Fahim (16)
+      E1: 17, E2: 18, // Sayed (17), Biswajit (18)
+      E3: 19, E4: 20, // Ramjan (19), Abrar (20)
+      F1: 21, F2: 22, // Oveshek (21), Tapu (22)
+      F3: 23, F4: 24, // Tanvir (23), Samit (24)
+      G1: 25, G2: 26, // Limon (25), Joy (26)
+      G3: 27, G4: 28, // Risan (27), Rezowan (28)
+      H1: 29, H2: 30 // Azaz (29), Arif (30)
     },
+    
+    // Leg 2: Cumilla to Cox's Bazar (P2, P1) - SWAPPED from previous
     cumToCox: {
-      C1: 2, C2: 1, C3: 1, C4: 1,  B1: 4, B2: 3, B3: 6, B4: 5,
-      A1: 8, A2: 7, A3: 10, A4: 9, D1: 12, D2: 11,
-      H3: 14, H4: 13, D3: 16, D4: 15, E1: 18, E2: 17,
-      E3: 20, E4: 19, F1: 22, F2: 21, F3: 24, F4: 23,
-      G1: 26, G2: 25, G3: 28, G4: 27, H1: 30, H2: 29
+      C1: 2, C2: 1, C3: 1, C4: 1, B1: 4, B2: 3, B3: 6, B4: 5,
+      H3: 8, H4: 7, // Takbir (8), Sadik (7)
+      H1: 10, H2: 9, // Noman (10), Sibly (9)
+      G3: 12, G4: 11, // Rafid (12), Tahmid (11)
+      A1: 14, A2: 13, // Durjoy (14), Makky (13)
+      G1: 16, G2: 15, // Fahim (16), Nehal (15)
+      F3: 18, F4: 17, // Biswajit (18), Sayed (17)
+      F1: 20, F2: 19, // Abrar (20), Ramjan (19)
+      E3: 22, E4: 21, // Tapu (22), Oveshek (21)
+      E1: 24, E2: 23, // Samit (24), Tanvir (23)
+      D3: 26, D4: 25, // Joy (26), Limon (25)
+      D1: 28, D2: 27, // Rezowan (28), Risan (27)
+      A3: 30, A4: 29 // Arif (30), Azaz (29)
     },
+    
+    // Leg 3: Cox's Bazar to Cumilla (P1, P2) - SWAPPED from previous
     coxToCum: {
       C1: 2, C2: 1, C3: 1, C4: 1, B1: 3, B2: 4, B3: 5, B4: 6,
-      A1: 7, A2: 8, A3: 9, A4: 10, D1: 11, D2: 12,
-      H3: 13, H4: 14, D3: 15, D4: 16, E1: 17, E2: 18,
-      E3: 19, E4: 20, F1: 21, F2: 22, F3: 23, F4: 24,
-      G1: 25, G2: 26, G3: 27, G4: 28, H1: 29, H2: 30
+      H3: 7, H4: 8, // Sadik (7), Takbir (8)
+      H1: 9, H2: 10, // Sibly (9), Noman (10)
+      G3: 11, G4: 12, // Tahmid (11), Rafid (12)
+      A1: 13, A2: 14, // Makky (13), Durjoy (14)
+      G1: 15, G2: 16, // Nehal (15), Fahim (16)
+      F3: 17, F4: 18, // Sayed (17), Biswajit (18)
+      F1: 19, F2: 20, // Ramjan (19), Abrar (20)
+      E3: 21, E4: 22, // Oveshek (21), Tapu (22)
+      E1: 23, E2: 24, // Tanvir (23), Samit (24)
+      D3: 25, D4: 26, // Limon (25), Joy (26)
+      D1: 27, D2: 28, // Risan (27), Rezowan (28)
+      A3: 29, A4: 30 // Azaz (29), Arif (30)
     },
+    
+    // Leg 4: Cumilla to Jashore (P2, P1)
     cumToJas: {
       C1: 2, C2: 1, C3: 1, C4: 1, B1: 4, B2: 3, B3: 6, B4: 5,
-      A1: 8, A2: 7, A3: 10, A4: 9, D1: 12, D2: 11,
-      H3: 14, H4: 13, D3: 16, D4: 15, E1: 18, E2: 17,
-      E3: 20, E4: 19, F1: 22, F2: 21, F3: 24, F4: 23,
-      G1: 26, G2: 25, G3: 28, G4: 27, H1: 30, H2: 29
+      A1: 8, A2: 7, // Takbir (8), Sadik (7)
+      A3: 10, A4: 9, // Noman (10), Sibly (9)
+      D1: 12, D2: 11, // Rafid (12), Tahmid (11)
+      H3: 14, H4: 13, // Durjoy (14), Makky (13)
+      D3: 16, D4: 15, // Fahim (16), Nehal (15)
+      E1: 18, E2: 17, // Biswajit (18), Sayed (17)
+      E3: 20, E4: 19, // Abrar (20), Ramjan (19)
+      F1: 22, F2: 21, // Tapu (22), Oveshek (21)
+      F3: 24, F4: 23, // Samit (24), Tanvir (23)
+      G1: 26, G2: 25, // Joy (26), Limon (25)
+      G3: 28, G4: 27, // Rezowan (28), Risan (27)
+      H1: 30, H2: 29 // Arif (30), Azaz (29)
     }
-  };
+};
 
   // Bus layout configuration (36 seats)
   const busLayout = {
