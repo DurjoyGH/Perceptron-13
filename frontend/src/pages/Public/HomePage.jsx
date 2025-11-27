@@ -723,12 +723,9 @@ const HomePage = () => {
           {/* Contact Info */}
           <div className="mt-12 pt-8 border-t border-white/20">
             <p className="text-gray-200 mb-4">For more information, contact:</p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex justify-center items-center">
               <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full">
-                <p className="font-semibold">Email: perceptron13@cse.just.ac.bd</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full">
-                <p className="font-semibold">Phone: +880 1XXX-XXXXXX</p>
+                <p className="font-semibold">Email: tour@perceptron13.fun</p>
               </div>
             </div>
           </div>
