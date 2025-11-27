@@ -135,7 +135,7 @@ const Navbar = () => {
                 {/* Dashboard/Profile Button */}
                 <button
                   onClick={handleDashboardClick}
-                  className="flex items-center gap-2 px-3 xl:px-4 py-2 bg-white text-[#19aaba] rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap"
+                  className="flex items-center gap-2 px-3 xl:px-4 py-2 text-white rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap"
                 >
                   {user.role === 'admin' ? (
                     <>
