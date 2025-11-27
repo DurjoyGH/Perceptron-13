@@ -38,6 +38,7 @@ import {
 import ProfilePictureModal from '../../components/Profile/ProfilePictureModal';
 import ImageViewModal from '../../components/Profile/ImageViewModal';
 import AvatarModal from '../../components/Profile/AvatarModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const ProfilePage = () => {
   const { id } = useParams(); // Get user ID from URL params (if viewing another user)
@@ -62,6 +63,9 @@ const ProfilePage = () => {
   const [showFeaturedImageViewModal, setShowFeaturedImageViewModal] = useState(false);
   const [viewingFeaturedImage, setViewingFeaturedImage] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
+  const [photoToDelete, setPhotoToDelete] = useState(null);
+  const [deletingPhoto, setDeletingPhoto] = useState(false);
   
   const profilePictureInputRef = useRef(null);
   const featuredPhotoInputRef = useRef(null);
@@ -495,22 +499,27 @@ const ProfilePage = () => {
     }
   };
 
-  const handleDeleteFeaturedPhoto = async (photoId) => {
-    if (!window.confirm('Are you sure you want to delete this photo?')) {
-      return;
-    }
+  const handleDeleteFeaturedPhoto = (photoId) => {
+    setPhotoToDelete(photoId);
+    setShowDeletePhotoModal(true);
+  };
 
-    setUploadingImage(true);
+  const confirmDeleteFeaturedPhoto = async () => {
+    if (!photoToDelete) return;
+
+    setDeletingPhoto(true);
     try {
-      const response = await deleteFeaturedPhoto(photoId);
+      const response = await deleteFeaturedPhoto(photoToDelete);
       setUserData(response.data);
       toast.success('Featured photo deleted successfully!');
+      setShowDeletePhotoModal(false);
+      setPhotoToDelete(null);
     } catch (error) {
       console.error('Delete error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to delete photo';
       toast.error(errorMessage);
     } finally {
-      setUploadingImage(false);
+      setDeletingPhoto(false);
     }
   };
 
@@ -894,7 +903,7 @@ const ProfilePage = () => {
                           className="w-full h-full object-cover cursor-pointer group-hover:scale-110 transition-transform duration-300"
                           onClick={() => handleViewFeaturedImage(photo)}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                           <div className="absolute bottom-0 left-0 right-0 p-3">
                             {photo.caption && (
                               <p className="text-white text-sm font-medium mb-2 line-clamp-2">{photo.caption}</p>
@@ -906,10 +915,10 @@ const ProfilePage = () => {
                                     e.stopPropagation();
                                     handleEditCaption(photo);
                                   }}
-                                  className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-sm font-medium transition-colors"
+                                  className="flex-1 inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 bg-white/90 hover:bg-white text-gray-900 rounded text-xs sm:text-sm font-medium transition-colors"
                                 >
                                   <Edit2 className="w-3 h-3" />
-                                  Edit
+                                  <span className="hidden sm:inline">Edit</span>
                                 </button>
                                 <button
                                   onClick={(e) => {
@@ -917,10 +926,10 @@ const ProfilePage = () => {
                                     handleDeleteFeaturedPhoto(photo._id);
                                   }}
                                   disabled={uploadingImage}
-                                  className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors disabled:opacity-50"
+                                  className="flex-1 inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-xs sm:text-sm font-medium transition-colors disabled:opacity-50"
                                 >
                                   <Trash2 className="w-3 h-3" />
-                                  Delete
+                                  <span className="hidden sm:inline">Delete</span>
                                 </button>
                               </div>
                             )}
@@ -1340,6 +1349,22 @@ const ProfilePage = () => {
         user={userData}
         isOpen={showAvatarModal}
         onClose={() => setShowAvatarModal(false)}
+      />
+
+      {/* Delete Photo Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeletePhotoModal}
+        onClose={() => {
+          setShowDeletePhotoModal(false);
+          setPhotoToDelete(null);
+        }}
+        onConfirm={confirmDeleteFeaturedPhoto}
+        title="Delete Featured Photo"
+        message="Are you sure you want to delete this photo? This action cannot be undone."
+        confirmText={deletingPhoto ? "Deleting..." : "Delete"}
+        cancelText="Cancel"
+        type="danger"
+        loading={deletingPhoto}
       />
     </div>
   );

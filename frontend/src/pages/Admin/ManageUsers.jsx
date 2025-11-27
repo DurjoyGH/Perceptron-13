@@ -4,13 +4,15 @@ import {
   Shield, 
   Loader,
   Search,
-  UserCog
+  UserCog,
+  KeyRound
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAllUsers, getUserStats, updateUserRole } from '../../services/adminApi';
+import { getAllUsers, getUserStats, updateUserRole, resetUserPassword } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import AvatarModal from '../../components/Profile/AvatarModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const ManageUsers = () => {
   const { user } = useAuth();
@@ -20,6 +22,11 @@ const ManageUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [showPasswordDisplayModal, setShowPasswordDisplayModal] = useState(false);
+  const [userToResetPassword, setUserToResetPassword] = useState(null);
+  const [resetPasswordData, setResetPasswordData] = useState(null);
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -60,6 +67,44 @@ const ManageUsers = () => {
   const handleAvatarClick = (usr) => {
     setSelectedUser(usr);
     setShowAvatarModal(true);
+  };
+
+  const handleResetPasswordClick = (usr) => {
+    setUserToResetPassword(usr);
+    setShowResetPasswordModal(true);
+  };
+
+  const handleConfirmResetPassword = async () => {
+    if (!userToResetPassword) return;
+    
+    setResettingPassword(true);
+    try {
+      const response = await resetUserPassword(userToResetPassword._id);
+      
+      // Show the new password in a modal
+      setResetPasswordData({
+        name: response.data.name,
+        email: response.data.email,
+        studentID: userToResetPassword.studentID,
+        newPassword: response.data.newPassword,
+        emailSent: response.data.emailSent !== false
+      });
+      setShowPasswordDisplayModal(true);
+      setShowResetPasswordModal(false);
+      setUserToResetPassword(null);
+      
+      // Show appropriate toast based on email status
+      if (response.data.emailSent === false) {
+        toast.warning('Password reset successfully, but email failed to send. Please share the password manually.');
+      } else {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      console.error('Failed to reset password:', error);
+      toast.error(error.response?.data?.message || 'Failed to reset user password');
+    } finally {
+      setResettingPassword(false);
+    }
   };
 
   const filteredUsers = users.filter(usr => 
@@ -223,12 +268,23 @@ const ManageUsers = () => {
                         </td>
                         <td className="px-4 py-4">
                           {usr._id !== user?._id ? (
-                            <button
-                              onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
-                              className="text-sm text-[#19aaba] hover:text-[#158c99] font-semibold hover:underline transition-colors"
-                            >
-                              {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
+                                className="text-sm text-[#19aaba] hover:text-[#158c99] font-semibold hover:underline transition-colors"
+                              >
+                                {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
+                              </button>
+                              <span className="text-gray-300">|</span>
+                              <button
+                                onClick={() => handleResetPasswordClick(usr)}
+                                className="text-sm text-orange-600 hover:text-orange-700 font-semibold hover:underline transition-colors flex items-center gap-1"
+                                title="Reset Password"
+                              >
+                                <KeyRound size={14} />
+                                Reset
+                              </button>
+                            </div>
                           ) : (
                             <span className="text-sm text-gray-400 italic">You</span>
                           )}
@@ -297,12 +353,22 @@ const ManageUsers = () => {
                           </span>
                           
                           {usr._id !== user?._id ? (
-                            <button
-                              onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
-                              className="text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95 px-3 py-1.5 border border-[#19aaba] rounded-lg"
-                            >
-                              {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
+                                className="text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95 px-3 py-1.5 border border-[#19aaba] rounded-lg"
+                              >
+                                {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
+                              </button>
+                              <button
+                                onClick={() => handleResetPasswordClick(usr)}
+                                className="text-xs font-medium text-orange-600 hover:text-orange-700 transition-colors active:scale-95 px-3 py-1.5 border border-orange-600 rounded-lg flex items-center gap-1"
+                                title="Reset Password"
+                              >
+                                <KeyRound size={12} />
+                                Reset
+                              </button>
+                            </div>
                           ) : (
                             <span className="text-xs text-gray-400 italic">You</span>
                           )}
@@ -323,6 +389,114 @@ const ManageUsers = () => {
         isOpen={showAvatarModal}
         onClose={() => setShowAvatarModal(false)}
       />
+
+      {/* Reset Password Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showResetPasswordModal}
+        onClose={() => {
+          setShowResetPasswordModal(false);
+          setUserToResetPassword(null);
+        }}
+        onConfirm={handleConfirmResetPassword}
+        title="Reset User Password"
+        message={
+          userToResetPassword ? (
+            <div className="space-y-2">
+              <p>Are you sure you want to reset the password for:</p>
+              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <p className="font-semibold text-gray-900">{userToResetPassword.name}</p>
+                <p className="text-sm text-gray-600">{userToResetPassword.email}</p>
+                <p className="text-sm text-gray-600">ID: {userToResetPassword.studentID}</p>
+              </div>
+              <p className="text-sm text-orange-600 font-medium">
+                A new random password will be generated and sent to their email address.
+              </p>
+            </div>
+          ) : null
+        }
+        confirmText={resettingPassword ? "Resetting..." : "Reset Password"}
+        cancelText="Cancel"
+        type="warning"
+        loading={resettingPassword}
+      />
+
+      {/* Password Display Modal */}
+      {showPasswordDisplayModal && resetPasswordData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-green-100 rounded-full p-3">
+                <KeyRound size={32} className="text-green-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
+              Password Reset Successful
+            </h2>
+            <p className="text-center text-gray-600 mb-6">
+              {resetPasswordData.emailSent 
+                ? 'The new password has been generated and sent via email'
+                : 'The new password has been generated (Email delivery failed)'
+              }
+            </p>
+            
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 border border-gray-200">
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">User</label>
+                  <p className="text-sm font-medium text-gray-900">{resetPasswordData.name}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
+                  <p className="text-sm font-medium text-gray-900">{resetPasswordData.email}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Student ID</label>
+                  <p className="text-sm font-medium text-gray-900">{resetPasswordData.studentID}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4 mb-6">
+              <label className="text-xs font-bold text-orange-700 uppercase tracking-wide mb-2 block">
+                New Password
+              </label>
+              <div className="flex items-center justify-between bg-white rounded-lg px-4 py-3 border border-orange-300">
+                <code className="text-lg font-mono font-bold text-gray-900 select-all">
+                  {resetPasswordData.newPassword}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(resetPasswordData.newPassword);
+                    toast.success('Password copied to clipboard!');
+                  }}
+                  className="ml-2 text-orange-600 hover:text-orange-700 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-xs text-orange-700 mt-2 font-medium">
+                {resetPasswordData.emailSent 
+                  ? '⚠️ Make sure to save this password. It has been emailed to the user.'
+                  : '⚠️ IMPORTANT: Email failed to send! Please share this password with the user manually.'
+                }
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowPasswordDisplayModal(false);
+                setResetPasswordData(null);
+              }}
+              className="w-full bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

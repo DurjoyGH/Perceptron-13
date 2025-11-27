@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 const sendEmail = require('../services/emailService');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
@@ -252,10 +253,99 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+// Reset user password (Admin only)
+const resetUserPassword = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Generate a random 8-character password
+    const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase().slice(0, 4);
+    
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+    // Update user password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Send email with new password
+    const emailContent = `Your password has been reset by an administrator.
+
+Your new login credentials are:
+Student ID: ${user.studentID}
+Email: ${user.email}
+New Password: ${randomPassword}
+
+Please log in using your new password and change it immediately from your profile settings for security purposes.
+
+If you did not request this password reset, please contact the administrator immediately.`;
+
+    const htmlContent = getEmailTemplate({
+      title: 'Password Reset - Perceptron-13',
+      userName: user.name,
+      content: emailContent
+    });
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Your Password Has Been Reset - Perceptron-13',
+        text: emailContent,
+        html: htmlContent
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Password reset successfully. New password has been sent to ${user.email}`,
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          newPassword: randomPassword,
+          emailSent: true
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      // Still return success with the password, but indicate email failed
+      res.status(200).json({
+        success: true,
+        message: `Password reset successfully, but failed to send email. Please share the password manually.`,
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          newPassword: randomPassword,
+          emailSent: false
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Reset user password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset user password',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserStats,
   sendEmailToAll,
   sendEmailToSelected,
-  updateUserRole
+  updateUserRole,
+  resetUserPassword
 };

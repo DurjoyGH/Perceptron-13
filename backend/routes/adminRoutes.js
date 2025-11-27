@@ -23,4 +23,7 @@ router.post('/send-email-selected', adminController.sendEmailToSelected);
 // Update user role
 router.patch('/users/:userId/role', adminController.updateUserRole);
 
+// Reset user password
+router.post('/users/:userId/reset-password', adminController.resetUserPassword);
+
 module.exports = router;

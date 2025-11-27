@@ -29,3 +29,9 @@ export const updateUserRole = async (userId, role) => {
   const response = await axiosInstance.patch(`/admin/users/${userId}/role`, { role });
   return response.data;
 };
+
+// Reset user password
+export const resetUserPassword = async (userId) => {
+  const response = await axiosInstance.post(`/admin/users/${userId}/reset-password`);
+  return response.data;
+};
