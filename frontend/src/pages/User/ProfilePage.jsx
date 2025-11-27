@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { 
   getUserProfile, 
   updateUserProfile, 
@@ -9,7 +9,7 @@ import {
   addFeaturedPhoto,
   updateFeaturedPhoto,
   deleteFeaturedPhoto 
-} from '../services/userApi';
+} from '../../services/userApi';
 import { toast } from 'sonner';
 import { 
   User, 
@@ -35,9 +35,9 @@ import {
   Trash2,
   Plus
 } from 'lucide-react';
-import ProfilePictureModal from '../components/Profile/ProfilePictureModal';
-import ImageViewModal from '../components/Profile/ImageViewModal';
-import AvatarModal from '../components/Profile/AvatarModal';
+import ProfilePictureModal from '../../components/Profile/ProfilePictureModal';
+import ImageViewModal from '../../components/Profile/ImageViewModal';
+import AvatarModal from '../../components/Profile/AvatarModal';
 
 const ProfilePage = () => {
   const { id } = useParams(); // Get user ID from URL params (if viewing another user)
