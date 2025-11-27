@@ -118,7 +118,7 @@ const CommitteePage = () => {
               <div
                 key={member.id}
                 onClick={() => setSelectedMember(member)}
-                className={`group relative bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm ${
+                className={`group relative bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm flex flex-col ${
                   selectedMember?.id === member.id ? 'ring-4 ring-[#19aaba] -translate-y-2 shadow-2xl' : ''
                 }`}
               >
@@ -151,13 +151,13 @@ const CommitteePage = () => {
                 </div>
 
                 {/* Content */}
-                <div className="px-6 pb-6 text-center">
+                <div className="px-6 pb-6 text-center flex flex-col flex-grow">
                   <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">
                     {member.name}
                   </h3>
 
                   {/* Contact Info */}
-                  <div className="space-y-3 mb-5">
+                  <div className="space-y-3 mb-5 flex-grow">
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group/phone">
                       <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center group-hover/phone:bg-[#19aaba] transition-colors">
                         <Phone className="w-4 h-4 text-gray-600 group-hover/phone:text-white" />
@@ -176,7 +176,7 @@ const CommitteePage = () => {
                   <a
                     href={`mailto:${member.email}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full justify-center"
                   >
                     <MessageSquare className="w-4 h-4" />
                     Send Message

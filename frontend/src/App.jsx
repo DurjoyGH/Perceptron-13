@@ -22,7 +22,7 @@ import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
 import ManageUsers from './pages/Admin/ManageUsers';
 import SendEmail from './pages/Admin/SendEmail';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/User/ProfilePage';
 
 function App() {
   return (
