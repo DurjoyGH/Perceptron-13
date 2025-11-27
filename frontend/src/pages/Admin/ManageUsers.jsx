@@ -27,6 +27,9 @@ const ManageUsers = () => {
   const [userToResetPassword, setUserToResetPassword] = useState(null);
   const [resetPasswordData, setResetPasswordData] = useState(null);
   const [resettingPassword, setResettingPassword] = useState(false);
+  const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
+  const [userToChangeRole, setUserToChangeRole] = useState(null);
+  const [changingRole, setChangingRole] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -54,14 +57,24 @@ const ManageUsers = () => {
   };
 
   const handleUpdateRole = async (userId, newRole) => {
+    setChangingRole(true);
     try {
       const response = await updateUserRole(userId, newRole);
       toast.success(response.message);
       fetchData();
+      setShowRoleChangeModal(false);
+      setUserToChangeRole(null);
     } catch (error) {
       console.error('Failed to update role:', error);
       toast.error(error.response?.data?.message || 'Failed to update user role');
+    } finally {
+      setChangingRole(false);
     }
+  };
+
+  const handleRoleChangeClick = (usr, newRole) => {
+    setUserToChangeRole({ user: usr, newRole });
+    setShowRoleChangeModal(true);
   };
 
   const handleAvatarClick = (usr) => {
@@ -270,7 +283,7 @@ const ManageUsers = () => {
                           {usr._id !== user?._id ? (
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
+                                onClick={() => handleRoleChangeClick(usr, usr.role === 'admin' ? 'user' : 'admin')}
                                 className="text-sm text-[#19aaba] hover:text-[#158c99] font-semibold hover:underline transition-colors"
                               >
                                 {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
@@ -357,7 +370,7 @@ const ManageUsers = () => {
                           {usr._id !== user?._id ? (
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => handleUpdateRole(usr._id, usr.role === 'admin' ? 'user' : 'admin')}
+                                onClick={() => handleRoleChangeClick(usr, usr.role === 'admin' ? 'user' : 'admin')}
                                 className="text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95 px-3 py-1.5 border border-[#19aaba] rounded-lg"
                               >
                                 {usr.role === 'admin' ? 'Make User' : 'Make Admin'}
@@ -390,6 +403,56 @@ const ManageUsers = () => {
         user={selectedUser}
         isOpen={showAvatarModal}
         onClose={() => setShowAvatarModal(false)}
+      />
+
+      {/* Role Change Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showRoleChangeModal}
+        onClose={() => {
+          setShowRoleChangeModal(false);
+          setUserToChangeRole(null);
+        }}
+        onConfirm={() => userToChangeRole && handleUpdateRole(userToChangeRole.user._id, userToChangeRole.newRole)}
+        title="Change User Role"
+        message={
+          userToChangeRole ? (
+            <div className="space-y-2">
+              <p>Are you sure you want to change the role for:</p>
+              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <p className="font-semibold text-gray-900">{userToChangeRole.user.name}</p>
+                <p className="text-sm text-gray-600">{userToChangeRole.user.email}</p>
+                <p className="text-sm text-gray-600">ID: {userToChangeRole.user.studentID}</p>
+              </div>
+              <div className="flex items-center justify-center gap-3 mt-3">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  userToChangeRole.user.role === 'admin' 
+                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                    : 'bg-green-100 text-green-700 border border-green-200'
+                }`}>
+                  {userToChangeRole.user.role.toUpperCase()}
+                </span>
+                <span className="text-gray-400">→</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  userToChangeRole.newRole === 'admin' 
+                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                    : 'bg-green-100 text-green-700 border border-green-200'
+                }`}>
+                  {userToChangeRole.newRole.toUpperCase()}
+                </span>
+              </div>
+              <p className="text-sm text-blue-600 font-medium mt-2">
+                {userToChangeRole.newRole === 'admin' 
+                  ? '⚠️ This user will gain administrative privileges.' 
+                  : '⚠️ This user will lose administrative privileges.'
+                }
+              </p>
+            </div>
+          ) : null
+        }
+        confirmText={changingRole ? "Changing..." : "Change Role"}
+        cancelText="Cancel"
+        type={userToChangeRole?.newRole === 'admin' ? "warning" : "info"}
+        loading={changingRole}
       />
 
       {/* Reset Password Confirmation Modal */}

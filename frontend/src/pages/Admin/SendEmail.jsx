@@ -5,10 +5,13 @@ import {
   Loader,
   Search,
   CheckSquare,
-  Square
+  Square,
+  Users,
+  Shield
 } from 'lucide-react';
 import { getAllUsers, sendEmailToAll, sendEmailToSelected } from '../../services/adminApi';
 import { toast } from 'sonner';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const SendEmail = () => {
   const [users, setUsers] = useState([]);
@@ -20,6 +23,7 @@ const SendEmail = () => {
     message: ''
   });
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -58,29 +62,38 @@ const SendEmail = () => {
     }
   };
 
-  const handleSendEmail = async (toAll = false) => {
+  const handleSelectAllUsers = () => {
+    const userIds = filteredUsers.filter(u => u.role === 'user').map(u => u._id);
+    setSelectedUsers(userIds);
+  };
+
+  const handleSelectAllAdmins = () => {
+    const adminIds = filteredUsers.filter(u => u.role === 'admin').map(u => u._id);
+    setSelectedUsers(adminIds);
+  };
+
+  const handleSendEmailClick = () => {
     if (!emailForm.subject || !emailForm.message) {
       toast.error('Subject and message are required');
       return;
     }
 
-    if (!toAll && selectedUsers.length === 0) {
+    if (selectedUsers.length === 0) {
       toast.error('Please select at least one user');
       return;
     }
 
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSendEmail = async () => {
     setSendingEmail(true);
     try {
-      let response;
-      if (toAll) {
-        response = await sendEmailToAll(emailForm);
-      } else {
-        response = await sendEmailToSelected({ ...emailForm, userIds: selectedUsers });
-      }
-
+      const response = await sendEmailToSelected({ ...emailForm, userIds: selectedUsers });
       toast.success(response.message);
       setEmailForm({ subject: '', message: '' });
       setSelectedUsers([]);
+      setShowConfirmModal(false);
     } catch (error) {
       console.error('Failed to send email:', error);
       toast.error(error.response?.data?.message || 'Failed to send email');
@@ -154,41 +167,15 @@ const SendEmail = () => {
                 />
               </div>
 
-              {/* Send Buttons */}
-              <div className="space-y-3 pt-4">
+              {/* Send Button */}
+              <div className="pt-4">
                 <button
-                  onClick={() => handleSendEmail(false)}
+                  onClick={handleSendEmailClick}
                   disabled={sendingEmail || selectedUsers.length === 0}
                   className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg"
                 >
-                  {sendingEmail ? (
-                    <>
-                      <Loader className="animate-spin" size={20} />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={20} />
-                      Send to Selected ({selectedUsers.length})
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => handleSendEmail(true)}
-                  disabled={sendingEmail}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#ed8936] to-[#dd6b20] text-white rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg"
-                >
-                  {sendingEmail ? (
-                    <>
-                      <Loader className="animate-spin" size={20} />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Mail size={20} />
-                      Send to All Members ({users.length})
-                    </>
-                  )}
+                  <Send size={20} />
+                  Send to Selected ({selectedUsers.length})
                 </button>
               </div>
             </div>
@@ -217,27 +204,41 @@ const SendEmail = () => {
               </div>
             </div>
 
-            {/* Select All */}
-            <div className="mb-4 flex items-center justify-between">
-              <button
-                onClick={handleSelectAll}
-                className="flex items-center gap-2 text-[#19aaba] hover:text-[#158c99] font-semibold transition-colors"
-              >
-                {selectedUsers.length === filteredUsers.length ? (
-                  <>
-                    <CheckSquare size={20} />
-                    Deselect All
-                  </>
-                ) : (
-                  <>
-                    <Square size={20} />
-                    Select All
-                  </>
-                )}
-              </button>
-              <span className="text-sm text-gray-600">
-                {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
-              </span>
+            {/* Selection Options */}
+            <div className="mb-4 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={handleSelectAll}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-semibold transition-colors"
+                >
+                  <CheckSquare size={16} />
+                  Select All
+                </button>
+                <button
+                  onClick={handleSelectAllUsers}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors"
+                >
+                  <Users size={16} />
+                  Select All Users
+                </button>
+                <button
+                  onClick={handleSelectAllAdmins}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+                >
+                  <Shield size={16} />
+                  Select All Admins
+                </button>
+                <button
+                  onClick={() => setSelectedUsers([])}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                >
+                  <Square size={16} />
+                  Deselect All
+                </button>
+              </div>
+              <div className="text-sm text-gray-600">
+                {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found • {selectedUsers.length} selected
+              </div>
             </div>
 
             {/* User List */}
@@ -277,6 +278,47 @@ const SendEmail = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmSendEmail}
+        title="Send Email Confirmation"
+        message={
+          <div className="space-y-3">
+            <p className="text-gray-700">You are about to send an email to <span className="font-bold text-[#19aaba]">{selectedUsers.length}</span> recipient{selectedUsers.length !== 1 ? 's' : ''}:</p>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-60 overflow-y-auto">
+              <div className="space-y-2">
+                {users
+                  .filter(u => selectedUsers.includes(u._id))
+                  .map(u => (
+                    <div key={u._id} className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 rounded-full bg-[#19aaba]"></div>
+                      <span className="font-medium text-gray-900">{u.name}</span>
+                      {u.role === 'admin' && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full border border-red-200">
+                          ADMIN
+                        </span>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <p className="text-sm font-semibold text-blue-900 mb-1">Subject:</p>
+              <p className="text-sm text-blue-800">{emailForm.subject}</p>
+            </div>
+            <p className="text-sm text-orange-600 font-medium">
+              ⚠️ This action cannot be undone. The email will be sent immediately.
+            </p>
+          </div>
+        }
+        confirmText={sendingEmail ? "Sending..." : "Send Email"}
+        cancelText="Cancel"
+        type="warning"
+        loading={sendingEmail}
+      />
     </div>
   );
 };

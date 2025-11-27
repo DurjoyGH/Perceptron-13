@@ -66,6 +66,8 @@ const ProfilePage = () => {
   const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState(null);
   const [deletingPhoto, setDeletingPhoto] = useState(false);
+  const [showDeleteProfilePictureModal, setShowDeleteProfilePictureModal] = useState(false);
+  const [deletingProfilePicture, setDeletingProfilePicture] = useState(false);
   
   const profilePictureInputRef = useRef(null);
   const featuredPhotoInputRef = useRef(null);
@@ -376,24 +378,25 @@ const ProfilePage = () => {
     }
   };
 
-  const handleDeleteProfilePicture = async () => {
-    if (!window.confirm('Are you sure you want to delete your profile picture?')) {
-      return;
-    }
+  const handleDeleteProfilePictureClick = () => {
+    setShowDeleteProfilePictureModal(true);
+  };
 
-    setUploadingImage(true);
+  const confirmDeleteProfilePicture = async () => {
+    setDeletingProfilePicture(true);
     try {
       const response = await deleteProfilePicture();
       setUserData(response.data);
       updateUser(response.data);
       toast.success('Profile picture deleted successfully!');
       setShowProfileImageViewModal(false);
+      setShowDeleteProfilePictureModal(false);
     } catch (error) {
       console.error('Delete error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to delete profile picture';
       toast.error(errorMessage);
     } finally {
-      setUploadingImage(false);
+      setDeletingProfilePicture(false);
     }
   };
 
@@ -621,8 +624,8 @@ const ProfilePage = () => {
                 </div>
                 {isOwnProfile && userData?.profilePicture?.url && (
                   <button
-                    onClick={handleDeleteProfilePicture}
-                    disabled={uploadingImage}
+                    onClick={handleDeleteProfilePictureClick}
+                    disabled={uploadingImage || deletingProfilePicture}
                     className="text-white/90 hover:text-white text-xs sm:text-sm underline mb-2 disabled:opacity-50"
                   >
                     Remove photo
@@ -1324,9 +1327,9 @@ const ProfilePage = () => {
           onClose={() => setShowProfileImageViewModal(false)}
           imageUrl={userData.profilePicture.url}
           imageName={formData.name}
-          onDelete={isOwnProfile ? handleDeleteProfilePicture : undefined}
+          onDelete={isOwnProfile ? handleDeleteProfilePictureClick : undefined}
           canDelete={isOwnProfile}
-          isDeleting={uploadingImage}
+          isDeleting={deletingProfilePicture}
         />
       )}
 
@@ -1365,6 +1368,19 @@ const ProfilePage = () => {
         cancelText="Cancel"
         type="danger"
         loading={deletingPhoto}
+      />
+
+      {/* Delete Profile Picture Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteProfilePictureModal}
+        onClose={() => setShowDeleteProfilePictureModal(false)}
+        onConfirm={confirmDeleteProfilePicture}
+        title="Delete Profile Picture"
+        message="Are you sure you want to delete your profile picture? This action cannot be undone."
+        confirmText={deletingProfilePicture ? "Deleting..." : "Delete"}
+        cancelText="Cancel"
+        type="danger"
+        loading={deletingProfilePicture}
       />
     </div>
   );
