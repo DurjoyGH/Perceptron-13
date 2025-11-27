@@ -1,7 +1,34 @@
 const User = require('../models/user');
+const SenderEmail = require('../models/senderEmail');
 const bcrypt = require('bcryptjs');
 const sendEmail = require('../services/emailService');
 const { getEmailTemplate } = require('../utils/emailTemplate');
+
+// Ensure default sender email exists from .env
+const ensureDefaultSenderEmail = async () => {
+  try {
+    const existingDefault = await SenderEmail.findOne({ isDefault: true });
+    if (!existingDefault) {
+      const count = await SenderEmail.countDocuments();
+      if (count === 0 && process.env.EMAIL_USER && process.env.APP_PASSWORD) {
+        // Create default sender email from .env
+        const defaultSender = new SenderEmail({
+          displayName: process.env.EMAIL_DISPLAY_NAME || 'Perceptron-13',
+          email: process.env.EMAIL_USER,
+          password: process.env.APP_PASSWORD,
+          smtpHost: process.env.EMAIL_SMTP_HOST || 'smtp.gmail.com',
+          smtpPort: parseInt(process.env.EMAIL_SMTP_PORT) || 465,
+          isDefault: true,
+          createdBy: '000000000000000000000000' // System created
+        });
+        await defaultSender.save();
+        console.log('Default sender email created from .env');
+      }
+    }
+  } catch (error) {
+    console.error('Error ensuring default sender email:', error);
+  }
+};
 
 // Get all users (members)
 const getAllUsers = async (req, res) => {
@@ -59,13 +86,34 @@ const getUserStats = async (req, res) => {
 // Send email to all members
 const sendEmailToAll = async (req, res) => {
   try {
-    const { subject, message } = req.body;
+    const { subject, message, senderEmailId } = req.body;
 
     if (!subject || !message) {
       return res.status(400).json({
         success: false,
         message: 'Subject and message are required'
       });
+    }
+
+    // Get sender email config
+    let senderConfig = null;
+    if (senderEmailId) {
+      senderConfig = await SenderEmail.findById(senderEmailId);
+      if (!senderConfig || !senderConfig.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or inactive sender email selected'
+        });
+      }
+    } else {
+      // Use default sender email if none selected
+      senderConfig = await SenderEmail.findOne({ isDefault: true, isActive: true });
+      if (!senderConfig) {
+        return res.status(400).json({
+          success: false,
+          message: 'No default sender email configured. Please select a sender email.'
+        });
+      }
     }
 
     // Get all users
@@ -93,7 +141,8 @@ const sendEmailToAll = async (req, res) => {
         to: user.email,
         subject: subject,
         text: message,
-        html: htmlContent
+        html: htmlContent,
+        senderConfig
       }).catch(error => {
         console.error(`Failed to send email to ${user.email}:`, error);
         failedEmails.push({ email: user.email, name: user.name });
@@ -130,7 +179,7 @@ const sendEmailToAll = async (req, res) => {
 // Send email to specific users
 const sendEmailToSelected = async (req, res) => {
   try {
-    const { userIds, subject, message } = req.body;
+    const { userIds, subject, message, senderEmailId } = req.body;
 
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return res.status(400).json({
@@ -144,6 +193,27 @@ const sendEmailToSelected = async (req, res) => {
         success: false,
         message: 'Subject and message are required'
       });
+    }
+
+    // Get sender email config
+    let senderConfig = null;
+    if (senderEmailId) {
+      senderConfig = await SenderEmail.findById(senderEmailId);
+      if (!senderConfig || !senderConfig.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or inactive sender email selected'
+        });
+      }
+    } else {
+      // Use default sender email if none selected
+      senderConfig = await SenderEmail.findOne({ isDefault: true, isActive: true });
+      if (!senderConfig) {
+        return res.status(400).json({
+          success: false,
+          message: 'No default sender email configured. Please select a sender email.'
+        });
+      }
     }
 
     // Get selected users (including admins)
@@ -173,7 +243,8 @@ const sendEmailToSelected = async (req, res) => {
         to: user.email,
         subject: subject,
         text: message,
-        html: htmlContent
+        html: htmlContent,
+        senderConfig
       }).catch(error => {
         console.error(`Failed to send email to ${user.email}:`, error);
         failedEmails.push({ email: user.email, name: user.name });
@@ -341,11 +412,269 @@ If you did not request this password reset, please contact the administrator imm
   }
 };
 
+// Get all sender emails
+const getSenderEmails = async (req, res) => {
+  try {
+    // Ensure default sender email exists
+    await ensureDefaultSenderEmail();
+    
+    const senderEmails = await SenderEmail.find()
+      .select('-password')
+      .sort({ isDefault: -1, createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: senderEmails.length,
+      data: senderEmails
+    });
+  } catch (error) {
+    console.error('Get sender emails error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch sender emails',
+      error: error.message
+    });
+  }
+};
+
+// Add new sender email
+const addSenderEmail = async (req, res) => {
+  try {
+    const { displayName, email, password, smtpHost, smtpPort, isDefault } = req.body;
+
+    if (!displayName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Display name, email, and password are required'
+      });
+    }
+
+    // Check if email already exists
+    const existingEmail = await SenderEmail.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email address is already registered as a sender email'
+      });
+    }
+
+    const senderEmail = new SenderEmail({
+      displayName,
+      email,
+      password,
+      smtpHost: smtpHost || 'smtp.gmail.com',
+      smtpPort: smtpPort || 465,
+      isDefault: isDefault || false,
+      createdBy: req.user._id
+    });
+
+    await senderEmail.save();
+
+    // Return without password
+    const senderEmailData = senderEmail.toObject();
+    delete senderEmailData.password;
+
+    res.status(201).json({
+      success: true,
+      message: 'Sender email added successfully',
+      data: senderEmailData
+    });
+  } catch (error) {
+    console.error('Add sender email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add sender email',
+      error: error.message
+    });
+  }
+};
+
+// Update sender email
+const updateSenderEmail = async (req, res) => {
+  try {
+    const { senderEmailId } = req.params;
+    const { displayName, email, password, smtpHost, smtpPort, isActive } = req.body;
+
+    const senderEmail = await SenderEmail.findById(senderEmailId);
+
+    if (!senderEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sender email not found'
+      });
+    }
+
+    // Check if email is being changed and if it already exists
+    if (email && email !== senderEmail.email) {
+      const existingEmail = await SenderEmail.findOne({ email, _id: { $ne: senderEmailId } });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email address is already registered as a sender email'
+        });
+      }
+      senderEmail.email = email;
+    }
+
+    if (displayName) senderEmail.displayName = displayName;
+    if (password) senderEmail.password = password;
+    if (smtpHost) senderEmail.smtpHost = smtpHost;
+    if (smtpPort) senderEmail.smtpPort = smtpPort;
+    if (typeof isActive !== 'undefined') senderEmail.isActive = isActive;
+
+    await senderEmail.save();
+
+    // Return without password
+    const senderEmailData = senderEmail.toObject();
+    delete senderEmailData.password;
+
+    res.status(200).json({
+      success: true,
+      message: 'Sender email updated successfully',
+      data: senderEmailData
+    });
+  } catch (error) {
+    console.error('Update sender email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update sender email',
+      error: error.message
+    });
+  }
+};
+
+// Set default sender email
+const setDefaultSenderEmail = async (req, res) => {
+  try {
+    const { senderEmailId } = req.params;
+
+    const senderEmail = await SenderEmail.findById(senderEmailId);
+
+    if (!senderEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sender email not found'
+      });
+    }
+
+    if (!senderEmail.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot set an inactive sender email as default'
+      });
+    }
+
+    // Remove default from all other sender emails
+    await SenderEmail.updateMany({}, { isDefault: false });
+
+    // Set this one as default
+    senderEmail.isDefault = true;
+    await senderEmail.save();
+
+    // Return without password
+    const senderEmailData = senderEmail.toObject();
+    delete senderEmailData.password;
+
+    res.status(200).json({
+      success: true,
+      message: 'Default sender email set successfully',
+      data: senderEmailData
+    });
+  } catch (error) {
+    console.error('Set default sender email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to set default sender email',
+      error: error.message
+    });
+  }
+};
+
+// Remove default from sender email
+const removeDefaultSenderEmail = async (req, res) => {
+  try {
+    const { senderEmailId } = req.params;
+
+    const senderEmail = await SenderEmail.findById(senderEmailId);
+
+    if (!senderEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sender email not found'
+      });
+    }
+
+    if (!senderEmail.isDefault) {
+      return res.status(400).json({
+        success: false,
+        message: 'This sender email is not set as default'
+      });
+    }
+
+    // Remove default status
+    senderEmail.isDefault = false;
+    await senderEmail.save();
+
+    // Return without password
+    const senderEmailData = senderEmail.toObject();
+    delete senderEmailData.password;
+
+    res.status(200).json({
+      success: true,
+      message: 'Default status removed successfully',
+      data: senderEmailData
+    });
+  } catch (error) {
+    console.error('Remove default sender email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove default status',
+      error: error.message
+    });
+  }
+};
+
+// Delete sender email
+const deleteSenderEmail = async (req, res) => {
+  try {
+    const { senderEmailId } = req.params;
+
+    const senderEmail = await SenderEmail.findById(senderEmailId);
+
+    if (!senderEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sender email not found'
+      });
+    }
+
+    await SenderEmail.findByIdAndDelete(senderEmailId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Sender email deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete sender email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete sender email',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserStats,
   sendEmailToAll,
   sendEmailToSelected,
   updateUserRole,
-  resetUserPassword
+  resetUserPassword,
+  getSenderEmails,
+  addSenderEmail,
+  updateSenderEmail,
+  setDefaultSenderEmail,
+  removeDefaultSenderEmail,
+  deleteSenderEmail
 };

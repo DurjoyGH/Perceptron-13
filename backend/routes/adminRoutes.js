@@ -26,4 +26,12 @@ router.patch('/users/:userId/role', adminController.updateUserRole);
 // Reset user password
 router.post('/users/:userId/reset-password', adminController.resetUserPassword);
 
+// Sender email management routes
+router.get('/sender-emails', adminController.getSenderEmails);
+router.post('/sender-emails', adminController.addSenderEmail);
+router.patch('/sender-emails/:senderEmailId', adminController.updateSenderEmail);
+router.patch('/sender-emails/:senderEmailId/set-default', adminController.setDefaultSenderEmail);
+router.patch('/sender-emails/:senderEmailId/remove-default', adminController.removeDefaultSenderEmail);
+router.delete('/sender-emails/:senderEmailId', adminController.deleteSenderEmail);
+
 module.exports = router;

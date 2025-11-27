@@ -1,14 +1,21 @@
 const nodemailer = require('nodemailer');
 
-const sendEmail = async ({ to, subject, text, html }) => {
+const sendEmail = async ({ to, subject, text, html, senderConfig }) => {
   try {
+    // Use provided sender config or fall back to environment variables
+    const emailUser = senderConfig ? senderConfig.email : process.env.EMAIL_USER;
+    const emailPassword = senderConfig ? senderConfig.password : process.env.APP_PASSWORD;
+    const smtpHost = senderConfig ? senderConfig.smtpHost : process.env.EMAIL_SMTP_HOST;
+    const smtpPort = senderConfig ? senderConfig.smtpPort : 465;
+    const displayName = senderConfig ? senderConfig.displayName : 'Perceptron-13';
+
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SMTP_HOST,
-      port: 465,
+      host: smtpHost,
+      port: smtpPort,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.APP_PASSWORD
+        user: emailUser,
+        pass: emailPassword
       },
       tls: {
         rejectUnauthorized: false
@@ -17,8 +24,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
 
     const mailOptions = {
       from: {
-        name: 'Perceptron-13',
-        address: process.env.EMAIL_USER
+        name: displayName,
+        address: emailUser
       },
       to,
       subject,

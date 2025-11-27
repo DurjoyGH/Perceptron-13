@@ -35,3 +35,34 @@ export const resetUserPassword = async (userId) => {
   const response = await axiosInstance.post(`/admin/users/${userId}/reset-password`);
   return response.data;
 };
+
+// Sender email management
+export const getSenderEmails = async () => {
+  const response = await axiosInstance.get('/admin/sender-emails');
+  return response.data;
+};
+
+export const addSenderEmail = async (senderEmailData) => {
+  const response = await axiosInstance.post('/admin/sender-emails', senderEmailData);
+  return response.data;
+};
+
+export const updateSenderEmail = async (senderEmailId, senderEmailData) => {
+  const response = await axiosInstance.patch(`/admin/sender-emails/${senderEmailId}`, senderEmailData);
+  return response.data;
+};
+
+export const setDefaultSenderEmail = async (senderEmailId) => {
+  const response = await axiosInstance.patch(`/admin/sender-emails/${senderEmailId}/set-default`);
+  return response.data;
+};
+
+export const removeDefaultSenderEmail = async (senderEmailId) => {
+  const response = await axiosInstance.patch(`/admin/sender-emails/${senderEmailId}/remove-default`);
+  return response.data;
+};
+
+export const deleteSenderEmail = async (senderEmailId) => {
+  const response = await axiosInstance.delete(`/admin/sender-emails/${senderEmailId}`);
+  return response.data;
+};
