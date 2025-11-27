@@ -86,48 +86,41 @@ const ProfilePictureModal = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-2 sm:p-4"
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn"
       onClick={onClose}
     >
+      <button
+        onClick={onClose}
+        disabled={isUploading}
+        className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10 backdrop-blur-sm disabled:opacity-50"
+        aria-label="Close"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
       <div 
-        className="relative w-full max-w-4xl"
+        className="relative max-w-4xl w-full animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h3 className="text-white text-base sm:text-lg md:text-xl font-semibold">{title}</h3>
-          <button
-            onClick={onClose}
-            disabled={isUploading}
-            className="text-white/80 hover:text-white transition-colors p-1.5 sm:p-2 hover:bg-white/10 rounded-full disabled:opacity-50"
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+          <div
+            className="relative"
+            style={{ 
+              cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </div>
-
-        {/* Image Container */}
-        <div 
-          className="relative bg-black rounded-lg overflow-hidden"
-          style={{ 
-            height: '50vh',
-            minHeight: '300px',
-            maxHeight: '600px',
-            cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
             <img
               ref={imageRef}
               src={imageUrl}
               alt="Preview"
-              className="max-w-full max-h-full object-contain select-none"
+              className="w-full h-auto max-h-[85vh] object-contain select-none"
               style={{
                 transform: `scale(${scale}) rotate(${rotation}deg) translate(${position.x / scale}px, ${position.y / scale}px)`,
                 transition: isDragging ? 'none' : 'transform 0.3s ease'
@@ -135,79 +128,76 @@ const ProfilePictureModal = ({
               draggable={false}
             />
           </div>
-        </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+            <h3 className="text-white text-xl md:text-2xl font-bold text-center mb-4">
+              {title}
+            </h3>
 
-        {/* Controls */}
-        <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-          {/* Zoom and Rotate Controls */}
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-1.5 sm:p-2">
-            <button
-              onClick={handleZoomOut}
-              disabled={scale <= 0.5 || isUploading}
-              className="p-1.5 sm:p-2 text-white hover:bg-white/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <span className="text-white text-xs sm:text-sm font-medium min-w-[50px] sm:min-w-[60px] text-center">
-              {Math.round(scale * 100)}%
-            </span>
-            <button
-              onClick={handleZoomIn}
-              disabled={scale >= 3 || isUploading}
-              className="p-1.5 sm:p-2 text-white hover:bg-white/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <div className="w-px h-5 sm:h-6 bg-white/20 mx-0.5 sm:mx-1" />
-            <button
-              onClick={handleRotate}
-              disabled={isUploading}
-              className="p-1.5 sm:p-2 text-white hover:bg-white/20 rounded transition-colors disabled:opacity-50"
-              title="Rotate"
-            >
-              <RotateCw className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
+            {/* Controls */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Zoom and Rotate Controls */}
+              <div className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg p-2">
+                <button
+                  onClick={handleZoomOut}
+                  disabled={scale <= 0.5 || isUploading}
+                  className="p-2 text-white hover:bg-white/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-5 h-5" />
+                </button>
+                <span className="text-white text-sm font-medium min-w-[60px] text-center">
+                  {Math.round(scale * 100)}%
+                </span>
+                <button
+                  onClick={handleZoomIn}
+                  disabled={scale >= 3 || isUploading}
+                  className="p-2 text-white hover:bg-white/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-5 h-5" />
+                </button>
+                <div className="w-px h-6 bg-white/30 mx-1" />
+                <button
+                  onClick={handleRotate}
+                  disabled={isUploading}
+                  className="p-2 text-white hover:bg-white/30 rounded transition-colors disabled:opacity-50"
+                  title="Rotate"
+                >
+                  <RotateCw className="w-5 h-5" />
+                </button>
+              </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleReset}
-              disabled={isUploading}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-colors backdrop-blur-sm disabled:opacity-50 text-sm sm:text-base"
-            >
-              Reset
-            </button>
-            {onUpload && (
-              <button
-                onClick={() => onUpload({ scale, rotation, position })}
-                disabled={isUploading}
-                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                    <span className="hidden min-[400px]:inline">Uploading...</span>
-                    <span className="min-[400px]:hidden">...</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>Upload</span>
-                  </>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleReset}
+                  disabled={isUploading}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-medium transition-colors backdrop-blur-sm disabled:opacity-50"
+                >
+                  Reset
+                </button>
+                {onUpload && (
+                  <button
+                    onClick={() => onUpload({ scale, rotation, position })}
+                    disabled={isUploading}
+                    className="flex-1 sm:flex-none px-6 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                  </button>
                 )}
-              </button>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Info Text */}
-        <div className="mt-2 sm:mt-3 text-center">
-          <p className="text-white/70 text-xs sm:text-sm">
-            {scale > 1 ? 'Drag to reposition • ' : ''}Use controls to adjust your image
-          </p>
         </div>
       </div>
     </div>

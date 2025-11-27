@@ -18,6 +18,7 @@ import sajidHasanTakbir from '../../assets/takbir.jpg';
 
 const CommitteePage = () => {
   const [selectedMember, setSelectedMember] = useState(null);
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   // Member photos mapping
   const memberPhotos = {
@@ -134,11 +135,17 @@ const CommitteePage = () => {
 
                 {/* Profile Image */}
                 <div className="relative -mt-16 px-6 mb-4">
-                  <div className="w-28 h-28 md:w-32 md:h-32 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100">
+                  <div 
+                    className="w-28 h-28 md:w-32 md:h-32 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100 cursor-zoom-in hover:ring-[#19aaba] transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setZoomedImage({ src: memberPhotos[member.id], name: member.name });
+                    }}
+                  >
                     <img 
                       src={memberPhotos[member.id]} 
                       alt={member.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';
@@ -256,11 +263,17 @@ const CommitteePage = () => {
             </div>
 
             <div className="relative -mt-16 px-6 pb-6">
-              <div className="w-28 h-28 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100 mb-4">
+              <div 
+                className="w-28 h-28 mx-auto bg-white rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-100 mb-4 cursor-zoom-in hover:ring-[#19aaba] transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setZoomedImage({ src: memberPhotos[selectedMember.id], name: selectedMember.name });
+                }}
+              >
                 <img 
                   src={memberPhotos[selectedMember.id]} 
                   alt={selectedMember.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
@@ -318,6 +331,39 @@ const CommitteePage = () => {
                 <MessageSquare className="w-5 h-5" />
                 Send Message
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Spotlight/Zoom Modal */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button
+            onClick={() => setZoomedImage(null)}
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10 backdrop-blur-sm"
+            aria-label="Close"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="relative max-w-4xl w-full animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src={zoomedImage.src}
+                alt={zoomedImage.name}
+                className="w-full h-auto max-h-[85vh] object-contain"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                <h3 className="text-white text-xl md:text-2xl font-bold text-center">
+                  {zoomedImage.name}
+                </h3>
+              </div>
             </div>
           </div>
         </div>
