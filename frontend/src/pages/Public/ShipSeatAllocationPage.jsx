@@ -19,9 +19,9 @@ const ShipSeatAllocationPage = () => {
 
   // Individual passenger data (31 people total)
   const passengers = [
-    { id: 1, name: "Faculty Member 1", role: "faculty", gender: "male" },
-    { id: 2, name: "Faculty Member 2", role: "faculty", gender: "male" },
-    { id: 3, name: "Faculty Member 3", role: "faculty", gender: "female" },
+    { id: 1, name: "Sk. Shalauddin Kabir", role: "faculty", gender: "male" },
+    { id: 2, name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
+    { id: 3, name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
     { id: 4, name: "Anika", role: "student", gender: "female" },
     { id: 5, name: "Anamika", role: "student", gender: "female" },
     { id: 6, name: "Puspita", role: "student", gender: "female" },

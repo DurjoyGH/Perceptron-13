@@ -24,7 +24,7 @@ const RoomAllocationPage = () => {
       id: 8, 
       number: 8, 
       beds: [
-        { bedNumber: 1, occupants: [{ name: "Faculty Member 1", role: "faculty", gender: "male" }] }
+        { bedNumber: 1, occupants: [{ name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" }] }
       ],
       type: 'faculty'
     },
@@ -32,7 +32,7 @@ const RoomAllocationPage = () => {
       id: 9, 
       number: 9, 
       beds: [
-        { bedNumber: 1, occupants: [{ name: "Faculty Member 2", role: "faculty", gender: "male" }] }
+        { bedNumber: 1, occupants: [{ name: "Sk. Shalauddin Kabir", role: "faculty", gender: "male" }] }
       ],
       type: 'faculty'
     },

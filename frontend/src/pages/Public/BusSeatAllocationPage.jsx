@@ -19,8 +19,8 @@ const BusSeatAllocationPage = () => {
 
   // Individual passenger data (separated from pairs)
   const passengers = [
-    { id: 1, name: "Faculty Member 1", role: "faculty", pair: 2, gender: "male" },
-    { id: 2, name: "Faculty Member 2", role: "faculty", pair: 1, gender: "male" },
+    { id: 1, name: "Dr. A F M Shahab Uddin", role: "faculty", pair: 2, gender: "male" },
+    { id: 2, name: "Sk. Shalauddin Kabir", role: "faculty", pair: 1, gender: "male" },
     { id: 3, name: "Anika", role: "student", pair: 4, gender: "female" },
     { id: 4, name: "Anamika", role: "student", pair: 3, gender: "female" },
     { id: 5, name: "Puspita", role: "student", pair: 6, gender: "female" },
