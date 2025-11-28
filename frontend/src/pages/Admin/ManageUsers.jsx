@@ -5,10 +5,14 @@ import {
   Loader,
   Search,
   UserCog,
-  KeyRound
+  KeyRound,
+  Mail,
+  Send,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAllUsers, getUserStats, updateUserRole, resetUserPassword } from '../../services/adminApi';
+import { getAllUsers, getUserStats, updateUserRole, resetUserPassword, sendEmailToSelected, getSenderEmails } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import AvatarModal from '../../components/Profile/AvatarModal';
@@ -27,12 +31,25 @@ const ManageUsers = () => {
   const [userToResetPassword, setUserToResetPassword] = useState(null);
   const [resetPasswordData, setResetPasswordData] = useState(null);
   const [resettingPassword, setResettingPassword] = useState(false);
+  // Password reset email options
+  const [sendResetEmail, setSendResetEmail] = useState(true);
+  const [resetEmailSender, setResetEmailSender] = useState('');
   const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
   const [userToChangeRole, setUserToChangeRole] = useState(null);
   const [changingRole, setChangingRole] = useState(false);
+  
+  // Email functionality states
+  const [enableEmailSelection, setEnableEmailSelection] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [senderEmails, setSenderEmails] = useState([]);
+  const [selectedSenderEmail, setSelectedSenderEmail] = useState('');
+  const [emailForm, setEmailForm] = useState({ subject: '', message: '' });
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchData();
+    fetchSenderEmails();
   }, []);
 
   const fetchData = async () => {
@@ -58,6 +75,76 @@ const ManageUsers = () => {
       toast.error('Failed to load user data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSenderEmails = async () => {
+    try {
+      const response = await getSenderEmails();
+      setSenderEmails(response.data);
+      // Auto-select default sender email
+      const defaultEmail = response.data.find(email => email.isDefault);
+      if (defaultEmail) {
+        setSelectedSenderEmail(defaultEmail._id);
+        setResetEmailSender(defaultEmail._id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch sender emails:', error);
+    }
+  };
+
+  const handleSelectUser = (userId) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAllUsers = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(u => u._id));
+    }
+  };
+
+  const handleSendEmailClick = () => {
+    if (!emailForm.subject || !emailForm.message) {
+      toast.error('Subject and message are required');
+      return;
+    }
+
+    if (selectedUsers.length === 0) {
+      toast.error('Please select at least one user');
+      return;
+    }
+
+    if (!selectedSenderEmail) {
+      toast.error('Please select a sender email');
+      return;
+    }
+
+    setShowEmailConfirmModal(true);
+  };
+
+  const handleConfirmSendEmail = async () => {
+    setSendingEmail(true);
+    try {
+      const response = await sendEmailToSelected({ 
+        ...emailForm, 
+        userIds: selectedUsers,
+        senderEmailId: selectedSenderEmail
+      });
+      toast.success(response.message);
+      setEmailForm({ subject: '', message: '' });
+      setSelectedUsers([]);
+      setShowEmailConfirmModal(false);
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      toast.error(error.response?.data?.message || 'Failed to send email');
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -95,9 +182,19 @@ const ManageUsers = () => {
   const handleConfirmResetPassword = async () => {
     if (!userToResetPassword) return;
     
+    if (sendResetEmail && !resetEmailSender) {
+      toast.error('Please select a sender email for sending the reset password');
+      return;
+    }
+    
     setResettingPassword(true);
     try {
-      const response = await resetUserPassword(userToResetPassword._id);
+      const resetData = {
+        sendEmail: sendResetEmail,
+        senderEmailId: sendResetEmail ? resetEmailSender : undefined
+      };
+      
+      const response = await resetUserPassword(userToResetPassword._id, resetData);
       
       // Show the new password in a modal
       setResetPasswordData({
@@ -105,17 +202,19 @@ const ManageUsers = () => {
         email: response.data.email,
         studentID: userToResetPassword.studentID,
         newPassword: response.data.newPassword,
-        emailSent: response.data.emailSent !== false
+        emailSent: response.data.emailSent !== false && sendResetEmail
       });
       setShowPasswordDisplayModal(true);
       setShowResetPasswordModal(false);
       setUserToResetPassword(null);
       
       // Show appropriate toast based on email status
-      if (response.data.emailSent === false) {
+      if (sendResetEmail && response.data.emailSent === false) {
         toast.warning('Password reset successfully, but email failed to send. Please share the password manually.');
-      } else {
+      } else if (sendResetEmail) {
         toast.success(response.message);
+      } else {
+        toast.success('Password reset successfully. No email was sent.');
       }
     } catch (error) {
       console.error('Failed to reset password:', error);
@@ -202,6 +301,163 @@ const ManageUsers = () => {
           <StatCard icon={Users} title="Recent (30d)" value={stats.recentUsers} color="#ed8936" />
         </div>
 
+        {/* Email Selection Toggle */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="enableEmailSelection"
+              checked={enableEmailSelection}
+              onChange={(e) => {
+                setEnableEmailSelection(e.target.checked);
+                if (!e.target.checked) {
+                  setSelectedUsers([]);
+                  setEmailForm({ subject: '', message: '' });
+                }
+              }}
+              className="w-5 h-5 text-[#19aaba] rounded focus:ring-[#19aaba]"
+            />
+            <label htmlFor="enableEmailSelection" className="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer">
+              <Mail className="w-5 h-5 text-[#19aaba]" />
+              Enable Email Selection
+            </label>
+          </div>
+          
+          {enableEmailSelection && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Email Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Sender Email
+                  </label>
+                  <select
+                    value={selectedSenderEmail}
+                    onChange={(e) => setSelectedSenderEmail(e.target.value)}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent"
+                  >
+                    <option value="">Select sender email</option>
+                    {senderEmails
+                      .filter(se => se.isActive)
+                      .map(se => (
+                        <option key={se._id} value={se._id}>
+                          {se.displayName} ({se.email}) {se.isDefault ? '★' : ''}
+                        </option>
+                      ))
+                    }
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    value={emailForm.subject}
+                    onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })}
+                    placeholder="Enter email subject"
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    value={emailForm.message}
+                    onChange={(e) => setEmailForm({ ...emailForm, message: e.target.value })}
+                    placeholder="Enter your message here..."
+                    rows="5"
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSendEmailClick}
+                  disabled={sendingEmail || selectedUsers.length === 0 || !selectedSenderEmail}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-semibold"
+                >
+                  <Send className="w-5 h-5" />
+                  Send to Selected ({selectedUsers.length})
+                </button>
+              </div>
+
+              {/* Selection Buttons */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Quick Selection Options
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={handleSelectAllUsers}
+                      className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg font-semibold transition-colors"
+                    >
+                      <CheckSquare className="w-4 h-4" />
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setSelectedUsers([])}
+                      className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                    >
+                      <Square className="w-4 h-4" />
+                      Clear All
+                    </button>
+                    <button
+                      onClick={() => {
+                        const userIds = filteredUsers.filter(u => u.role === 'user').map(u => u._id);
+                        setSelectedUsers(userIds);
+                      }}
+                      className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors"
+                    >
+                      <Users className="w-4 h-4" />
+                      Users Only
+                    </button>
+                    <button
+                      onClick={() => {
+                        const adminIds = filteredUsers.filter(u => u.role === 'admin').map(u => u._id);
+                        setSelectedUsers(adminIds);
+                      }}
+                      className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admins Only
+                    </button>
+                    <button
+                      onClick={() => {
+                        const facultyIds = filteredUsers.filter(u => u.type === 'faculty').map(u => u._id);
+                        setSelectedUsers(facultyIds);
+                      }}
+                      className="col-span-2 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition-colors"
+                    >
+                      <Users className="w-4 h-4" />
+                      Faculty Only
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-gray-700">Selected Users:</span>
+                    <span className="text-sm font-bold text-[#19aaba]">{selectedUsers.length}</span>
+                  </div>
+                  {selectedUsers.length > 0 && (
+                    <div className="text-xs text-gray-600 max-h-20 overflow-y-auto">
+                      {users
+                        .filter(u => selectedUsers.includes(u._id))
+                        .map(u => u.name)
+                        .join(', ')
+                      }
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Users Table */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200">
@@ -231,6 +487,16 @@ const ManageUsers = () => {
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white">
                   <tr>
+                    {enableEmailSelection && (
+                      <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                          onChange={handleSelectAllUsers}
+                          className="w-4 h-4 text-white rounded focus:ring-white"
+                        />
+                      </th>
+                    )}
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">#</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Email</th>
@@ -243,7 +509,7 @@ const ManageUsers = () => {
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={enableEmailSelection ? "8" : "7"} className="px-4 py-8 text-center text-gray-500">
                         No users found matching your search.
                       </td>
                     </tr>
@@ -254,6 +520,16 @@ const ManageUsers = () => {
                           ? 'bg-purple-50 hover:bg-purple-100 border-l-4 border-l-purple-300' 
                           : 'hover:bg-cyan-50'
                       }`}>
+                        {enableEmailSelection && (
+                          <td className="px-4 py-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedUsers.includes(usr._id)}
+                              onChange={() => handleSelectUser(usr._id)}
+                              className="w-4 h-4 text-[#19aaba] rounded focus:ring-[#19aaba]"
+                            />
+                          </td>
+                        )}
                         <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
@@ -346,6 +622,14 @@ const ManageUsers = () => {
                       : 'hover:bg-cyan-50'
                   }`}>
                     <div className="flex items-start gap-3">
+                      {enableEmailSelection && (
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(usr._id)}
+                          onChange={() => handleSelectUser(usr._id)}
+                          className="w-4 h-4 text-[#19aaba] rounded focus:ring-[#19aaba] mt-1 flex-shrink-0"
+                        />
+                      )}
                       {/* Avatar */}
                       <button 
                         onClick={() => handleAvatarClick(usr)}
@@ -488,20 +772,72 @@ const ManageUsers = () => {
         onClose={() => {
           setShowResetPasswordModal(false);
           setUserToResetPassword(null);
+          setSendResetEmail(true);
+          setResetEmailSender(senderEmails.find(se => se.isDefault)?._id || '');
         }}
         onConfirm={handleConfirmResetPassword}
         title="Reset User Password"
         message={
           userToResetPassword ? (
-            <div className="space-y-2">
+            <div className="space-y-4">
               <p>Are you sure you want to reset the password for:</p>
               <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                 <p className="font-semibold text-gray-900">{userToResetPassword.name}</p>
                 <p className="text-sm text-gray-600">{userToResetPassword.email}</p>
                 <p className="text-sm text-gray-600">ID: {userToResetPassword.studentID}</p>
               </div>
+              
+              {/* Email Options */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="sendResetEmail"
+                      checked={sendResetEmail}
+                      onChange={(e) => setSendResetEmail(e.target.checked)}
+                      className="w-4 h-4 text-[#19aaba] rounded focus:ring-[#19aaba]"
+                    />
+                    <label htmlFor="sendResetEmail" className="text-sm font-semibold text-blue-900">
+                      Send password via email
+                    </label>
+                  </div>
+                  
+                  {sendResetEmail && (
+                    <div>
+                      <label className="block text-xs font-semibold text-blue-800 mb-1">
+                        Sender Email:
+                      </label>
+                      <select
+                        value={resetEmailSender}
+                        onChange={(e) => setResetEmailSender(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      >
+                        <option value="">Select sender email</option>
+                        {senderEmails
+                          .filter(se => se.isActive)
+                          .map(se => (
+                            <option key={se._id} value={se._id}>
+                              {se.displayName} ({se.email}) {se.isDefault ? '★' : ''}
+                            </option>
+                          ))
+                        }
+                      </select>
+                      {senderEmails.filter(se => se.isActive).length === 0 && (
+                        <p className="text-xs text-red-600 mt-1">
+                          No sender emails configured. Password will be shown only.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <p className="text-sm text-orange-600 font-medium">
-                A new random password will be generated and sent to their email address.
+                {sendResetEmail 
+                  ? 'A new random password will be generated and sent to their email address.'
+                  : 'A new random password will be generated. You will need to share it manually.'
+                }
               </p>
             </div>
           ) : null
@@ -527,7 +863,9 @@ const ManageUsers = () => {
             <p className="text-center text-gray-600 mb-6">
               {resetPasswordData.emailSent 
                 ? 'The new password has been generated and sent via email'
-                : 'The new password has been generated (Email delivery failed)'
+                : sendResetEmail
+                ? 'The new password has been generated (Email delivery failed)'
+                : 'The new password has been generated (No email was sent)'
               }
             </p>
             
@@ -572,7 +910,9 @@ const ManageUsers = () => {
               <p className="text-xs text-orange-700 mt-2 font-medium">
                 {resetPasswordData.emailSent 
                   ? '⚠️ Make sure to save this password. It has been emailed to the user.'
-                  : '⚠️ IMPORTANT: Email failed to send! Please share this password with the user manually.'
+                  : sendResetEmail
+                  ? '⚠️ IMPORTANT: Email failed to send! Please share this password with the user manually.'
+                  : '⚠️ IMPORTANT: No email was sent! Please share this password with the user manually.'
                 }
               </p>
             </div>
@@ -589,6 +929,52 @@ const ManageUsers = () => {
           </div>
         </div>
       )}
+
+      {/* Email Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showEmailConfirmModal}
+        onClose={() => setShowEmailConfirmModal(false)}
+        onConfirm={handleConfirmSendEmail}
+        title="Send Email Confirmation"
+        message={
+          <div className="space-y-3">
+            <p className="text-gray-700">You are about to send an email to <span className="font-bold text-[#19aaba]">{selectedUsers.length}</span> recipient{selectedUsers.length !== 1 ? 's' : ''}:</p>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-40 overflow-y-auto">
+              <div className="space-y-2">
+                {users
+                  .filter(u => selectedUsers.includes(u._id))
+                  .map(u => (
+                    <div key={u._id} className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 rounded-full bg-[#19aaba]"></div>
+                      <span className="font-medium text-gray-900">{u.name}</span>
+                      {u.role === 'admin' && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full border border-red-200">
+                          ADMIN
+                        </span>
+                      )}
+                      {u.type === 'faculty' && (
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full border border-purple-200">
+                          FACULTY
+                        </span>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <p className="text-sm font-semibold text-blue-900 mb-1">Subject:</p>
+              <p className="text-sm text-blue-800">{emailForm.subject}</p>
+            </div>
+            <p className="text-sm text-orange-600 font-medium">
+              ⚠️ This action cannot be undone. The email will be sent immediately.
+            </p>
+          </div>
+        }
+        confirmText={sendingEmail ? "Sending..." : "Send Email"}
+        cancelText="Cancel"
+        type="warning"
+        loading={sendingEmail}
+      />
     </div>
   );
 };

@@ -121,7 +121,7 @@ const SendEmail = () => {
   };
 
   const handleSelectAllUsers = () => {
-    const userIds = filteredUsers.filter(u => u.role === 'user').map(u => u._id);
+    const userIds = filteredUsers.filter(u => u.type === 'student').map(u => u._id);
     setSelectedUsers(userIds);
   };
 
@@ -455,7 +455,7 @@ const SendEmail = () => {
                   className="flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors"
                 >
                   <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Select All Users</span>
+                  <span className="hidden sm:inline">Select All Students</span>
                   <span className="sm:hidden">Users</span>
                 </button>
                 <button
