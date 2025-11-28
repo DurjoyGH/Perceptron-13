@@ -96,7 +96,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Trim whitespace from email/studentID
+    // Trim whitespace from studentID/facultyID
     email = email.trim();
 
     let user = null;
@@ -109,21 +109,8 @@ const login = async (req, res) => {
         type: 'faculty'
       });
     } else {
-      // For non-faculty users, try studentID first, then email
+      // For all users, only allow login by studentID
       user = await User.findOne({ studentID: email });
-      
-      if (!user) {
-        // If not found by studentID, try by email (for students/staff/alumni)
-        user = await User.findOne({ email: email });
-      }
-      
-      // Prevent faculty from logging in with email
-      if (user && user.type === 'faculty') {
-        return res.status(401).json({
-          success: false,
-          message: 'Faculty members must login using their Faculty ID'
-        });
-      }
     }
     
     if (!user) {
@@ -223,12 +210,8 @@ const forgotPassword = async (req, res) => {
         type: 'faculty'
       });
     } else {
-      // For non-faculty users, try studentID first, then email
+      // For all users, only search by studentID
       user = await User.findOne({ studentID: email });
-      
-      if (!user) {
-        user = await User.findOne({ email: email });
-      }
     }
 
     if (!user) {
