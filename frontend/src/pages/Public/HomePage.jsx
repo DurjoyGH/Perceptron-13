@@ -47,6 +47,8 @@ const HomePage = () => {
 
   // Testimonials State
   const [testimonials, setTestimonials] = useState([]);
+  const [facultyTestimonials, setFacultyTestimonials] = useState([]);
+  const [studentTestimonials, setStudentTestimonials] = useState([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
   // Fetch tour schedules with gallery images
@@ -100,10 +102,18 @@ const HomePage = () => {
           profilePicture: user.profilePicture
         }));
         
+        // Separate faculty and student testimonials
+        const faculty = usersWithDialogues.filter(user => user.type === 'faculty');
+        const students = usersWithDialogues.filter(user => user.type !== 'faculty');
+        
         setTestimonials(usersWithDialogues);
+        setFacultyTestimonials(faculty);
+        setStudentTestimonials(students);
       } catch (error) {
         console.error('Failed to fetch testimonials:', error);
         setTestimonials([]);
+        setFacultyTestimonials([]);
+        setStudentTestimonials([]);
       } finally {
         setLoadingTestimonials(false);
       }
@@ -617,12 +627,95 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Faculty Testimonials Section */}
+      <section className="py-20 bg-gradient-to-br from-purple-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+              Faculty <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Insights</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Hear from our esteemed faculty members about the importance and benefits of this industrial tour.
+            </p>
+          </div>
+
+          {loadingTestimonials ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : facultyTestimonials.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {facultyTestimonials.map((testimonial) => (
+                <div 
+                  key={testimonial.id}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-100 hover:border-purple-200"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="relative">
+                      {testimonial.profilePicture?.url ? (
+                        <img
+                          src={testimonial.profilePicture.url}
+                          alt={testimonial.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-purple-200"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {testimonial.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1 -right-1 bg-purple-600 text-white rounded-full p-1">
+                        <GraduationCap className="w-3 h-3" />
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-sm text-purple-600 font-semibold">{testimonial.studentID} • Faculty</p>
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="text-4xl text-purple-600/20 absolute -top-2 -left-2">“</div>
+                    <p className="text-gray-700 italic leading-relaxed pl-4">
+                      {testimonial.dialogue}
+                    </p>
+                    <div className="text-4xl text-purple-600/20 absolute -bottom-4 -right-2">”</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <GraduationCap className="w-8 h-8 text-purple-400" />
+              </div>
+              <p className="text-gray-500 text-lg">No faculty insights available yet</p>
+              <p className="text-gray-400 text-sm mt-2">Faculty members will share their thoughts soon!</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Student Testimonials Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              What Our <span className="bg-gradient-to-r from-[#19aaba] to-[#158c99] bg-clip-text text-transparent">Members Say</span>
+              Student <span className="bg-gradient-to-r from-[#19aaba] to-[#158c99] bg-clip-text text-transparent">Voices</span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Hear from our amazing batch members about their experiences and expectations for this incredible journey.
@@ -648,9 +741,9 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-          ) : testimonials.length > 0 ? (
+          ) : studentTestimonials.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {testimonials.map((testimonial) => (
+              {studentTestimonials.map((testimonial) => (
                 <div 
                   key={testimonial.id}
                   className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[#19aaba]/20"
@@ -676,11 +769,11 @@ const HomePage = () => {
                   </div>
                   
                   <div className="relative">
-                    <div className="text-4xl text-[#19aaba]/20 absolute -top-2 -left-2">"</div>
+                    <div className="text-4xl text-[#19aaba]/20 absolute -top-2 -left-2">“</div>
                     <p className="text-gray-700 italic leading-relaxed pl-4">
                       {testimonial.dialogue}
                     </p>
-                    <div className="text-4xl text-[#19aaba]/20 absolute -bottom-4 -right-2">"</div>
+                    <div className="text-4xl text-[#19aaba]/20 absolute -bottom-4 -right-2">”</div>
                   </div>
                 </div>
               ))}
@@ -690,8 +783,8 @@ const HomePage = () => {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="text-gray-500 text-lg">No testimonials available yet</p>
-              <p className="text-gray-400 text-sm mt-2">Members will share their thoughts soon!</p>
+              <p className="text-gray-500 text-lg">No student testimonials available yet</p>
+              <p className="text-gray-400 text-sm mt-2">Students will share their thoughts soon!</p>
             </div>
           )}
         </div>
