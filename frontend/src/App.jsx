@@ -17,6 +17,9 @@ import RoomAllocationPage from './pages/Public/RoomAllocationPage';
 import CommitteePage from './pages/Public/CommitteePage';
 import TransactionPage from './pages/Public/TransactionPage';
 import Login from './pages/Auth/Login';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import VerifyOTP from './pages/Auth/VerifyOTP';
+import ResetPassword from './pages/Auth/ResetPassword';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
@@ -62,6 +65,9 @@ function App() {
 
           {/* Auth Routes (without layout) */}
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* User Routes (Protected) */}
           <Route path="/user" element={<UserRoute><UserLayout /></UserRoute>}>

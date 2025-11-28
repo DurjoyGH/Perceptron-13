@@ -32,6 +32,15 @@ const Login = () => {
     }
   }, [isAuthenticated, isAdmin, navigate]);
 
+  // Show success message if redirected from password reset
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+      // Clear the message from location state
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
