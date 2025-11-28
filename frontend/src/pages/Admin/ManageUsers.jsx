@@ -42,8 +42,13 @@ const ManageUsers = () => {
         getAllUsers(),
         getUserStats()
       ]);
-      // Sort users by studentID in ascending order
+      // Sort users: faculty first, then students by studentID
       const sortedUsers = usersResponse.data.sort((a, b) => {
+        // Faculty members come first
+        if (a.type === 'faculty' && b.type !== 'faculty') return -1;
+        if (a.type !== 'faculty' && b.type === 'faculty') return 1;
+        
+        // Within same type, sort by studentID
         return a.studentID.localeCompare(b.studentID, undefined, { numeric: true });
       });
       setUsers(sortedUsers);
@@ -229,7 +234,8 @@ const ManageUsers = () => {
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">#</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Email</th>
-                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Student ID</th>
+                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">ID Number</th>
+                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Type</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Role</th>
                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                   </tr>
@@ -237,13 +243,17 @@ const ManageUsers = () => {
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
                         No users found matching your search.
                       </td>
                     </tr>
                   ) : (
                     filteredUsers.map((usr, index) => (
-                      <tr key={usr._id} className="hover:bg-cyan-50 transition-colors duration-150">
+                      <tr key={usr._id} className={`transition-colors duration-150 ${
+                        usr.type === 'faculty' 
+                          ? 'bg-purple-50 hover:bg-purple-100 border-l-4 border-l-purple-300' 
+                          : 'hover:bg-cyan-50'
+                      }`}>
                         <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
@@ -270,6 +280,19 @@ const ManageUsers = () => {
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-600">{usr.email}</td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-700">{usr.studentID}</td>
+                        <td className="px-4 py-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            usr.type === 'faculty' 
+                              ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                              : usr.type === 'alumni'
+                              ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                              : usr.type === 'staff'
+                              ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                              : 'bg-gray-100 text-gray-700 border border-gray-200'
+                          }`}>
+                            {usr.type.toUpperCase()}
+                          </span>
+                        </td>
                         <td className="px-4 py-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             usr.role === 'admin' 
@@ -317,7 +340,11 @@ const ManageUsers = () => {
                 </div>
               ) : (
                 filteredUsers.map((usr, index) => (
-                  <div key={usr._id} className="p-4 hover:bg-cyan-50 transition-colors">
+                  <div key={usr._id} className={`p-4 transition-colors ${
+                    usr.type === 'faculty' 
+                      ? 'bg-purple-50 hover:bg-purple-100 border-l-4 border-l-purple-300' 
+                      : 'hover:bg-cyan-50'
+                  }`}>
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
                       <button 
@@ -515,7 +542,7 @@ const ManageUsers = () => {
                   <p className="text-sm font-medium text-gray-900">{resetPasswordData.email}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Student ID</label>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Number</label>
                   <p className="text-sm font-medium text-gray-900">{resetPasswordData.studentID}</p>
                 </div>
               </div>

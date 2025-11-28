@@ -13,7 +13,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { getAllMembers } from '../../services/userApi';
-import { getAllFaculty } from '../../services/facultyApi';
 import CustomToast from '../../components/ScrollTop/ScrollTop';
 import AvatarModal from '../../components/Profile/AvatarModal';
 
@@ -34,12 +33,15 @@ const MembersPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [membersResponse, facultyResponse] = await Promise.all([
-        getAllMembers(),
-        getAllFaculty()
-      ]);
-      setMembers(membersResponse.data);
-      setFaculty(facultyResponse.data);
+      const membersResponse = await getAllMembers();
+      const allUsers = membersResponse.data;
+      
+      // Separate faculty and non-faculty users
+      const facultyUsers = allUsers.filter(user => user.type === 'faculty');
+      const nonFacultyUsers = allUsers.filter(user => user.type !== 'faculty');
+      
+      setFaculty(facultyUsers);
+      setMembers(nonFacultyUsers);
       setError(null);
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -60,8 +62,8 @@ const MembersPage = () => {
 
   // Filter members based on search term and filter type (students only)
   const filteredMembers = members.filter(member => {
-    // Ensure this is a student (has studentID and gender, not a faculty member)
-    const isStudent = member.studentID && member.gender && !member.facultyID;
+    // Ensure this is a student (not a faculty member)
+    const isStudent = member.type !== 'faculty';
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.studentID.includes(searchTerm);
     const matchesFilter = filterType === 'all' || 
@@ -70,13 +72,13 @@ const MembersPage = () => {
     return isStudent && matchesSearch && matchesFilter;
   });
 
-  // Filter faculty based on search term (only when filter is 'all')
-  const filteredFaculty = filterType === 'all' ? faculty.filter(member => {
+  // Filter faculty based on search term (always show faculty, independent of gender filter)
+  const filteredFaculty = faculty.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (member.facultyID && member.facultyID.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (member.studentID && member.studentID.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
-  }) : [];
+  });
 
   // Statistics
   const stats = {
@@ -305,7 +307,7 @@ const MembersPage = () => {
                             <span className="text-sm font-medium text-gray-900">{index + 1}</span>
                           </td>
                           <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                            <span className="text-sm font-mono font-semibold text-gray-900">{member.facultyID || 'N/A'}</span>
+                            <span className="text-sm font-mono font-semibold text-gray-900">{member.studentID}</span>
                           </td>
                           <td className="px-4 lg:px-6 py-3 lg:py-4">
                             <div className="flex items-center gap-3">
@@ -333,7 +335,7 @@ const MembersPage = () => {
                           </td>
                           <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-right">
                             <Link
-                              to={`/faculty/${member._id}`}
+                              to={`/member/${member.studentID}`}
                               className="inline-flex items-center gap-1 text-sm font-medium text-[#19aaba] hover:text-[#158c99] transition-colors"
                             >
                               View Profile
@@ -378,7 +380,7 @@ const MembersPage = () => {
                                 {member.designation}
                               </p>
                               <p className="text-xs font-mono font-semibold text-green-600">
-                                {member.facultyID || 'N/A'}
+                                {member.studentID}
                               </p>
                             </div>
                             <span className="text-xs font-medium text-gray-500 flex-shrink-0">
@@ -388,7 +390,7 @@ const MembersPage = () => {
                           
                           <div className="mt-3">
                             <Link
-                              to={`/faculty/${member._id}`}
+                              to={`/member/${member.studentID}`}
                               className="inline-flex items-center gap-1 text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95"
                             >
                               View Profile

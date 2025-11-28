@@ -94,13 +94,31 @@ const login = async (req, res) => {
     // Trim whitespace from email/studentID
     email = email.trim();
 
-    // Find user by studentID or email
-    // Try to find by studentID first, then by email if not found
-    let user = await User.findOne({ studentID: email });
+    let user = null;
     
-    if (!user) {
-      // If not found by studentID, try by email
-      user = await User.findOne({ email: email });
+    // Check if it's a faculty ID (starts with "FACULTY")
+    if (email.toUpperCase().startsWith('FACULTY')) {
+      // For faculty, only allow login by faculty ID (case-insensitive)
+      user = await User.findOne({ 
+        studentID: { $regex: new RegExp(`^${email}$`, 'i') },
+        type: 'faculty'
+      });
+    } else {
+      // For non-faculty users, try studentID first, then email
+      user = await User.findOne({ studentID: email });
+      
+      if (!user) {
+        // If not found by studentID, try by email (for students/staff/alumni)
+        user = await User.findOne({ email: email });
+      }
+      
+      // Prevent faculty from logging in with email
+      if (user && user.type === 'faculty') {
+        return res.status(401).json({
+          success: false,
+          message: 'Faculty members must login using their Faculty ID'
+        });
+      }
     }
     
     if (!user) {

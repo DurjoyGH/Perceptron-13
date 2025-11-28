@@ -6,7 +6,6 @@ const voteRoutes = require("./routes/voteRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const tourScheduleRoutes = require("./routes/tourScheduleRoutes");
-const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
 
@@ -46,7 +45,6 @@ app.use("/api/vote", voteRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/tour", tourScheduleRoutes);
-app.use("/api/faculty", facultyRoutes);
 
 
 // --- Global Error Handler ---

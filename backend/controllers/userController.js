@@ -36,8 +36,8 @@ const deleteFromCloudinary = async (publicId) => {
 // Get all users (public - for members page)
 const getAllMembers = async (req, res) => {
   try {
-    // Only fetch users with type 'user' (students), exclude faculty
-    const users = await User.find({ type: { $ne: 'faculty' } })
+    // Fetch all users with type 'user' (students)
+    const users = await User.find()
       .select('-password -__v')
       .sort({ studentID: 1 });
     
@@ -112,7 +112,26 @@ const getUserProfile = async (req, res) => {
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    const { name, email, contactNumber, dialogue, currentPassword, newPassword } = req.body;
+    const { 
+      name, 
+      email, 
+      contactNumber, 
+      dialogue, 
+      currentPassword, 
+      newPassword,
+      // Faculty-specific fields
+      designation,
+      department,
+      bio,
+      researchInterests,
+      qualifications,
+      officeRoom,
+      officeHours,
+      personalWebsite,
+      googleScholar,
+      researchGate,
+      orcid
+    } = req.body;
     
     // Prevent studentID from being updated
     if (req.body.studentID) {
@@ -180,6 +199,31 @@ const updateUserProfile = async (req, res) => {
     if (email) user.email = email;
     if (contactNumber !== undefined) user.contactNumber = contactNumber;
     if (dialogue !== undefined) user.dialogue = dialogue;
+
+    // Update faculty-specific fields if user is faculty
+    if (user.type === 'faculty') {
+      console.log('Updating faculty fields for user:', user.studentID);
+      console.log('Faculty update data:', { designation, department, bio, researchInterests, qualifications, officeRoom, officeHours, personalWebsite, googleScholar, researchGate, orcid });
+      
+      if (designation !== undefined) {
+        console.log('Updating designation:', designation);
+        user.designation = designation;
+      }
+      if (department !== undefined) user.department = department;
+      if (bio !== undefined) user.bio = bio;
+      if (researchInterests !== undefined) {
+        user.researchInterests = Array.isArray(researchInterests) ? researchInterests : [];
+      }
+      if (qualifications !== undefined) {
+        user.qualifications = Array.isArray(qualifications) ? qualifications : [];
+      }
+      if (officeRoom !== undefined) user.officeRoom = officeRoom;
+      if (officeHours !== undefined) user.officeHours = officeHours;
+      if (personalWebsite !== undefined) user.personalWebsite = personalWebsite;
+      if (googleScholar !== undefined) user.googleScholar = googleScholar;
+      if (researchGate !== undefined) user.researchGate = researchGate;
+      if (orcid !== undefined) user.orcid = orcid;
+    }
 
     await user.save();
 

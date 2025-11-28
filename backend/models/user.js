@@ -24,6 +24,25 @@ const userSchema = new mongoose.Schema(
     },
     contactNumber: { type: String, default: null },
     dialogue: { type: String, default: null },
+    
+    // Faculty-specific fields
+    designation: { type: String, default: null },
+    department: { type: String, default: null },
+    bio: { type: String, default: null },
+    officeRoom: { type: String, default: null },
+    officeHours: { type: String, default: null },
+    researchInterests: { type: [String], default: [] },
+    qualifications: [{
+      degree: { type: String, default: '' },
+      institution: { type: String, default: '' },
+      year: { type: String, default: '' },
+      field: { type: String, default: '' }
+    }],
+    personalWebsite: { type: String, default: null },
+    googleScholar: { type: String, default: null },
+    researchGate: { type: String, default: null },
+    orcid: { type: String, default: null },
+    
     featuredPhotos: [
       {
         url: { type: String, required: true },

@@ -11,7 +11,14 @@ import {
   User,
   Users,
   Camera,
-  Loader2
+  Loader2,
+  Briefcase,
+  Globe,
+  BookOpen,
+  Building2,
+  Clock,
+  Link as LinkIcon,
+  ExternalLink
 } from 'lucide-react';
 import { getMemberByStudentId } from '../../services/userApi';
 import AvatarModal from '../../components/Profile/AvatarModal';
@@ -129,50 +136,106 @@ const MemberProfilePage = () => {
                   )}
                 </button>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{member.name}</h2>
-                <p className="text-white/90 font-mono text-base sm:text-lg">{member.studentID}</p>
+                <p className="text-white/90 text-base sm:text-lg">
+                  {member.type === 'faculty' ? (member.designation || 'Faculty Member') : `${member.studentID}`}
+                </p>
               </div>
 
               {/* Quick Info */}
               <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Program</p>
-                    <p className="text-sm font-medium">B.Sc. in CSE</p>
-                  </div>
-                </div>
+                {member.type === 'faculty' ? (
+                  // Faculty-specific quick info
+                  <>
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">Email</p>
+                        <p className="text-sm font-medium truncate">{member.email}</p>
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Batch</p>
-                    <p className="text-sm font-medium">Perceptron-13</p>
-                  </div>
-                </div>
+                    {member.department && (
+                      <div className="flex items-center gap-3 text-gray-700">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-gray-500">Department</p>
+                          <p className="text-sm font-medium break-words">{member.department}</p>
+                        </div>
+                      </div>
+                    )}
 
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Gender</p>
-                    <p className="text-sm font-medium capitalize">{member.gender}</p>
-                  </div>
-                </div>
+                    {member.officeRoom && (
+                      <div className="flex items-center gap-3 text-gray-700">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-gray-500">Office</p>
+                          <p className="text-sm font-medium">{member.officeRoom}</p>
+                        </div>
+                      </div>
+                    )}
 
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Institution</p>
-                    <p className="text-sm font-medium break-words">Jashore University of Science and Technology</p>
-                  </div>
-                </div>
+                    {member.officeHours && (
+                      <div className="flex items-center gap-3 text-gray-700">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-gray-500">Office Hours</p>
+                          <p className="text-sm font-medium">{member.officeHours}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Student-specific quick info
+                  <>
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">Program</p>
+                        <p className="text-sm font-medium">B.Sc. in CSE</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">Batch</p>
+                        <p className="text-sm font-medium">Perceptron-13</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">Gender</p>
+                        <p className="text-sm font-medium capitalize">{member.gender}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#19aaba]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">Institution</p>
+                        <p className="text-sm font-medium break-words">Jashore University of Science and Technology</p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -180,35 +243,182 @@ const MemberProfilePage = () => {
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Academic Information */}
+            {/* Academic/Professional Information */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-[#19aaba]" />
-                Academic Information
+                {member.type === 'faculty' ? 'Professional Information' : 'Academic Information'}
               </h3>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-sm sm:text-base text-gray-600">Student ID</span>
+                  <span className="text-sm sm:text-base text-gray-600">{member.type === 'faculty' ? 'Faculty ID' : 'Student ID'}</span>
                   <span className="font-mono font-semibold text-sm sm:text-base text-gray-900 sm:text-right">{member.studentID}</span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-sm sm:text-base text-gray-600">Department</span>
-                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Computer Science & Engineering</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-sm sm:text-base text-gray-600">Batch Name</span>
-                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">Perceptron-13</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-sm sm:text-base text-gray-600">Session</span>
-                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">2020-21</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 gap-1 sm:gap-0">
-                  <span className="text-sm sm:text-base text-gray-600">University</span>
-                  <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Jashore University of Science and Technology</span>
-                </div>
+                
+                {member.type === 'faculty' ? (
+                  // Faculty-specific information
+                  <>
+                    {member.designation && (
+                      <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                        <span className="text-sm sm:text-base text-gray-600">Designation</span>
+                        <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">{member.designation}</span>
+                      </div>
+                    )}
+                    {member.department && (
+                      <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                        <span className="text-sm sm:text-base text-gray-600">Department</span>
+                        <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">{member.department}</span>
+                      </div>
+                    )}
+                    {member.officeRoom && (
+                      <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                        <span className="text-sm sm:text-base text-gray-600">Office Room</span>
+                        <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">{member.officeRoom}</span>
+                      </div>
+                    )}
+                    {member.officeHours && (
+                      <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                        <span className="text-sm sm:text-base text-gray-600">Office Hours</span>
+                        <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">{member.officeHours}</span>
+                      </div>
+                    )}
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 gap-1 sm:gap-0">
+                      <span className="text-sm sm:text-base text-gray-600">Institution</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Jashore University of Science and Technology</span>
+                    </div>
+                  </>
+                ) : (
+                  // Student-specific information
+                  <>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                      <span className="text-sm sm:text-base text-gray-600">Department</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Computer Science & Engineering</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                      <span className="text-sm sm:text-base text-gray-600">Batch Name</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">Perceptron-13</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                      <span className="text-sm sm:text-base text-gray-600">Session</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right">2020-21</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 sm:py-3 gap-1 sm:gap-0">
+                      <span className="text-sm sm:text-base text-gray-600">University</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900 sm:text-right break-words">Jashore University of Science and Technology</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
+
+            {/* Faculty-specific sections */}
+            {member.type === 'faculty' && (
+              <>
+                {/* Bio Section */}
+                {member.bio && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <User className="w-5 h-5 text-[#19aaba]" />
+                      Biography
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{member.bio}</p>
+                  </div>
+                )}
+
+                {/* Research Interests */}
+                {member.researchInterests && member.researchInterests.length > 0 && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-[#19aaba]" />
+                      Research Interests
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {member.researchInterests.map((interest, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                        >
+                          {interest}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Educational Background */}
+                {member.qualifications && member.qualifications.length > 0 && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-[#19aaba]" />
+                      Educational Background
+                    </h3>
+                    <div className="space-y-3">
+                      {member.qualifications.map((qualification, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-900 mb-1">{qualification.degree}</h4>
+                          <p className="text-gray-700 mb-1">{qualification.institution}</p>
+                          <p className="text-sm text-gray-600">{qualification.year}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Professional Links */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5 text-[#19aaba]" />
+                    Professional Links
+                  </h3>
+                  <div className="space-y-3">
+                    {member.googleScholar && (
+                      <a
+                        href={member.googleScholar}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Google Scholar Profile
+                      </a>
+                    )}
+                    {member.researchGate && (
+                      <a
+                        href={member.researchGate}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        ResearchGate Profile
+                      </a>
+                    )}
+                    {member.orcid && (
+                      <a
+                        href={member.orcid}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        ORCID Profile
+                      </a>
+                    )}
+                    {member.personalWebsite && (
+                      <a
+                        href={member.personalWebsite}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Personal Website
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Contact Information */}
             {(member.contactNumber || member.email) && (

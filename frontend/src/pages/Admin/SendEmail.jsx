@@ -71,8 +71,13 @@ const SendEmail = () => {
     setLoading(true);
     try {
       const response = await getAllUsers();
-      // Sort users by studentID in ascending order
+      // Sort users: faculty first, then students by studentID
       const sortedUsers = response.data.sort((a, b) => {
+        // Faculty members come first
+        if (a.type === 'faculty' && b.type !== 'faculty') return -1;
+        if (a.type !== 'faculty' && b.type === 'faculty') return 1;
+        
+        // Within same type, sort by studentID
         return a.studentID.localeCompare(b.studentID, undefined, { numeric: true });
       });
       setUsers(sortedUsers);
@@ -123,6 +128,11 @@ const SendEmail = () => {
   const handleSelectAllAdmins = () => {
     const adminIds = filteredUsers.filter(u => u.role === 'admin').map(u => u._id);
     setSelectedUsers(adminIds);
+  };
+
+  const handleSelectAllFaculty = () => {
+    const facultyIds = filteredUsers.filter(u => u.type === 'faculty').map(u => u._id);
+    setSelectedUsers(facultyIds);
   };
 
   const handleSendEmailClick = () => {
@@ -457,6 +467,14 @@ const SendEmail = () => {
                   <span className="sm:hidden">Admins</span>
                 </button>
                 <button
+                  onClick={handleSelectAllFaculty}
+                  className="flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition-colors"
+                >
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Select All Faculty</span>
+                  <span className="sm:hidden">Faculty</span>
+                </button>
+                <button
                   onClick={() => setSelectedUsers([])}
                   className="flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
                 >
@@ -496,6 +514,16 @@ const SendEmail = () => {
                             ADMIN
                           </span>
                         )}
+                        {usr.type === 'faculty' && (
+                          <span className="px-1.5 sm:px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full border border-purple-200 flex-shrink-0">
+                            FACULTY
+                          </span>
+                        )}
+                        {usr.type === 'student' && (
+                          <span className="px-1.5 sm:px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200 flex-shrink-0">
+                            STUDENT
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600 truncate">{usr.email}</p>
                       <p className="text-xs text-gray-500 font-mono">{usr.studentID}</p>
@@ -528,6 +556,16 @@ const SendEmail = () => {
                       {u.role === 'admin' && (
                         <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full border border-red-200">
                           ADMIN
+                        </span>
+                      )}
+                      {u.type === 'faculty' && (
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full border border-purple-200">
+                          FACULTY
+                        </span>
+                      )}
+                      {u.type === 'student' && (
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200">
+                          STUDENT
                         </span>
                       )}
                     </div>

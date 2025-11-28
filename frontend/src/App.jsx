@@ -21,10 +21,8 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
 import ManageUsers from './pages/Admin/ManageUsers';
-import ManageFaculty from './pages/Admin/ManageFaculty';
 import SendEmail from './pages/Admin/SendEmail';
 import ProfilePage from './pages/User/ProfilePage';
-import FacultyProfileViewPage from './pages/Public/FacultyProfileViewPage';
 import { useAuth } from './context/AuthContext';
 
 function ProfileRouteWrapper() {
@@ -50,7 +48,6 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="member/:id" element={<MemberProfilePage />} />
-            <Route path="faculty/:id" element={<FacultyProfileViewPage />} />
             <Route path="schedule" element={<TourSchedulePage />} />
             <Route path='bus-seat-allocation' element={<BusSeatAllocationPage />} />
             <Route path='ship-seat-allocation' element={<ShipSeatAllocationPage />} />
@@ -76,7 +73,6 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="profile" element={<ProfileRouteWrapper />} />
             <Route path="manage-users" element={<ManageUsers />} />
-            <Route path="manage-faculty" element={<ManageFaculty />} />
             <Route path="send-email" element={<SendEmail />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
             <Route path="gallery" element={<ManageGallery />} />

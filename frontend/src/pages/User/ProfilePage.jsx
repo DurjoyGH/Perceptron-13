@@ -33,7 +33,14 @@ import {
   LogOut,
   Upload,
   Trash2,
-  Plus
+  Plus,
+  Briefcase,
+  Phone,
+  Globe,
+  BookOpen,
+  Building2,
+  Clock,
+  Link as LinkIcon
 } from 'lucide-react';
 import ProfilePictureModal from '../../components/Profile/ProfilePictureModal';
 import ImageViewModal from '../../components/Profile/ImageViewModal';
@@ -79,7 +86,19 @@ const ProfilePage = () => {
     email: '',
     contactNumber: '',
     dialogue: '',
-    studentID: ''
+    studentID: '',
+    // Faculty-specific fields
+    designation: '',
+    department: '',
+    bio: '',
+    researchInterests: [],
+    qualifications: [],
+    officeRoom: '',
+    officeHours: '',
+    personalWebsite: '',
+    googleScholar: '',
+    researchGate: '',
+    orcid: ''
   });
 
   const [tempFormData, setTempFormData] = useState({
@@ -87,7 +106,19 @@ const ProfilePage = () => {
     email: '',
     contactNumber: '',
     dialogue: '',
-    studentID: ''
+    studentID: '',
+    // Faculty-specific fields
+    designation: '',
+    department: '',
+    bio: '',
+    researchInterests: [],
+    qualifications: [],
+    officeRoom: '',
+    officeHours: '',
+    personalWebsite: '',
+    googleScholar: '',
+    researchGate: '',
+    orcid: ''
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -120,7 +151,19 @@ const ProfilePage = () => {
         email: user.email || '',
         contactNumber: user.contactNumber || '',
         dialogue: user.dialogue || '',
-        studentID: user.studentID || ''
+        studentID: user.studentID || '',
+        // Faculty-specific fields
+        designation: user.designation || '',
+        department: user.department || '',
+        bio: user.bio || '',
+        researchInterests: Array.isArray(user.researchInterests) ? user.researchInterests : [],
+        qualifications: Array.isArray(user.qualifications) ? user.qualifications : [],
+        officeRoom: user.officeRoom || '',
+        officeHours: user.officeHours || '',
+        personalWebsite: user.personalWebsite || '',
+        googleScholar: user.googleScholar || '',
+        researchGate: user.researchGate || '',
+        orcid: user.orcid || ''
       };
       setFormData(data);
       setTempFormData(data);
@@ -139,6 +182,53 @@ const ProfilePage = () => {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  };
+
+  // Helper functions for faculty-specific features
+  const handleResearchInterestAdd = () => {
+    setTempFormData(prev => ({
+      ...prev,
+      researchInterests: [...prev.researchInterests, '']
+    }));
+  };
+
+  const handleResearchInterestChange = (index, value) => {
+    setTempFormData(prev => ({
+      ...prev,
+      researchInterests: prev.researchInterests.map((item, i) => 
+        i === index ? value : item
+      )
+    }));
+  };
+
+  const handleResearchInterestRemove = (index) => {
+    setTempFormData(prev => ({
+      ...prev,
+      researchInterests: prev.researchInterests.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleQualificationAdd = () => {
+    setTempFormData(prev => ({
+      ...prev,
+      qualifications: [...prev.qualifications, { degree: '', institution: '', year: '', field: '' }]
+    }));
+  };
+
+  const handleQualificationChange = (index, field, value) => {
+    setTempFormData(prev => ({
+      ...prev,
+      qualifications: prev.qualifications.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  };
+
+  const handleQualificationRemove = (index) => {
+    setTempFormData(prev => ({
+      ...prev,
+      qualifications: prev.qualifications.filter((_, i) => i !== index)
+    }));
   };
 
   const handleEditClick = () => {
@@ -203,17 +293,52 @@ const ProfilePage = () => {
         contactNumber: tempFormData.contactNumber,
         dialogue: tempFormData.dialogue
       };
+
+      // Add faculty-specific fields if user is faculty
+      if (userData?.type === 'faculty') {
+        updateData.designation = tempFormData.designation;
+        updateData.department = tempFormData.department;
+        updateData.bio = tempFormData.bio;
+        updateData.researchInterests = tempFormData.researchInterests;
+        updateData.qualifications = tempFormData.qualifications;
+        updateData.officeRoom = tempFormData.officeRoom;
+        updateData.officeHours = tempFormData.officeHours;
+        updateData.personalWebsite = tempFormData.personalWebsite;
+        updateData.googleScholar = tempFormData.googleScholar;
+        updateData.researchGate = tempFormData.researchGate;
+        updateData.orcid = tempFormData.orcid;
+      }
       
       const response = await updateUserProfile(updateData);
       toast.success('Profile updated successfully!');
-      setFormData({
-        name: response.data.name,
-        email: response.data.email,
-        contactNumber: response.data.contactNumber || '',
-        dialogue: response.data.dialogue || '',
-        studentID: response.data.studentID
-      });
-      updateUser(response.data);
+      
+      // Update both userData and formData with response data
+      const updatedData = response.data;
+      setUserData(updatedData);
+      
+      const newFormData = {
+        name: updatedData.name || '',
+        email: updatedData.email || '',
+        contactNumber: updatedData.contactNumber || '',
+        dialogue: updatedData.dialogue || '',
+        studentID: updatedData.studentID || '',
+        // Faculty fields
+        designation: updatedData.designation || '',
+        department: updatedData.department || '',
+        bio: updatedData.bio || '',
+        researchInterests: Array.isArray(updatedData.researchInterests) ? updatedData.researchInterests : [],
+        qualifications: Array.isArray(updatedData.qualifications) ? updatedData.qualifications : [],
+        officeRoom: updatedData.officeRoom || '',
+        officeHours: updatedData.officeHours || '',
+        personalWebsite: updatedData.personalWebsite || '',
+        googleScholar: updatedData.googleScholar || '',
+        researchGate: updatedData.researchGate || '',
+        orcid: updatedData.orcid || ''
+      };
+      
+      setFormData(newFormData);
+      setTempFormData(newFormData);
+      updateUser(updatedData);
       setIsEditing(false);
       setErrors({});
     } catch (error) {
@@ -831,47 +956,402 @@ const ProfilePage = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Student ID
+                    {userData?.type === 'faculty' ? 'Faculty ID' : 'Student ID'}
                   </label>
                   <p className="text-gray-900 font-medium font-mono px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-100 rounded-lg text-sm sm:text-base border border-gray-300">
                     {formData.studentID}
                   </p>
                   {isOwnProfile && isEditing && (
-                    <p className="mt-1 text-xs text-gray-500">Student ID cannot be changed</p>
+                    <p className="mt-1 text-xs text-gray-500">{userData?.type === 'faculty' ? 'Faculty ID' : 'Student ID'} cannot be changed</p>
                   )}
                 </div>
+
+                {/* Faculty-specific fields */}
+                {userData?.type === 'faculty' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Designation
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <select
+                          name="designation"
+                          value={tempFormData.designation}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                        >
+                          <option value="">Select Designation</option>
+                          <option value="Professor">Professor</option>
+                          <option value="Associate Professor">Associate Professor</option>
+                          <option value="Assistant Professor">Assistant Professor</option>
+                          <option value="Lecturer">Lecturer</option>
+                          <option value="Senior Lecturer">Senior Lecturer</option>
+                        </select>
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.designation || 'Not specified'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Department
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="text"
+                          name="department"
+                          value={tempFormData.department}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="e.g., Computer Science & Engineering"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.department || 'Not specified'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Bio
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <textarea
+                          name="bio"
+                          value={tempFormData.bio}
+                          onChange={handleTempChange}
+                          rows={4}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base resize-y"
+                          placeholder="Brief professional biography..."
+                        />
+                      ) : (
+                        <p className="text-gray-900 px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base leading-relaxed">
+                          {formData.bio || 'Not specified'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Office Room
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="text"
+                          name="officeRoom"
+                          value={tempFormData.officeRoom}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="e.g., Room 301, Building A"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.officeRoom || 'Not specified'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Office Hours
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="text"
+                          name="officeHours"
+                          value={tempFormData.officeHours}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="e.g., Mon-Wed 2:00-4:00 PM"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.officeHours || 'Not specified'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Personal Website
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="url"
+                          name="personalWebsite"
+                          value={tempFormData.personalWebsite}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="https://yourwebsite.com"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.personalWebsite ? (
+                            <a href={formData.personalWebsite} target="_blank" rel="noopener noreferrer" className="text-[#19aaba] hover:underline flex items-center gap-1">
+                              <Globe className="w-4 h-4" />
+                              Visit Website
+                            </a>
+                          ) : 'Not provided'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Google Scholar
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="url"
+                          name="googleScholar"
+                          value={tempFormData.googleScholar}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="https://scholar.google.com/..."
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.googleScholar ? (
+                            <a href={formData.googleScholar} target="_blank" rel="noopener noreferrer" className="text-[#19aaba] hover:underline flex items-center gap-1">
+                              <GraduationCap className="w-4 h-4" />
+                              Google Scholar
+                            </a>
+                          ) : 'Not provided'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        ResearchGate
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="url"
+                          name="researchGate"
+                          value={tempFormData.researchGate}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="https://www.researchgate.net/profile/..."
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.researchGate ? (
+                            <a href={formData.researchGate} target="_blank" rel="noopener noreferrer" className="text-[#19aaba] hover:underline flex items-center gap-1">
+                              <LinkIcon className="w-4 h-4" />
+                              ResearchGate Profile
+                            </a>
+                          ) : 'Not provided'}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        ORCID
+                      </label>
+                      {isOwnProfile && isEditing ? (
+                        <input
+                          type="url"
+                          name="orcid"
+                          value={tempFormData.orcid}
+                          onChange={handleTempChange}
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm sm:text-base"
+                          placeholder="https://orcid.org/0000-0000-0000-0000"
+                        />
+                      ) : (
+                        <p className="text-gray-900 font-medium px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 rounded-lg text-sm sm:text-base">
+                          {formData.orcid ? (
+                            <a href={formData.orcid} target="_blank" rel="noopener noreferrer" className="text-[#19aaba] hover:underline flex items-center gap-1">
+                              <LinkIcon className="w-4 h-4" />
+                              ORCID Profile
+                            </a>
+                          ) : 'Not provided'}
+                        </p>
+                      )}
+                    </div>
+
+
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Academic Information */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-[#19aaba]" />
-                <span>Academic Information</span>
-              </h3>
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-gray-600 text-sm">Student ID</span>
-                  <span className="font-mono font-semibold text-gray-900 text-sm sm:text-base">{formData.studentID}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-gray-600 text-sm">Department</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Computer Science & Engineering</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-gray-600 text-sm">Batch Name</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">Perceptron-13</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
-                  <span className="text-gray-600 text-sm">Session</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base">2020-21</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-3 gap-1 sm:gap-0">
-                  <span className="text-gray-600 text-sm">University</span>
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Jashore University of Science and Technology</span>
+            {/* Faculty Research Interests Section */}
+            {userData?.type === 'faculty' && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-[#19aaba]" />
+                  <span>Research Interests</span>
+                </h3>
+                
+                {isOwnProfile && isEditing ? (
+                  <div className="space-y-3">
+                    {tempFormData.researchInterests.map((interest, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={interest}
+                          onChange={(e) => handleResearchInterestChange(index, e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm"
+                          placeholder="Enter research interest"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleResearchInterestRemove(index)}
+                          className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={handleResearchInterestAdd}
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg transition-colors text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Research Interest
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    {formData.researchInterests.length > 0 ? (
+                      <div className="space-y-2">
+                        {formData.researchInterests.map((interest, index) => (
+                          <div key={index} className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <p className="text-gray-900 text-sm">{interest}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No research interests added yet</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Faculty Qualifications Section */}
+            {userData?.type === 'faculty' && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-[#19aaba]" />
+                  <span>Qualifications</span>
+                </h3>
+                
+                {isOwnProfile && isEditing ? (
+                  <div className="space-y-4">
+                    {tempFormData.qualifications.map((qual, index) => (
+                      <div key={index} className="p-4 border border-gray-300 rounded-lg">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                          <input
+                            type="text"
+                            value={qual.degree}
+                            onChange={(e) => handleQualificationChange(index, 'degree', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm"
+                            placeholder="Degree (e.g., PhD, MSc, BSc)"
+                          />
+                          <input
+                            type="text"
+                            value={qual.institution}
+                            onChange={(e) => handleQualificationChange(index, 'institution', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm"
+                            placeholder="Institution"
+                          />
+                          <input
+                            type="number"
+                            value={qual.year}
+                            onChange={(e) => handleQualificationChange(index, 'year', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm"
+                            placeholder="Year"
+                            min="1950"
+                            max="2030"
+                          />
+                          <input
+                            type="text"
+                            value={qual.field}
+                            onChange={(e) => handleQualificationChange(index, 'field', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#19aaba] focus:border-transparent transition-all text-sm"
+                            placeholder="Field of Study"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleQualificationRemove(index)}
+                          className="inline-flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={handleQualificationAdd}
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-[#19aaba] hover:bg-[#158c99] text-white rounded-lg transition-colors text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Qualification
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    {formData.qualifications.length > 0 ? (
+                      <div className="space-y-3">
+                        {formData.qualifications.map((qual, index) => (
+                          <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 className="font-semibold text-gray-900">{qual.degree}</h4>
+                            <p className="text-gray-700">{qual.institution}</p>
+                            <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                              {qual.year && <span>Year: {qual.year}</span>}
+                              {qual.field && <span>Field: {qual.field}</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No qualifications added yet</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Academic Information - Show for students only */}
+            {userData?.type !== 'faculty' && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-[#19aaba]" />
+                  <span>Academic Information</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                    <span className="text-gray-600 text-sm">Student ID</span>
+                    <span className="font-mono font-semibold text-gray-900 text-sm sm:text-base">{formData.studentID}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                    <span className="text-gray-600 text-sm">Department</span>
+                    <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Computer Science & Engineering</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                    <span className="text-gray-600 text-sm">Batch Name</span>
+                    <span className="font-semibold text-gray-900 text-sm sm:text-base">Perceptron-13</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-100 gap-1 sm:gap-0">
+                    <span className="text-gray-600 text-sm">Session</span>
+                    <span className="font-semibold text-gray-900 text-sm sm:text-base">2020-21</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-3 gap-1 sm:gap-0">
+                    <span className="text-gray-600 text-sm">University</span>
+                    <span className="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">Jashore University of Science and Technology</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Featured Photos */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">

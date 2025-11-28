@@ -42,11 +42,6 @@ const AdminLayout = () => {
       label: 'Manage Users'
     },
     {
-      path: '/admin/manage-faculty',
-      icon: GraduationCap,
-      label: 'Manage Faculty'
-    },
-    {
       path: '/admin/send-email',
       icon: MailPlus,
       label: 'Send Email'
