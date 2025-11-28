@@ -14,7 +14,8 @@ import {
   X,
   Image as ImageIcon,
   UserCog,
-  MailPlus
+  MailPlus,
+  GraduationCap
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -39,6 +40,11 @@ const AdminLayout = () => {
       path: '/admin/manage-users',
       icon: UserCog,
       label: 'Manage Users'
+    },
+    {
+      path: '/admin/manage-faculty',
+      icon: GraduationCap,
+      label: 'Manage Faculty'
     },
     {
       path: '/admin/send-email',
@@ -164,6 +170,7 @@ const AdminLayout = () => {
                 <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                   {location.pathname === '/admin' && 'Dashboard'}
                   {location.pathname === '/admin/manage-users' && 'Manage Users'}
+                  {location.pathname === '/admin/manage-faculty' && 'Manage Faculty'}
                   {location.pathname === '/admin/send-email' && 'Send Email'}
                   {location.pathname === '/admin/schedules' && 'Tour Schedules'}
                   {location.pathname === '/admin/gallery' && 'Gallery Management'}

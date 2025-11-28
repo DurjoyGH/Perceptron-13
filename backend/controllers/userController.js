@@ -36,7 +36,8 @@ const deleteFromCloudinary = async (publicId) => {
 // Get all users (public - for members page)
 const getAllMembers = async (req, res) => {
   try {
-    const users = await User.find()
+    // Only fetch users with type 'user' (students), exclude faculty
+    const users = await User.find({ type: { $ne: 'faculty' } })
       .select('-password -__v')
       .sort({ studentID: 1 });
     

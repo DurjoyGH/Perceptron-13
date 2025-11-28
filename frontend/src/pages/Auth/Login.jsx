@@ -50,16 +50,9 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate Student ID only
+    // Validate Student ID or Faculty ID
     if (!formData.email.trim()) {
-      newErrors.email = 'Student ID is required';
-    } else {
-      const input = formData.email.trim();
-      const isStudentID = /^\d{6}$/.test(input);
-      
-      if (!isStudentID) {
-        newErrors.email = 'Enter your 6-digit Student ID (e.g., 200120)';
-      }
+      newErrors.email = 'Student ID or Faculty ID is required';
     }
 
     // Validate Password
@@ -133,10 +126,10 @@ const Login = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                {/* Student ID Input */}
+                {/* Student ID / Faculty ID Input */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Student ID
+                    Student ID / Faculty ID
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
@@ -146,7 +139,7 @@ const Login = () => {
                       id="email"
                       name="email"
                       type="text"
-                      placeholder="Enter your 6-digit Student ID (e.g., 200120)"
+                      placeholder="Enter Student ID (e.g., 200120) or Faculty ID"
                       value={formData.email}
                       onChange={handleChange}
                       className={`block w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border ${

@@ -13,6 +13,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { getAllMembers } from '../../services/userApi';
+import { getAllFaculty } from '../../services/facultyApi';
 import CustomToast from '../../components/ScrollTop/ScrollTop';
 import AvatarModal from '../../components/Profile/AvatarModal';
 
@@ -20,27 +21,32 @@ const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [members, setMembers] = useState([]);
+  const [faculty, setFaculty] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   useEffect(() => {
-    fetchMembers();
+    fetchData();
   }, []);
 
-  const fetchMembers = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await getAllMembers();
-      setMembers(response.data);
+      const [membersResponse, facultyResponse] = await Promise.all([
+        getAllMembers(),
+        getAllFaculty()
+      ]);
+      setMembers(membersResponse.data);
+      setFaculty(facultyResponse.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching members:', err);
-      setError('Failed to load members');
+      console.error('Error fetching data:', err);
+      setError('Failed to load data');
       CustomToast({
         type: 'error',
-        message: 'Failed to load members. Please try again later.'
+        message: 'Failed to load data. Please try again later.'
       });
     } finally {
       setLoading(false);
@@ -52,22 +58,32 @@ const MembersPage = () => {
     setShowAvatarModal(true);
   };
 
-  // Filter members based on search term and filter type
+  // Filter members based on search term and filter type (students only)
   const filteredMembers = members.filter(member => {
+    // Ensure this is a student (has studentID and gender, not a faculty member)
+    const isStudent = member.studentID && member.gender && !member.facultyID;
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.studentID.includes(searchTerm);
     const matchesFilter = filterType === 'all' || 
                          (filterType === 'male' && member.gender === 'male') ||
                          (filterType === 'female' && member.gender === 'female');
-    return matchesSearch && matchesFilter;
+    return isStudent && matchesSearch && matchesFilter;
   });
+
+  // Filter faculty based on search term (only when filter is 'all')
+  const filteredFaculty = filterType === 'all' ? faculty.filter(member => {
+    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (member.facultyID && member.facultyID.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         member.email.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  }) : [];
 
   // Statistics
   const stats = {
     total: members.length,
     male: members.filter(m => m.gender === 'male').length,
     female: members.filter(m => m.gender === 'female').length,
-    faculty: 2
+    faculty: faculty.length
   };
 
   // Get initials from name
@@ -240,155 +256,307 @@ const MembersPage = () => {
             {/* Results Count */}
             <div className="mt-3 sm:mt-4">
               <p className="text-xs sm:text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{filteredMembers.length}</span> of{' '}
-                <span className="font-semibold text-gray-900">{members.length}</span> members
+                Showing <span className="font-semibold text-gray-900">{filteredMembers.length + filteredFaculty.length}</span> of{' '}
+                <span className="font-semibold text-gray-900">{faculty.length + members.length}</span> members
               </p>
             </div>
           </div>
 
-          {/* Members Table */}
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      #
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Student ID
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Gender
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredMembers.map((member, index) => (
-                    <tr key={member._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{index + 1}</span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="text-sm font-mono font-semibold text-[#19aaba]">{member.studentID}</span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4">
-                        <div className="flex items-center gap-3">
-                          <button 
-                            onClick={() => handleAvatarClick(member)}
-                            className="flex-shrink-0 focus:outline-none"
-                          >
-                            {member.profilePicture?.url ? (
-                              <img
-                                src={member.profilePicture.url}
-                                alt={member.name}
-                                className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
-                              />
-                            ) : (
-                              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
-                                {getInitials(member.name)}
-                              </div>
-                            )}
-                          </button>
-                          <span className="text-sm font-medium text-gray-900">{member.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          member.gender === 'male' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-pink-100 text-pink-800'
-                        }`}>
-                          {member.gender === 'male' ? 'Male' : 'Female'}
-                        </span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-right">
-                        <Link
-                          to={`/member/${member.studentID}`}
-                          className="inline-flex items-center gap-1 text-sm font-medium text-[#19aaba] hover:text-[#158c99] transition-colors"
+          {/* Faculty Section */}
+          {filteredFaculty.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                  <GraduationCap className="w-6 h-6 text-gray-700" />
+                  Faculty Members
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Esteemed faculty members guiding us throughout this journey
+                </p>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          Faculty ID
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          Designation
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 lg:py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {filteredFaculty.map((member, index) => (
+                        <tr key={member._id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                            <span className="text-sm font-medium text-gray-900">{index + 1}</span>
+                          </td>
+                          <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                            <span className="text-sm font-mono font-semibold text-gray-900">{member.facultyID || 'N/A'}</span>
+                          </td>
+                          <td className="px-4 lg:px-6 py-3 lg:py-4">
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={() => handleAvatarClick(member)}
+                                className="flex-shrink-0 focus:outline-none"
+                              >
+                                {member.profilePicture?.url ? (
+                                  <img
+                                    src={member.profilePicture.url}
+                                    alt={member.name}
+                                    className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent hover:ring-green-500 transition-all cursor-pointer"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer">
+                                    {getInitials(member.name)}
+                                  </div>
+                                )}
+                              </button>
+                              <span className="text-sm font-medium text-gray-900">{member.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 lg:px-6 py-3 lg:py-4">
+                            <span className="text-sm text-gray-600">{member.designation}</span>
+                          </td>
+                          <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-right">
+                            <Link
+                              to={`/faculty/${member._id}`}
+                              className="inline-flex items-center gap-1 text-sm font-medium text-[#19aaba] hover:text-[#158c99] transition-colors"
+                            >
+                              View Profile
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-gray-200">
+                  {filteredFaculty.map((member, index) => (
+                    <div key={member._id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <button 
+                          onClick={() => handleAvatarClick(member)}
+                          className="flex-shrink-0 focus:outline-none"
                         >
-                          View Profile
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      </td>
-                    </tr>
+                          {member.profilePicture?.url ? (
+                            <img
+                              src={member.profilePicture.url}
+                              alt={member.name}
+                              className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-green-500 transition-all cursor-pointer"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer">
+                              {getInitials(member.name)}
+                            </div>
+                          )}
+                        </button>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
+                                {member.name}
+                              </h3>
+                              <p className="text-xs text-gray-600 line-clamp-1 mb-1">
+                                {member.designation}
+                              </p>
+                              <p className="text-xs font-mono font-semibold text-green-600">
+                                {member.facultyID || 'N/A'}
+                              </p>
+                            </div>
+                            <span className="text-xs font-medium text-gray-500 flex-shrink-0">
+                              #{index + 1}
+                            </span>
+                          </div>
+                          
+                          <div className="mt-3">
+                            <Link
+                              to={`/faculty/${member._id}`}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95"
+                            >
+                              View Profile
+                              <ArrowRight className="w-3 h-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Students Section */}
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <Users className="w-6 h-6 text-[#19aaba]" />
+                Student Members
+              </h2>
+              <p className="text-sm text-gray-600">
+                Perceptron-13 batch members participating in the tour
+              </p>
             </div>
 
-            {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-gray-200">
-              {filteredMembers.map((member, index) => (
-                <div key={member._id} className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <button 
-                      onClick={() => handleAvatarClick(member)}
-                      className="flex-shrink-0 focus:outline-none"
-                    >
-                      {member.profilePicture?.url ? (
-                        <img
-                          src={member.profilePicture.url}
-                          alt={member.name}
-                          className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
-                        />
-                      ) : (
-                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
-                          {getInitials(member.name)}
-                        </div>
-                      )}
-                    </button>
-                    
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
-                            {member.name}
-                          </h3>
-                          <p className="text-xs font-mono font-semibold text-[#19aaba]">
-                            {member.studentID}
-                          </p>
-                        </div>
-                        <span className="text-xs font-medium text-gray-500 flex-shrink-0">
-                          #{index + 1}
-                        </span>
-                      </div>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        #
+                      </th>
+                      <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Student ID
+                      </th>
+                      <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Gender
+                      </th>
+                      <th className="px-4 lg:px-6 py-3 lg:py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredMembers.map((member, index) => (
+                      <tr key={member._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                          <span className="text-sm font-medium text-gray-900">{index + 1}</span>
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                          <span className="text-sm font-mono font-semibold text-[#19aaba]">{member.studentID}</span>
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 lg:py-4">
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => handleAvatarClick(member)}
+                              className="flex-shrink-0 focus:outline-none"
+                            >
+                              {member.profilePicture?.url ? (
+                                <img
+                                  src={member.profilePicture.url}
+                                  alt={member.name}
+                                  className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent hover:ring-[#19aaba] transition-all cursor-pointer"
+                                />
+                              ) : (
+                                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(index)} flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer`}>
+                                  {getInitials(member.name)}
+                                </div>
+                              )}
+                            </button>
+                            <span className="text-sm font-medium text-gray-900">{member.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            member.gender === 'male' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-pink-100 text-pink-800'
+                          }`}>
+                            {member.gender === 'male' ? 'Male' : 'Female'}
+                          </span>
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-right">
+                          <Link
+                            to={`/member/${member.studentID}`}
+                            className="inline-flex items-center gap-1 text-sm font-medium text-[#19aaba] hover:text-[#158c99] transition-colors"
+                          >
+                            View Profile
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {filteredMembers.map((member, index) => (
+                  <div key={member._id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <button 
+                        onClick={() => handleAvatarClick(member)}
+                        className="flex-shrink-0 focus:outline-none"
+                      >
+                        {member.profilePicture?.url ? (
+                          <img
+                            src={member.profilePicture.url}
+                            alt={member.name}
+                            className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent hover:ring-gray-500 transition-all cursor-pointer"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white text-sm font-bold hover:scale-105 transition-transform cursor-pointer">
+                            {getInitials(member.name)}
+                          </div>
+                        )}
+                      </button>
                       
-                      <div className="flex items-center justify-between gap-3 mt-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          member.gender === 'male' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-pink-100 text-pink-800'
-                        }`}>
-                          {member.gender === 'male' ? 'Male' : 'Female'}
-                        </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
+                              {member.name}
+                            </h3>
+                            <p className="text-xs font-mono font-semibold text-[#19aaba]">
+                              {member.studentID}
+                            </p>
+                          </div>
+                          <span className="text-xs font-medium text-gray-500 flex-shrink-0">
+                            #{index + 1}
+                          </span>
+                        </div>
                         
-                        <Link
-                          to={`/member/${member.studentID}`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95"
-                        >
-                          View Profile
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
+                        <div className="flex items-center justify-between gap-3 mt-3">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            member.gender === 'male' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-pink-100 text-pink-800'
+                          }`}>
+                            {member.gender === 'male' ? 'Male' : 'Female'}
+                          </span>
+                          
+                          <Link
+                            to={`/member/${member.studentID}`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-[#19aaba] hover:text-[#158c99] transition-colors active:scale-95"
+                          >
+                            View Profile
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* No Results */}
-          {filteredMembers.length === 0 && (
+          {filteredMembers.length === 0 && filteredFaculty.length === 0 && (
             <div className="text-center py-12 sm:py-16">
               <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-full mb-3 sm:mb-4">
                 <Search className="w-7 h-7 sm:w-8 sm:h-8 text-gray-400" />
@@ -397,106 +565,6 @@ const MembersPage = () => {
               <p className="text-sm sm:text-base text-gray-600">Try adjusting your search or filter criteria</p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Faculty Section */}
-      <section className="py-6 sm:py-8 md:py-10 lg:py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
-              Faculty Members
-            </h2>
-            <p className="text-sm sm:text-base text-gray-600">
-              Esteemed faculty members guiding us throughout this journey
-            </p>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      #
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Department
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Role
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {[1, 2].map((num, index) => (
-                    <tr key={num} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{num}</span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                            F{num}
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">Faculty Member {num}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">Computer Science & Engineering</span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Faculty
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-gray-200">
-              {[1, 2].map((num, index) => (
-                <div key={num} className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                      F{num}
-                    </div>
-                    
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                            Faculty Member {num}
-                          </h3>
-                          <p className="text-xs text-gray-600 line-clamp-1">
-                            Computer Science & Engineering
-                          </p>
-                        </div>
-                        <span className="text-xs font-medium text-gray-500 flex-shrink-0">
-                          #{num}
-                        </span>
-                      </div>
-                      
-                      <div className="mt-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Faculty
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 

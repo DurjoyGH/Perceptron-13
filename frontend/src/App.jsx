@@ -21,8 +21,17 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import ManageTourSchedules from './pages/Admin/ManageTourSchedules';
 import ManageGallery from './pages/Admin/ManageGallery';
 import ManageUsers from './pages/Admin/ManageUsers';
+import ManageFaculty from './pages/Admin/ManageFaculty';
 import SendEmail from './pages/Admin/SendEmail';
 import ProfilePage from './pages/User/ProfilePage';
+import FacultyProfileViewPage from './pages/Public/FacultyProfileViewPage';
+import { useAuth } from './context/AuthContext';
+
+function ProfileRouteWrapper() {
+  const { user } = useAuth();
+  // Always show ProfilePage - FacultyProfileViewPage is only for public viewing
+  return <ProfilePage />;
+}
 
 function App() {
   return (
@@ -41,13 +50,12 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="member/:id" element={<MemberProfilePage />} />
+            <Route path="faculty/:id" element={<FacultyProfileViewPage />} />
             <Route path="schedule" element={<TourSchedulePage />} />
             <Route path='bus-seat-allocation' element={<BusSeatAllocationPage />} />
             <Route path='ship-seat-allocation' element={<ShipSeatAllocationPage />} />
             <Route path='room-allocation' element={<RoomAllocationPage />} />
             <Route path='transactions' element={<TransactionPage />} />
-            <Route path="about" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">About Perceptron-13 - Coming Soon</h1></div>} />
-            <Route path="votes" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Tour Schedule - Coming Soon</h1></div>} />
             <Route path="contact" element={<CommitteePage />} />
             <Route path="privacy" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Privacy Policy - Coming Soon</h1></div>} />
             <Route path="terms" element={<div className="p-8 text-center min-h-screen flex items-center justify-center"><h1 className="text-2xl font-bold text-gray-800">Terms of Service - Coming Soon</h1></div>} />
@@ -60,14 +68,15 @@ function App() {
 
           {/* User Routes (Protected) */}
           <Route path="/user" element={<UserRoute><UserLayout /></UserRoute>}>
-            <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile" element={<ProfileRouteWrapper />} />
           </Route>
 
           {/* Admin Routes (Protected) */}
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboard />} />
-            <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile" element={<ProfileRouteWrapper />} />
             <Route path="manage-users" element={<ManageUsers />} />
+            <Route path="manage-faculty" element={<ManageFaculty />} />
             <Route path="send-email" element={<SendEmail />} />
             <Route path="schedules" element={<ManageTourSchedules />} />
             <Route path="gallery" element={<ManageGallery />} />

@@ -81,24 +81,27 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     // Validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Student ID and password are required'
+        message: 'Student ID/Faculty ID and password are required'
       });
     }
 
-    // Find user by studentID (email field is used for studentID in login)
-    // If input is 6 digits, treat as studentID, otherwise as email
-    const isStudentID = /^\d{6}$/.test(email);
-    const user = await User.findOne(
-      isStudentID 
-        ? { studentID: email }
-        : { email: email }
-    );
+    // Trim whitespace from email/studentID
+    email = email.trim();
+
+    // Find user by studentID or email
+    // Try to find by studentID first, then by email if not found
+    let user = await User.findOne({ studentID: email });
+    
+    if (!user) {
+      // If not found by studentID, try by email
+      user = await User.findOne({ email: email });
+    }
     
     if (!user) {
       return res.status(401).json({

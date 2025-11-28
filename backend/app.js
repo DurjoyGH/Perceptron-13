@@ -6,12 +6,19 @@ const voteRoutes = require("./routes/voteRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const tourScheduleRoutes = require("./routes/tourScheduleRoutes");
+const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
 
 // --- Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // --- Allowed origins from environment variable ---
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -39,6 +46,7 @@ app.use("/api/vote", voteRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/tour", tourScheduleRoutes);
+app.use("/api/faculty", facultyRoutes);
 
 
 // --- Global Error Handler ---
