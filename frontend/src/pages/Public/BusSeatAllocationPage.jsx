@@ -55,7 +55,7 @@ const BusSeatAllocationPage = () => {
 const seatAllocationMap = {
     // Leg 1: Jashore to Cumilla (P1, P2)
     jasToCum: {
-      C1: 2, C2: 1, C3: 1, C4: 1, B1: 3, B2: 4, B3: 5, B4: 6, 
+      C1: 1, C2: 1, C3: 1, C4: 2, B1: 3, B2: 4, B3: 5, B4: 6, 
       A1: 7, A2: 8, // Sadik (7), Takbir (8)
       A3: 9, A4: 10, // Sibly (9), Noman (10)
       D1: 11, D2: 12, // Tahmid (11), Rafid (12)
@@ -72,7 +72,7 @@ const seatAllocationMap = {
     
     // Leg 2: Cumilla to Cox's Bazar (P2, P1) - SWAPPED from previous
     cumToCox: {
-      C1: 2, C2: 1, C3: 1, C4: 1, B1: 4, B2: 3, B3: 6, B4: 5,
+      C1: 1, C2: 1, C3: 1, C4: 2, B1: 4, B2: 3, B3: 6, B4: 5,
       H3: 8, H4: 7, // Takbir (8), Sadik (7)
       H1: 10, H2: 9, // Noman (10), Sibly (9)
       G3: 12, G4: 11, // Rafid (12), Tahmid (11)
@@ -89,7 +89,7 @@ const seatAllocationMap = {
     
     // Leg 3: Cox's Bazar to Cumilla (P1, P2) - SWAPPED from previous
     coxToCum: {
-      C1: 2, C2: 1, C3: 1, C4: 1, B1: 3, B2: 4, B3: 5, B4: 6,
+      C1: 1, C2: 1, C3: 1, C4: 2, B1: 3, B2: 4, B3: 5, B4: 6,
       H3: 7, H4: 8, // Sadik (7), Takbir (8)
       H1: 9, H2: 10, // Sibly (9), Noman (10)
       G3: 11, G4: 12, // Tahmid (11), Rafid (12)
@@ -106,7 +106,7 @@ const seatAllocationMap = {
     
     // Leg 4: Cumilla to Jashore (P2, P1)
     cumToJas: {
-      C1: 2, C2: 1, C3: 1, C4: 1, B1: 4, B2: 3, B3: 6, B4: 5,
+      C1: 1, C2: 1, C3: 1, C4: 2, B1: 4, B2: 3, B3: 6, B4: 5,
       A1: 8, A2: 7, // Takbir (8), Sadik (7)
       A3: 10, A4: 9, // Noman (10), Sibly (9)
       D1: 12, D2: 11, // Rafid (12), Tahmid (11)
