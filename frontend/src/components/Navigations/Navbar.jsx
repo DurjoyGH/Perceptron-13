@@ -167,10 +167,10 @@ const Navbar = () => {
             {user && (
               <button
                 onClick={handleDashboardClick}
-                className="p-2 bg-white text-[#19aaba] rounded-full shadow-lg"
+                className="p-2 text-[#19aaba] rounded-full shadow-lg"
               >
                 {user.role === 'admin' ? (
-                  <LayoutDashboard size={20} />
+                  <LayoutDashboard className='text-white' size={20} />
                 ) : (
                   <UserAvatar user={user} size="sm" />
                 )}

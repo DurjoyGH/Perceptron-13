@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { getMemberByStudentId } from '../../services/userApi';
 import AvatarModal from '../../components/Profile/AvatarModal';
+import ImageViewModal from '../../components/Profile/ImageViewModal';
 
 const MemberProfilePage = () => {
   const { id } = useParams();
@@ -31,6 +32,8 @@ const MemberProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [viewingFeaturedImage, setViewingFeaturedImage] = useState(null);
+  const [showFeaturedImageViewModal, setShowFeaturedImageViewModal] = useState(false);
 
   useEffect(() => {
     fetchMemberData();
@@ -481,6 +484,10 @@ const MemberProfilePage = () => {
                       <div 
                         key={index}
                         className="group relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          setViewingFeaturedImage(image);
+                          setShowFeaturedImageViewModal(true);
+                        }}
                       >
                         <img
                           src={image.url}
@@ -519,6 +526,17 @@ const MemberProfilePage = () => {
         user={member}
         isOpen={showAvatarModal}
         onClose={() => setShowAvatarModal(false)}
+      />
+
+      {/* Featured Image View Modal */}
+      <ImageViewModal
+        isOpen={showFeaturedImageViewModal}
+        onClose={() => {
+          setShowFeaturedImageViewModal(false);
+          setViewingFeaturedImage(null);
+        }}
+        imageUrl={viewingFeaturedImage?.url}
+        imageName={viewingFeaturedImage?.caption || 'Featured Photo'}
       />
     </div>
   );
