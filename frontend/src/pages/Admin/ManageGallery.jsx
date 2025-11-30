@@ -339,14 +339,14 @@ const ManageGallery = () => {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   
-                  {/* Overlay with actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  {/* Action buttons at bottom - always visible on mobile, hover on desktop */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-3 flex items-center justify-center gap-2">
                     <button
                       onClick={() => viewImage(image)}
-                      className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      className="p-2 md:p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
                       title="View Full Size"
                     >
-                      <Eye size={20} />
+                      <Eye size={18} className="md:w-5 md:h-5" />
                     </button>
                     <button
                       onClick={() => {
@@ -355,27 +355,27 @@ const ManageGallery = () => {
                           handleUpdateCaption(image, newCaption);
                         }
                       }}
-                      className="p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      className="p-2 md:p-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-lg"
                       title="Edit Caption"
                     >
-                      <Edit2 size={20} />
+                      <Edit2 size={18} className="md:w-5 md:h-5" />
                     </button>
                     <button
                       onClick={() => handleDeleteImage(image)}
-                      className="p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      className="p-2 md:p-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg"
                       title="Delete Image"
                     >
-                      <Trash2 size={20} />
+                      <Trash2 size={18} className="md:w-5 md:h-5" />
                     </button>
                   </div>
 
                   {/* Day Badge */}
-                  <div className="absolute top-3 left-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
+                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white px-2 py-1 md:px-3 md:py-1 rounded-lg text-xs md:text-sm font-bold shadow-lg">
                     Day {image.scheduleDay}
                   </div>
 
                   {/* Homepage Badge */}
-                  <div className="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
+                  <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
                     Homepage
                   </div>
                 </div>
