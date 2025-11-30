@@ -49,7 +49,10 @@ const userSchema = new mongoose.Schema(
         publicId: { type: String, required: true },
         caption: { type: String, default: '' }
       }
-    ]
+    ],
+    
+    // Refresh token for JWT authentication
+    refreshToken: { type: String, default: null }
   },
   { timestamps: true }
 );

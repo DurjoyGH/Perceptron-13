@@ -51,12 +51,23 @@ const register = async (req, res) => {
       role: 'user' // Default role is user
     });
 
-    // Generate JWT token
-    const token = jwt.sign(
+    // Generate access token (15 minutes)
+    const accessToken = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    // Generate refresh token (7 days)
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    // Save refresh token to database
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.status(201).json({
       success: true,
@@ -69,7 +80,8 @@ const register = async (req, res) => {
           studentID: user.studentID,
           role: user.role
         },
-        token
+        accessToken,
+        refreshToken
       }
     });
 
@@ -129,12 +141,23 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
+    // Generate access token (15 minutes)
+    const accessToken = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    // Generate refresh token (7 days)
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    // Save refresh token to database
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -147,7 +170,8 @@ const login = async (req, res) => {
           studentID: user.studentID,
           role: user.role
         },
-        token
+        accessToken,
+        refreshToken
       }
     });
 
@@ -180,12 +204,77 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
-// Logout (client-side will remove token)
+// Refresh access token
+const refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+    );
+
+    // Find user and verify refresh token matches
+    const user = await User.findById(decoded.userId);
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    // Generate new access token
+    const accessToken = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Access token refreshed successfully',
+      data: {
+        accessToken
+      }
+    });
+
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Invalid or expired refresh token'
+    });
+  }
+};
+
+// Logout (clear refresh token from database)
 const logout = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Logout successful'
-  });
+  try {
+    // Clear refresh token from database
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Logout successful'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to logout',
+      error: error.message
+    });
+  }
 };
 
 // Forgot Password
@@ -471,6 +560,7 @@ module.exports = {
   register,
   login,
   getCurrentUser,
+  refreshAccessToken,
   logout,
   forgotPassword,
   verifyOTP,

@@ -8,27 +8,48 @@ const authMiddleware = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ 
         success: false, 
-        message: 'Authentication required. Please login.' 
+        message: 'Authentication required. Please login.',
+        code: 'NO_TOKEN'
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId).select('-password');
 
-    if (!user) {
+      if (!user) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'User not found. Please login again.',
+          code: 'USER_NOT_FOUND'
+        });
+      }
+
+      req.user = user;
+      next();
+    } catch (jwtError) {
+      // Check if token is expired
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Access token expired. Please refresh your token.',
+          code: 'TOKEN_EXPIRED'
+        });
+      }
+      
+      // Other JWT errors (invalid signature, malformed, etc.)
       return res.status(401).json({ 
         success: false, 
-        message: 'User not found. Please login again.' 
+        message: 'Invalid token. Please login again.',
+        code: 'INVALID_TOKEN'
       });
     }
-
-    req.user = user;
-    next();
   } catch (error) {
     console.error('Auth middleware error:', error);
     return res.status(401).json({ 
       success: false, 
-      message: 'Invalid or expired token. Please login again.' 
+      message: 'Authentication failed. Please login again.',
+      code: 'AUTH_ERROR'
     });
   }
 };

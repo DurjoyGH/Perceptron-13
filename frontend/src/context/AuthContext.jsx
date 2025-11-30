@@ -14,32 +14,52 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
 
   useEffect(() => {
     const initAuth = async () => {
-      if (token) {
+      if (accessToken) {
         try {
           const response = await getCurrentUser();
           setUser(response.data);
         } catch (error) {
           console.error('Failed to get user:', error);
-          localStorage.removeItem('token');
-          setToken(null);
+          // If getting user fails, try to refresh token
+          if (refreshToken && error.response?.data?.code === 'TOKEN_EXPIRED') {
+            // The axios interceptor will handle the refresh automatically
+            try {
+              const response = await getCurrentUser();
+              setUser(response.data);
+            } catch (retryError) {
+              console.error('Failed to get user after refresh:', retryError);
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              setAccessToken(null);
+              setRefreshToken(null);
+            }
+          } else {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setAccessToken(null);
+            setRefreshToken(null);
+          }
         }
       }
       setLoading(false);
     };
 
     initAuth();
-  }, [token]);
+  }, [accessToken, refreshToken]);
 
   const login = async (credentials) => {
     const response = await loginApi(credentials);
-    const { user: userData, token: authToken } = response.data;
+    const { user: userData, accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
     
-    localStorage.setItem('token', authToken);
-    setToken(authToken);
+    localStorage.setItem('accessToken', newAccessToken);
+    localStorage.setItem('refreshToken', newRefreshToken);
+    setAccessToken(newAccessToken);
+    setRefreshToken(newRefreshToken);
     setUser(userData);
     
     return response;
@@ -51,8 +71,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('token');
-      setToken(null);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setAccessToken(null);
+      setRefreshToken(null);
       setUser(null);
     }
   };
@@ -62,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return !!user && !!token;
+    return !!user && !!accessToken;
   };
 
   const updateUser = (userData) => {
@@ -71,7 +93,8 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    token,
+    accessToken,
+    refreshToken,
     loading,
     login,
     logout,
