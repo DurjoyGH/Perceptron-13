@@ -10,504 +10,597 @@ import {
   Download,
   Search,
   Anchor,
-  Waves
+  Clock,
+  Calendar
 } from 'lucide-react';
 
 const ShipSeatAllocationPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSeat, setSelectedSeat] = useState(null);
+  const [activeRoute, setActiveRoute] = useState('coxToStMartin');
 
-  // Individual passenger data (31 people total)
-  const passengers = [
-    { id: 1, name: "Sk. Shalauddin Kabir", role: "faculty", gender: "male" },
-    { id: 2, name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
-    { id: 3, name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
-    { id: 4, name: "Anika", role: "student", gender: "female" },
-    { id: 5, name: "Anamika", role: "student", gender: "female" },
-    { id: 6, name: "Puspita", role: "student", gender: "female" },
-    { id: 7, name: "Munni", role: "student", gender: "female" },
-    { id: 8, name: "Sadik", role: "student", gender: "male" },
-    { id: 9, name: "Takbir", role: "student", gender: "male" },
-    { id: 10, name: "Sibly", role: "student", gender: "male" },
-    { id: 11, name: "Noman", role: "student", gender: "male" },
-    { id: 12, name: "Tahmid", role: "student", gender: "male" },
-    { id: 13, name: "Rafid", role: "student", gender: "male" },
-    { id: 14, name: "Makky", role: "student", gender: "male" },
-    { id: 15, name: "Durjoy", role: "student", gender: "male" },
-    { id: 16, name: "Nehal", role: "student", gender: "male" },
-    { id: 17, name: "Fahim", role: "student", gender: "male" },
-    { id: 18, name: "Sayed", role: "student", gender: "male" },
-    { id: 19, name: "Biswajit", role: "student", gender: "male" },
-    { id: 20, name: "Ramjan", role: "student", gender: "male" },
-    { id: 21, name: "Abrar", role: "student", gender: "male" },
-    { id: 22, name: "Oveshek", role: "student", gender: "male" },
-    { id: 23, name: "Tapu", role: "student", gender: "male" },
-    { id: 24, name: "Tanvir", role: "student", gender: "male" },
-    { id: 25, name: "Samit", role: "student", gender: "male" },
-    { id: 26, name: "Limon", role: "student", gender: "male" },
-    { id: 27, name: "Joy", role: "student", gender: "male" },
-    { id: 28, name: "Risan", role: "student", gender: "male" },
-    { id: 29, name: "Rezowan", role: "student", gender: "male" },
-    { id: 30, name: "Azaz", role: "student", gender: "male" },
-    { id: 31, name: "Arif", role: "student", gender: "male" }
+  // Cox's Bazar to Saint Martin passengers
+  const coxToStMartinPassengers = [
+    // Faculty (SD87, SD88, SD89)
+    { id: 1, seat: 'SD87', name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
+    { id: 2, seat: 'SD88', name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
+    { id: 3, seat: 'SD89', name: "Sk. Shalauddin Kabir", role: "faculty", gender: "male" },
+    
+    // Male Students (SD90, SD91, SD92)
+    { id: 4, seat: 'SD90', name: "Sadik", role: "student", gender: "male" },
+    { id: 5, seat: 'SD91', name: "Azaz", role: "student", gender: "male" },
+    { id: 6, seat: 'SD92', name: "Ramjan", role: "student", gender: "male" },
+    
+    // SD100
+    { id: 7, seat: 'SD100', name: "Takbir", role: "student", gender: "male" },
+    
+    // Male Students (SD105, SD106, SD109, SD108, SD109 → SD105, SD106, SD107, SD108, SD109)
+    { id: 8, seat: 'SD105', name: "Nehal", role: "student", gender: "male" },
+    { id: 9, seat: 'SD106', name: "Makky", role: "student", gender: "male" },
+    { id: 10, seat: 'SD107', name: "Durjoy", role: "student", gender: "male" },
+    { id: 11, seat: 'SD108', name: "Fahim", role: "student", gender: "male" },
+    { id: 12, seat: 'SD109', name: "Arif", role: "student", gender: "male" },
+    
+    // Male Students (SD22-SD26 → SD22, SD23, SD24, SD25, SD26)
+    { id: 13, seat: 'SD22', name: "Limon", role: "student", gender: "male" },
+    { id: 14, seat: 'SD23', name: "Risan", role: "student", gender: "male" },
+    { id: 15, seat: 'SD24', name: "Joy", role: "student", gender: "male" },
+    { id: 16, seat: 'SD25', name: "Tafhim", role: "student", gender: "male" },
+    { id: 17, seat: 'SD26', name: "Rezwan", role: "student", gender: "male" },
+    
+    // Male Students (SD29-SD33 → SD29, SD30, SD31, SD32, SD33)
+    { id: 18, seat: 'SD29', name: "Sayed", role: "student", gender: "male" },
+    { id: 19, seat: 'SD30', name: "Biswajit", role: "student", gender: "male" },
+    { id: 20, seat: 'SD31', name: "Topu", role: "student", gender: "male" },
+    { id: 21, seat: 'SD32', name: "Samit", role: "student", gender: "male" },
+    { id: 22, seat: 'SD33', name: "Ovesekh", role: "student", gender: "male" },
+    
+    // Male Students (SD122-SD126 → SD122, SD123, SD124, SD125, SD126)
+    { id: 23, seat: 'SD122', name: "Rafid", role: "student", gender: "male" },
+    { id: 24, seat: 'SD123', name: "Tahmid", role: "student", gender: "male" },
+    { id: 25, seat: 'SD124', name: "Sibly", role: "student", gender: "male" },
+    { id: 26, seat: 'SD125', name: "Noman", role: "student", gender: "male" },
+    { id: 27, seat: 'SD126', name: "Abrar", role: "student", gender: "male" },
+    
+    // Female Students (SD96, SD93, SD98, SD99)
+    { id: 28, seat: 'SD96', name: "Anamika", role: "student", gender: "female" },
+    { id: 29, seat: 'SD97', name: "Anika", role: "student", gender: "female" },
+    { id: 30, seat: 'SD98', name: "Puspita", role: "student", gender: "female" },
+    { id: 31, seat: 'SD99', name: "Munni", role: "student", gender: "female" }
   ];
 
-  // Baroawlia Sundeck layout - Based on actual SD seat numbers
-  // Creating a layout that includes all SD seats used in both journeys
-  const shipLayout = {
-    sections: [
-      {
-        name: 'Section A - Front Sundeck',
-        rows: [
-          { label: 'Row 1', seats: ['SD22', 'SD23', 'SD24', 'SD25', 'SD26', null, 'SD29', 'SD30', 'SD31', 'SD32', 'SD33'] },
-          { label: 'Row 2', seats: ['SD34', 'SD35', 'SD36', 'SD37', 'SD38', null, 'SD55', 'SD56', 'SD57', 'SD58', 'SD60'] }
-        ]
-      },
-      {
-        name: 'Section B - Middle Sundeck',
-        rows: [
-          { label: 'Row 3', seats: ['SD87', 'SD88', 'SD89', 'SD90', 'SD91', null, 'SD92', null, 'SD96', 'SD97', 'SD98'] },
-          { label: 'Row 4', seats: ['SD99', 'SD100', null, 'SD105', 'SD106', 'SD107', 'SD108', 'SD109', null, 'SD114', 'SD115'] }
-        ]
-      },
-      {
-        name: 'Section C - Back Sundeck',
-        rows: [
-          { label: 'Row 5', seats: ['SD116', 'SD117', 'SD118', null, 'SD122', 'SD123', 'SD124', 'SD125', 'SD126'] }
-        ]
-      }
-    ]
-  };
-
-  // Seat allocation for different journey segments
-  // Baroawlia Sundeck - Based on actual seat distributions
-  const seatAllocationMap = {
-    // Cox-Saint Martin 1800 (Departure)
-    coxToStMartin: {
-      // SD22-SD26
-      'SD22': 1, 'SD23': 2, 'SD24': 3, 'SD25': 4, 'SD26': 5,
-      // SD29-SD33
-      'SD29': 6, 'SD30': 7, 'SD31': 8, 'SD32': 9, 'SD33': 10,
-      // SD87-SD91
-      'SD87': 11, 'SD88': 12, 'SD89': 13, 'SD90': 14, 'SD91': 15,
-      // SD92
-      'SD92': 16,
-      // SD96-SD100
-      'SD96': 17, 'SD97': 18, 'SD98': 19, 'SD99': 20, 'SD100': 21,
-      // SD105-SD109
-      'SD105': 22, 'SD106': 23, 'SD107': 24, 'SD108': 25, 'SD109': 26,
-      // SD122-SD126
-      'SD122': 27, 'SD123': 28, 'SD124': 29, 'SD125': 30, 'SD126': 31
-    },
-    // Saint Martin - Cox 1700 (Return)
-    stMartinToCox: {
-      // SD34-SD38
-      'SD34': 1, 'SD35': 2, 'SD36': 3, 'SD37': 4, 'SD38': 5,
-      // SD55-SD58
-      'SD55': 6, 'SD56': 7, 'SD57': 8, 'SD58': 9,
-      // SD60
-      'SD60': 10,
-      // SD87-SD91
-      'SD87': 11, 'SD88': 12, 'SD89': 13, 'SD90': 14, 'SD91': 15,
-      // SD96-SD100
-      'SD96': 16, 'SD97': 17, 'SD98': 18, 'SD99': 19, 'SD100': 20,
-      // SD105-SD109
-      'SD105': 21, 'SD106': 22, 'SD107': 23, 'SD108': 24, 'SD109': 25,
-      // SD114-SD118
-      'SD114': 26, 'SD115': 27, 'SD116': 28, 'SD117': 29, 'SD118': 30,
-      // SD122
-      'SD122': 31
-    }
-  };
-
-  // Current active segment
-  const [activeSegment, setActiveSegment] = useState('coxToStMartin');
-
-  const segments = [
-    { key: 'coxToStMartin', label: 'Cox\'s Bazar to Saint Martin\'s (1800 BDT)', shortLabel: 'COX → ST.MARTIN 1800' },
-    { key: 'stMartinToCox', label: 'Saint Martin\'s to Cox\'s Bazar (1700 BDT)', shortLabel: 'ST.MARTIN → COX 1700' }
+  // Saint Martin to Cox's Bazar passengers (return journey)
+  const stMartinToCoxPassengers = [
+    // Faculty (SD87, SD88, SD89)
+    { id: 1, seat: 'SD87', name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
+    { id: 2, seat: 'SD88', name: "Dr. A F M Shahab Uddin", role: "faculty", gender: "male" },
+    { id: 3, seat: 'SD89', name: "Sk. Shalauddin Kabir", role: "faculty", gender: "male" },
+    
+    // Male Students (SD90, SD91, SD100)
+    { id: 4, seat: 'SD90', name: "Azaz", role: "student", gender: "male" },
+    { id: 5, seat: 'SD91', name: "Noman", role: "student", gender: "male" },
+    { id: 6, seat: 'SD100', name: "Makky", role: "student", gender: "male" },
+    
+    // Female Students (SD96, SD97, SD98, SD99)
+    { id: 7, seat: 'SD96', name: "Anamika", role: "student", gender: "female" },
+    { id: 8, seat: 'SD97', name: "Anika", role: "student", gender: "female" },
+    { id: 9, seat: 'SD98', name: "Munni", role: "student", gender: "female" },
+    { id: 10, seat: 'SD99', name: "Puspita", role: "student", gender: "female" },
+    
+    // Male Students (SD105, SD106, SD107, SD108, SD109)
+    { id: 11, seat: 'SD105', name: "Nehal", role: "student", gender: "male" },
+    { id: 12, seat: 'SD106', name: "Durjoy", role: "student", gender: "male" },
+    { id: 13, seat: 'SD107', name: "Fahim", role: "student", gender: "male" },
+    { id: 14, seat: 'SD108', name: "Arif", role: "student", gender: "male" },
+    { id: 15, seat: 'SD109', name: "Takbir", role: "student", gender: "male" },
+    
+    // Male Students (SD114, SD115, SD116, SD117, SD118)
+    { id: 16, seat: 'SD114', name: "Rafid", role: "student", gender: "male" },
+    { id: 17, seat: 'SD115', name: "Tahmid", role: "student", gender: "male" },
+    { id: 18, seat: 'SD116', name: "Sibly", role: "student", gender: "male" },
+    { id: 19, seat: 'SD117', name: "Sadik", role: "student", gender: "male" },
+    { id: 20, seat: 'SD118', name: "Abrar", role: "student", gender: "male" },
+    
+    // SD122
+    { id: 21, seat: 'SD122', name: "Ramjan", role: "student", gender: "male" },
+    
+    // Male Students (SD34, SD35, SD36, SD37, SD38)
+    { id: 22, seat: 'SD34', name: "Limon", role: "student", gender: "male" },
+    { id: 23, seat: 'SD35', name: "Risan", role: "student", gender: "male" },
+    { id: 24, seat: 'SD36', name: "Joy", role: "student", gender: "male" },
+    { id: 25, seat: 'SD37', name: "Tafhim", role: "student", gender: "male" },
+    { id: 26, seat: 'SD38', name: "Rezwan", role: "student", gender: "male" },
+    
+    // Male Students (SD55, SD56, SD57, SD58, SD60)
+    { id: 27, seat: 'SD55', name: "Sayed", role: "student", gender: "male" },
+    { id: 28, seat: 'SD56', name: "Biswajit", role: "student", gender: "male" },
+    { id: 29, seat: 'SD57', name: "Topu", role: "student", gender: "male" },
+    { id: 30, seat: 'SD58', name: "Samit", role: "student", gender: "male" },
+    { id: 31, seat: 'SD60', name: "Ovesekh", role: "student", gender: "male" }
   ];
 
-  // Get passenger for a seat in a specific journey segment
-  const getPassengerForSeat = (seatNumber, segment) => {
-    const passengerId = seatAllocationMap[segment][seatNumber];
-    return passengerId ? passengers.find(p => p.id === passengerId) : null;
-  };
+  const passengers = activeRoute === 'stMartinToCox' ? stMartinToCoxPassengers : coxToStMartinPassengers;
 
-  // Get passenger's seat for a specific segment
-  const getPassengerSeat = (passengerId, segment) => {
-    const entry = Object.entries(seatAllocationMap[segment]).find(([_, id]) => id === passengerId);
-    return entry ? entry[0] : null;
-  };
-
-  // Filter passengers based on search
   const filteredPassengers = passengers.filter(passenger =>
-    passenger.name.toLowerCase().includes(searchQuery.toLowerCase())
+    passenger.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    passenger.seat.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Get seat color based on allocation
-  const getSeatColor = (seatNumber) => {
-    const passenger = getPassengerForSeat(seatNumber, activeSegment);
-    if (!passenger) return 'bg-gray-100 border-gray-300 text-gray-400';
-    if (passenger.role === 'faculty') return 'bg-purple-500 border-purple-600 text-white';
-    if (passenger.gender === 'female') return 'bg-pink-500 border-pink-600 text-white';
-    return 'bg-[#19aaba] border-[#158c99] text-white';
+  const getSeatGroupColor = (passenger) => {
+    if (!passenger) return { bg: 'bg-gray-300', border: 'border-gray-400', light: 'bg-gray-100', text: 'text-gray-700' };
+    const colorMap = {
+      purple: { bg: 'bg-purple-500', border: 'border-purple-600', light: 'bg-purple-100', text: 'text-purple-700' },
+      pink: { bg: 'bg-pink-500', border: 'border-pink-600', light: 'bg-pink-100', text: 'text-pink-700' },
+      blue: { bg: 'bg-[#19aaba]', border: 'border-[#158c99]', light: 'bg-teal-100', text: 'text-teal-700' }
+    };
+    if (passenger.role === 'faculty') return colorMap.purple;
+    if (passenger.gender === 'female') return colorMap.pink;
+    return colorMap.blue;
   };
 
-  const handleSeatClick = (seatNumber) => {
-    const passenger = getPassengerForSeat(seatNumber, activeSegment);
-    setSelectedSeat({ seatNumber, passenger });
-  };
-
-  // Statistics - Based on actual seat allocation
   const stats = {
-    totalSeats: 40, // Total unique SD seats in layout
-    occupiedSeats: 31,
+    totalPassengers: passengers.length,
     faculty: passengers.filter(p => p.role === 'faculty').length,
     students: passengers.filter(p => p.role === 'student').length,
     male: passengers.filter(p => p.gender === 'male').length,
     female: passengers.filter(p => p.gender === 'female').length
   };
 
+  // Helper function to get seat number
+  const getSeatNum = (seat) => parseInt(seat.replace('SD', ''));
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-50">
-      {/* Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-8 md:py-12 lg:py-16">
-        <div className="absolute inset-0 bg-black/10"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      {/* Hero Header */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#19aaba] via-[#158c99] to-[#116d77] text-white py-16 md:py-20">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
+          <svg className="absolute bottom-0 w-full h-24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="rgba(255,255,255,0.1)" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          </svg>
+        </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-6 md:mb-8">
-            <div className="inline-flex items-center gap-1.5 md:gap-2 bg-white/20 backdrop-blur-sm px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/30 mb-3 md:mb-4">
-              <Ship className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="text-xs md:text-sm font-semibold">Baroawlia Sundeck - Ship Ferry</span>
+          <div className="text-center">
+            <div className="inline-flex items-center gap-3 bg-white/15 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 mb-6 shadow-lg">
+              <Ship className="w-6 h-6 animate-bounce" />
+              <span className="font-bold text-lg">Baroawlia Ferry</span>
+              <Anchor className="w-5 h-5" />
             </div>
             
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 px-4">
-              Ship Seat Allocation
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-4 tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-100">
+                Ship Seat Plan
+              </span>
             </h1>
             
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 max-w-2xl mx-auto px-4">
-              Saint Martin's Island Journey • December 08-10, 2025
-            </p>
-          </div>
+            <p className="text-xl text-gray-100 mb-8 font-medium">Saint Martin Island Tour • December 2025</p>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4 max-w-5xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-white/20 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.totalSeats}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Total Seats</div>
-            </div>
-            <div className="bg-green-500/20 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-green-400/30 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.occupiedSeats}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Occupied</div>
-            </div>
-            <div className="bg-purple-500/20 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-purple-400/30 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.faculty}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Faculty</div>
-            </div>
-            <div className="bg-blue-500/20 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-blue-400/30 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.students}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Students</div>
-            </div>
-            <div className="bg-cyan-500/20 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-cyan-400/30 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.male}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Male</div>
-            </div>
-            <div className="bg-pink-500/20 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-pink-400/30 text-center">
-              <div className="text-2xl md:text-3xl font-bold mb-1">{stats.female}</div>
-              <div className="text-[10px] md:text-xs text-white/80 uppercase font-medium">Female</div>
+            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-4xl mx-auto mt-8">
+              {[
+                { label: 'Total', value: stats.totalPassengers, color: 'from-white/20 to-white/10' },
+                { label: 'Faculty', value: stats.faculty, color: 'from-purple-400/30 to-purple-600/30' },
+                { label: 'Students', value: stats.students, color: 'from-blue-400/30 to-blue-600/30' },
+                // { label: 'Male', value: stats.male, color: 'from-blue-400/20 to-blue-600/20' },
+                // { label: 'Female', value: stats.female, color: 'from-pink-400/30 to-pink-600/30' }
+              ].map((stat, idx) => (
+                <div key={idx} className={`bg-gradient-to-br ${stat.color} backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-white/20 hover:scale-105 transition-transform min-w-[140px] md:min-w-[160px]`}>
+                  <div className="text-sm md:text-base opacity-90 mb-1">{stat.label}</div>
+                  <div className="text-3xl md:text-4xl font-bold">{stat.value}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Journey Segments Selector */}
-      <section className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 md:gap-3 overflow-x-auto py-3 md:py-4 no-scrollbar">
-            {segments.map((segment) => (
-              <button
-                key={segment.key}
-                onClick={() => setActiveSegment(segment.key)}
-                className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 lg:px-8 py-2 md:py-2.5 lg:py-3 rounded-lg text-xs md:text-sm font-medium whitespace-nowrap transition-all ${
-                  activeSegment === segment.key
-                    ? 'bg-[#19aaba] text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Anchor className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden lg:inline">{segment.label}</span>
-                <span className="lg:hidden">{segment.shortLabel}</span>
-                <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-              </button>
-            ))}
+      {/* Route Selector */}
+      <section className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              onClick={() => setActiveRoute('coxToStMartin')}
+              className={`group relative flex items-center gap-3 px-6 md:px-8 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                activeRoute === 'coxToStMartin'
+                  ? 'bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white shadow-xl shadow-[#19aaba]/50 scale-105'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <MapPin className="w-5 h-5" />
+              <span className="text-base md:text-lg">Cox's Bazar → Saint Martin</span>
+            </button>
+
+            <button
+              onClick={() => setActiveRoute('stMartinToCox')}
+              className={`group relative flex items-center gap-3 px-6 md:px-8 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                activeRoute === 'stMartinToCox'
+                  ? 'bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white shadow-xl shadow-[#19aaba]/50 scale-105'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <MapPin className="w-5 h-5" />
+              <span className="text-base md:text-lg">Saint Martin → Cox's Bazar</span>
+            </button>
           </div>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-6 md:py-8 lg:py-12">
+      <section className="py-6 md:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-            {/* Ship Deck Layout */}
-            <div className="lg:col-span-2">
-              <div className="bg-gradient-to-b from-blue-100 to-cyan-50 rounded-xl md:rounded-2xl lg:rounded-3xl shadow-2xl border-2 md:border-4 border-blue-300 p-2 sm:p-3 md:p-6 lg:p-8">
-                {/* Ship Front */}
-                <div className="mb-4 md:mb-6">
-                  <div className="bg-gradient-to-b from-blue-600 to-blue-700 rounded-t-[2rem] md:rounded-t-[3rem] p-2 md:p-3 lg:p-4 text-center border-2 md:border-4 border-blue-800 relative">
-                    <Anchor className="absolute left-1/2 -translate-x-1/2 -top-6 md:-top-8 w-8 h-8 md:w-12 md:h-12 lg:w-16 lg:h-16 text-blue-600" />
-                    <div className="text-white font-bold text-[10px] sm:text-xs md:text-sm flex items-center justify-center gap-1 md:gap-2 mt-2 md:mt-4">
-                      <Ship className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
-                      <span>SHIP BOW (FRONT)</span>
-                      <Ship className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3 md:gap-4">
-                  <h2 className="text-base md:text-xl lg:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <Ship className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-[#19aaba]" />
-                    Deck Layout
-                  </h2>
-                  <div className="flex items-center gap-2 md:gap-3 text-[10px] sm:text-xs md:text-sm flex-wrap">
-                    <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
-                      <span className="text-gray-700">Faculty</span>
-                    </div>
-                    <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-[#19aaba] rounded"></div>
-                      <span className="text-gray-700">Male</span>
-                    </div>
-                    <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-pink-500 rounded"></div>
-                      <span className="text-gray-700">Female</span>
-                    </div>
-                    <div className="flex items-center gap-1 md:gap-2">
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-gray-100 border border-gray-300 rounded"></div>
-                      <span className="text-gray-700">Empty</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ship Deck Sections */}
-                <div className="space-y-3 md:space-y-4 lg:space-y-6 bg-white/50 backdrop-blur-sm rounded-lg md:rounded-xl lg:rounded-2xl p-3 md:p-4 lg:p-6 border border-blue-200">
-                  {shipLayout.sections.map((section, sectionIdx) => (
-                    <div key={sectionIdx} className="space-y-2 md:space-y-3">
-                      {/* Section Header */}
-                      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 md:py-2 px-3 md:px-4 rounded-lg shadow-md">
-                        <h3 className="text-xs md:text-sm lg:text-base font-bold text-center">{section.name}</h3>
-                      </div>
-
-                      {/* Seat Rows */}
-                      {section.rows.map((row, rowIdx) => (
-                        <div key={rowIdx} className="flex items-center gap-1 md:gap-2">
-                          {/* Row Label */}
-                          <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 text-white rounded flex items-center justify-center font-bold text-xs flex-shrink-0">
-                            {row.label}
-                          </div>
-                          
-                          {/* Seats */}
-                          <div className="flex-1 flex items-center justify-center flex-wrap gap-1 md:gap-1.5">
-                            {row.seats.map((seat, seatIdx) => (
-                              seat === null ? (
-                                <div key={seatIdx} className="w-2 md:w-3 lg:w-4" /> // Aisle
-                              ) : (
-                                <div key={seatIdx} className="relative">
-                                  <button
-                                    onClick={() => handleSeatClick(seat)}
-                                    className={`w-[52px] h-[52px] sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-16 lg:h-16 rounded border-2 font-bold transition-all active:scale-95 hover:scale-105 hover:shadow-lg flex flex-col items-center justify-center group relative ${getSeatColor(seat)} ${
-                                      selectedSeat?.seatNumber === seat ? 'ring-2 ring-yellow-400 scale-105' : ''
-                                    }`}
-                                  >
-                                    <span className="text-[9px] md:text-[10px] font-bold">{seat}</span>
-                                    {(() => {
-                                      const passenger = getPassengerForSeat(seat, activeSegment);
-                                      if (passenger) {
-                                        return (
-                                          <>
-                                            <User className="w-3 h-3 md:w-3.5 md:h-3.5 mt-0.5" />
-                                            <span className="text-[7px] md:text-[8px] font-semibold mt-0.5 truncate w-full px-1 text-center leading-tight">
-                                              {passenger.name.length > 10 ? passenger.name.substring(0, 9) + '.' : passenger.name}
-                                            </span>
-                                          </>
-                                        );
-                                      }
-                                      return null;
-                                    })()}
-
-                                    {/* Tooltip - Visible on hover for larger screens */}
-                                    {(() => {
-                                      const passenger = getPassengerForSeat(seat, activeSegment);
-                                      if (passenger) {
-                                        return (
-                                          <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1.5 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                                            <div className="font-bold mb-0.5">{passenger.name}</div>
-                                            <div className="text-[9px] text-gray-300">
-                                              Seat: {seat} • {passenger.role === 'faculty' ? 'Faculty' : 'Student'}
-                                            </div>
-                                            <div className="text-[9px] text-gray-300">
-                                              {passenger.gender === 'male' ? 'Male' : 'Female'}
-                                            </div>
-                                            {/* Arrow */}
-                                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[3px] border-r-[3px] border-t-[3px] border-transparent border-t-gray-900"></div>
-                                          </div>
-                                        );
-                                      }
-                                      return null;
-                                    })()}
-                                  </button>
-                                </div>
-                              )
-                            ))}
-                          </div>
-
-                          {/* Row Label (Right) */}
-                          <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 text-white rounded flex items-center justify-center font-bold text-xs flex-shrink-0">
-                            {row.label}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Ship Back */}
-                <div className="mt-4 md:mt-6">
-                  <div className="bg-gradient-to-t from-blue-600 to-blue-700 rounded-b-[2rem] md:rounded-b-[3rem] p-2 md:p-3 lg:p-4 text-center border-2 md:border-4 border-blue-800">
-                    <span className="text-white font-bold text-[10px] sm:text-xs md:text-sm flex items-center justify-center gap-1 md:gap-2">
-                      <Waves className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
-                      SHIP STERN (BACK)
-                      <Waves className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
-                    </span>
-                  </div>
-                </div>
-
-                {/* Selected Seat Info */}
-                {selectedSeat && selectedSeat.passenger && (
-                  <div className="mt-4 md:mt-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-3 md:p-4 lg:p-5 shadow-lg">
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${
-                        selectedSeat.passenger.role === 'faculty' 
-                          ? 'bg-purple-500' 
-                          : selectedSeat.passenger.gender === 'female' 
-                          ? 'bg-pink-500' 
-                          : 'bg-[#19aaba]'
-                      } text-white`}>
-                        <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 mb-1 text-sm sm:text-base md:text-lg">
-                          {selectedSeat.passenger.name}
-                        </h3>
-                        <div className="flex flex-wrap gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm text-gray-600">
-                          <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium ${
-                            selectedSeat.passenger.role === 'faculty'
-                              ? 'bg-purple-100 text-purple-700'
-                              : selectedSeat.passenger.gender === 'female'
-                              ? 'bg-pink-100 text-pink-700'
-                              : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {selectedSeat.passenger.role === 'faculty' ? 'Faculty' : 'Student'}
-                          </span>
-                          <span className="px-1.5 md:px-2 py-0.5 md:py-1 bg-gray-100 text-gray-700 rounded-full font-medium">
-                            Seat: {selectedSeat.seatNumber}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
+          <div className="grid lg:grid-cols-4 gap-4 md:gap-8">
+            <div className="lg:col-span-3">
+              {/* Ship Deck Layout */}
+              <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 lg:p-8 border-2 border-gray-200">
                 {/* Legend */}
-                <div className="mt-4 md:mt-6 bg-white rounded-lg md:rounded-xl shadow-lg border border-gray-200 p-3 md:p-4">
-                  <h3 className="font-bold text-gray-900 mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2 text-xs sm:text-sm md:text-base">
-                    <Info className="w-3 h-3 md:w-4 md:h-4 text-[#19aaba]" />
-                    Baroawlia Sundeck Information
-                  </h3>
-                  <div className="space-y-2 text-[10px] sm:text-xs md:text-sm text-gray-600">
-                    <div className="flex flex-col gap-1">
-                      <div className="font-semibold text-gray-900">Journey Times:</div>
-                      <div className="ml-2">• Cox's Bazar → Saint Martin: 6:46 AM</div>
-                      <div className="ml-2">• Saint Martin → Cox's Bazar: 2:46 PM</div>
+                <div className="flex items-center justify-between mb-4 md:mb-6 flex-wrap gap-2 md:gap-4">
+                  <h2 className="text-lg md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <Ship className="w-5 h-5 md:w-6 md:h-6 text-[#19aaba]" />
+                    <span className="hidden sm:inline">Sundeck Layout</span>
+                    <span className="sm:hidden">Deck</span>
+                  </h2>
+                  <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-xs flex-wrap">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded-full"></div>
+                      <span className="text-gray-600">Faculty</span>
                     </div>
-                    <div className="flex flex-col gap-1 mt-2">
-                      <div className="font-semibold text-gray-900">Seat Layout:</div>
-                      <div className="ml-2">• SD prefix indicates Sundeck seat numbers</div>
-                      <div className="ml-2">• Seats are organized in 3 sections (Front, Middle, Back)</div>
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <div className="w-3 h-3 md:w-4 md:h-4 bg-pink-500 rounded-full"></div>
+                      <span className="text-gray-600">Female</span>
+                    </div>
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <div className="w-3 h-3 md:w-4 md:h-4 bg-[#19aaba] rounded-full"></div>
+                      <span className="text-gray-600">Male</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ship Visualization */}
+                <div className="relative bg-gradient-to-b from-blue-50 to-cyan-50 rounded-2xl md:rounded-3xl p-4 md:p-8 border-2 border-[#19aaba]/20">
+                  {/* Ship Front Indicator */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                    <div className="bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white px-3 md:px-6 py-1 md:py-2 rounded-full text-[10px] md:text-sm font-bold shadow-lg border-2 border-white flex items-center gap-1 md:gap-2">
+                      <ArrowRight className="w-3 h-3 md:w-4 md:h-4 rotate-[-90deg]" />
+                      FRONT
+                    </div>
+                  </div>
+
+                  {/* Deck Sections */}
+                  <div className="space-y-4 md:space-y-8">
+                    {/* Faculty Section (SD87-89) */}
+                    {passengers.filter(p => p.role === 'faculty').length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-200">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-purple-500 rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Faculty Area</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD87-89</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 md:gap-3">
+                          {passengers.filter(p => p.role === 'faculty').sort((a, b) => a.seat.localeCompare(b.seat)).map(passenger => (
+                            <button
+                              key={passenger.id}
+                              onClick={() => setSelectedSeat(passenger)}
+                              className="group relative bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl md:rounded-2xl p-2 md:p-4 transition-all hover:scale-105 hover:shadow-xl"
+                            >
+                              <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                <div className="w-8 h-8 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                  <User className="w-4 h-4 md:w-6 md:h-6" />
+                                </div>
+                                <div className="text-xs md:text-sm font-bold">{passenger.seat}</div>
+                                <div className="text-[10px] md:text-xs line-clamp-1 w-full text-center">{passenger.name}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Mixed Section (SD90-100) - Female + Male */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 90 && getSeatNum(p.seat) <= 100).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-pink-200">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-pink-500 rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Mixed Area</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD90-100</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 90 && getSeatNum(p.seat) <= 100)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className={`group relative bg-gradient-to-br ${passenger.gender === 'female' ? 'from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700' : 'from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77]'} rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl`}
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD105-109) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 105 && getSeatNum(p.seat) <= 109).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD105-109</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 105 && getSeatNum(p.seat) <= 109)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD122-126) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 122 && getSeatNum(p.seat) <= 126).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD122-126</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 122 && getSeatNum(p.seat) <= 126)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD22-26) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 22 && getSeatNum(p.seat) <= 26).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD22-26</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 22 && getSeatNum(p.seat) <= 26)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD29-33) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 29 && getSeatNum(p.seat) <= 33).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD29-33</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 29 && getSeatNum(p.seat) <= 33)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD34-38) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 34 && getSeatNum(p.seat) <= 38).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD34-38</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 34 && getSeatNum(p.seat) <= 38)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD55-60) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 55 && getSeatNum(p.seat) <= 60).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD55-60</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 55 && getSeatNum(p.seat) <= 60)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Male Students Section (SD114-118) */}
+                    {passengers.filter(p => getSeatNum(p.seat) >= 114 && getSeatNum(p.seat) <= 118).length > 0 && (
+                      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-[#19aaba]/30">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <div className="w-2 h-2 md:w-3 md:h-3 bg-[#19aaba] rounded-full"></div>
+                          <h3 className="text-base md:text-lg font-bold text-gray-800">Male Students</h3>
+                          <span className="text-xs md:text-sm text-gray-500 ml-auto">SD114-118</span>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                          {passengers.filter(p => getSeatNum(p.seat) >= 114 && getSeatNum(p.seat) <= 118)
+                            .sort((a, b) => getSeatNum(a.seat) - getSeatNum(b.seat))
+                            .map(passenger => (
+                              <button
+                                key={passenger.id}
+                                onClick={() => setSelectedSeat(passenger)}
+                                className="group relative bg-gradient-to-br from-[#19aaba] to-[#158c99] hover:from-[#158c99] hover:to-[#116d77] rounded-xl md:rounded-2xl p-2 md:p-3 transition-all hover:scale-105 hover:shadow-xl"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-1 md:gap-2 text-white h-full">
+                                  <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all">
+                                    <User className="w-4 h-4 md:w-5 md:h-5" />
+                                  </div>
+                                  <div className="text-[10px] md:text-xs font-bold whitespace-nowrap">{passenger.seat}</div>
+                                  <div className="text-xs md:text-sm line-clamp-2 w-full text-center break-words">{passenger.name}</div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Ship Back Indicator */}
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-10">
+                    <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-3 md:px-6 py-1 md:py-2 rounded-full text-[10px] md:text-sm font-bold shadow-lg border-2 border-white flex items-center gap-1 md:gap-2">
+                      <ArrowRight className="w-3 h-3 md:w-4 md:h-4 rotate-90" />
+                      BACK
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Passenger List */}
+            {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 md:p-6 lg:sticky lg:top-24">
+              <div className="sticky top-24 md:top-28 bg-white rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 border border-gray-100">
                 <div className="flex items-center justify-between mb-4 md:mb-6">
-                  <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Users className="w-4 h-4 md:w-5 md:h-5 text-[#19aaba]" />
-                    Passengers
+                  <h2 className="text-lg md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-[#19aaba]" />
+                    <span className="hidden sm:inline">Directory</span>
+                    <span className="sm:hidden">List</span>
                   </h2>
-                  <button className="text-[#19aaba] hover:text-[#158c99] transition-colors">
-                    <Download className="w-4 h-4 md:w-5 md:h-5" />
+                  <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                    <Download className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                   </button>
                 </div>
 
-                {/* Search */}
-                <div className="mb-3 md:mb-4">
-                  <div className="relative">
-                    <Search className="w-3.5 h-3.5 md:w-4 md:h-4 absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search passenger..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-8 md:pl-10 pr-3 md:pr-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19aaba] focus:border-transparent"
-                    />
-                  </div>
+                <div className="relative mb-4 md:mb-6">
+                  <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search passenger..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 md:pl-11 pr-3 md:pr-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#19aaba] focus:border-transparent"
+                  />
                 </div>
 
-                {/* Passenger List */}
-                <div className="space-y-2 max-h-[400px] md:max-h-[600px] overflow-y-auto">
-                  {filteredPassengers.map((passenger) => {
-                    const seat = getPassengerSeat(passenger.id, activeSegment);
+                <div className="space-y-2 max-h-[400px] md:max-h-[600px] overflow-y-auto custom-scrollbar">
+                  {filteredPassengers.map(passenger => {
+                    const colors = getSeatGroupColor(passenger);
                     return (
-                      <div
+                      <button
                         key={passenger.id}
-                        onClick={() => seat && handleSeatClick(seat)}
-                        className={`p-2.5 md:p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
-                          passenger.role === 'faculty'
-                            ? 'border-purple-200 bg-purple-50 hover:border-purple-300'
-                            : passenger.gender === 'female'
-                            ? 'border-pink-200 bg-pink-50 hover:border-pink-300'
-                            : 'border-blue-200 bg-blue-50 hover:border-blue-300'
-                        }`}
+                        onClick={() => setSelectedSeat(passenger)}
+                        className={`w-full text-left p-3 md:p-4 rounded-xl transition-all border-2 ${
+                          selectedSeat?.id === passenger.id ? 'border-[#19aaba] shadow-lg scale-[1.02]' : 'border-transparent'
+                        } hover:bg-gray-50 group`}
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${
-                                passenger.role === 'faculty'
-                                  ? 'bg-purple-200 text-purple-700'
-                                  : passenger.gender === 'female'
-                                  ? 'bg-pink-200 text-pink-700'
-                                  : 'bg-blue-200 text-blue-700'
-                              }`}>
-                                {passenger.role === 'faculty' ? 'FACULTY' : passenger.gender === 'female' ? 'FEMALE' : 'MALE'}
-                              </span>
-                            </div>
-                            <h3 className="font-semibold text-gray-900 text-xs md:text-sm mb-1 truncate">
-                              {passenger.name}
-                            </h3>
-                            <p className="text-[10px] md:text-xs text-gray-600">
-                              {seat ? `Seat: ${seat}` : 'Not Assigned'}
-                            </p>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <div className={`w-8 h-8 md:w-10 md:h-10 ${colors.bg} rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                            <User className="w-4 h-4 md:w-5 md:h-5 text-white" />
                           </div>
-                          <CheckCircle2 className={`w-4 h-4 md:w-5 md:h-5 flex-shrink-0 ${
-                            passenger.role === 'faculty' ? 'text-purple-500' : passenger.gender === 'female' ? 'text-pink-500' : 'text-[#19aaba]'
-                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-gray-900 text-sm md:text-base truncate">{passenger.name}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs md:text-sm font-bold px-2 py-0.5 rounded-full ${colors.light} ${colors.text}`}>
+                                {passenger.seat}
+                              </span>
+                              {passenger.role === 'faculty' && (
+                                <span className="text-xs">👨‍🏫</span>
+                              )}
+                            </div>
+                          </div>
+                          <CheckCircle2 className={`w-4 h-4 md:w-5 md:h-5 ${selectedSeat?.id === passenger.id ? 'text-[#19aaba]' : 'text-gray-300'} flex-shrink-0`} />
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -516,6 +609,92 @@ const ShipSeatAllocationPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Modal */}
+      {selectedSeat && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedSeat(null)}
+        >
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className={`relative h-40 bg-gradient-to-br ${
+              selectedSeat.role === 'faculty' ? 'from-purple-500 to-indigo-600' :
+              selectedSeat.gender === 'female' ? 'from-pink-500 to-rose-600' :
+              'from-[#19aaba] to-[#158c99]'
+            }`}>
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="absolute top-6 right-6">
+                <button onClick={() => setSelectedSeat(null)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+                <div className="w-28 h-28 bg-white rounded-full p-2 shadow-2xl">
+                  <div className={`w-full h-full rounded-full bg-gradient-to-br ${
+                    selectedSeat.role === 'faculty' ? 'from-purple-500 to-indigo-600' :
+                    selectedSeat.gender === 'female' ? 'from-pink-500 to-rose-600' :
+                    'from-[#19aaba] to-[#158c99]'
+                  } flex items-center justify-center`}>
+                    <User className="w-12 h-12 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-20 p-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">{selectedSeat.name}</h2>
+              
+              <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
+                <span className={`px-4 py-2 rounded-full text-sm font-bold text-white shadow-lg ${
+                  selectedSeat.role === 'faculty' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' :
+                  selectedSeat.gender === 'female' ? 'bg-gradient-to-r from-pink-500 to-rose-600' :
+                  'bg-gradient-to-r from-[#19aaba] to-[#158c99]'
+                }`}>
+                  {selectedSeat.seat}
+                </span>
+                {selectedSeat.role === 'faculty' && (
+                  <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">FACULTY</span>
+                )}
+                {selectedSeat.gender === 'female' ? (
+                  <span className="px-4 py-2 bg-pink-100 text-pink-700 rounded-full text-sm font-bold">FEMALE</span>
+                ) : selectedSeat.role !== 'faculty' && (
+                  <span className="px-4 py-2 bg-teal-100 text-teal-700 rounded-full text-sm font-bold">MALE</span>
+                )}
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-6 space-y-3 mb-6">
+                <div className="flex items-center gap-3 text-left">
+                  <Ship className="w-5 h-5 text-[#19aaba]" />
+                  <span className="text-gray-700 font-medium">
+                    {activeRoute === 'stMartinToCox' ? 'Saint Martin → Cox\'s Bazar' : 'Cox\'s Bazar → Saint Martin'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-left">
+                  <Clock className="w-5 h-5 text-[#19aaba]" />
+                  <span className="text-gray-700 font-medium">
+                    {activeRoute === 'stMartinToCox' ? 'Departure: 2:46 PM' : 'Departure: 6:46 AM'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-left">
+                  <Calendar className="w-5 h-5 text-[#19aaba]" />
+                  <span className="text-gray-700 font-medium">
+                    {activeRoute === 'stMartinToCox' ? 'Dec 10, 2025' : 'Dec 08, 2025'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedSeat(null)}
+                className="w-full bg-gradient-to-r from-[#19aaba] to-[#158c99] text-white py-4 rounded-2xl font-bold hover:from-[#158c99] hover:to-[#116d77] transition-all shadow-lg hover:shadow-xl"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
